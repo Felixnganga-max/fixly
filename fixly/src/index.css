@@ -1,95 +1,39 @@
-@import "tailwindcss";
+/* Tailwind base */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* --- Google Fonts ---
-   To swap a font: change the name here
-   AND update the matching --font-* variable   */
-@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap");
-
-/* ============================================
-   DESIGN TOKENS
-   ============================================ */
-@theme {
-  /* --- Fonts ---
-     Usage: className="font-display" etc.      */
+/* Then your custom CSS / design tokens */
+:root {
   --font-display: "Syne", sans-serif;
   --font-body: "DM Sans", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  /* --- Green --- */
   --color-green: #00c896;
   --color-green-dark: #009e78;
   --color-green-light: #e6faf5;
   --color-green-subtle: #0a2a1e;
 
-  /* --- Beige --- */
   --color-beige: #f5f0e8;
   --color-beige-dark: #e8e0d0;
   --color-beige-text: #6b6155;
 
-  /* --- Black --- */
   --color-black: #0d1117;
   --color-black-card: #161b22;
   --color-black-hover: #1c2333;
   --color-black-border: #30363d;
 
-  /* --- White --- */
   --color-white: #ffffff;
   --color-white-soft: #e6edf3;
   --color-white-muted: #8b949e;
   --color-white-dim: #484f58;
 
-  /* --- Status --- */
   --color-warning: #e3b341;
   --color-error: #f85149;
   --color-info: #58a6ff;
 
-  /* --- Border Radius --- */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 20px;
-}
-
-/* ============================================
-   BASE DEFAULTS
-   ============================================ */
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: var(--font-body);
-  background-color: var(--color-black);
-  color: var(--color-white-soft);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-display);
-  color: var(--color-white);
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-}
-
-p {
-  color: var(--color-white-muted);
-  line-height: 1.75;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-button,
-input,
-textarea,
-select {
-  font-family: var(--font-body);
 }
