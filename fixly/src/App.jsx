@@ -20,6 +20,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import About from "./pages/About";
 import Login from "./pages/Login";
+import DashboardMarketplace from "./pages/DashboardMarketplace";
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
           <Route path="jobs" element={<Jobs />} />
           <Route path="jobs/:id" element={<JobDetail />} />
           <Route path="technicians" element={<Technicians />} />
+          <Route path="marketplace" element={<DashboardMarketplace />} />
           <Route path="commissions" element={<Commissions />} />
           <Route path="settings" element={<Settings />} />
         </Route>

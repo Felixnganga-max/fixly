@@ -10,12 +10,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Wrench,
+  ShoppingBag,
 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Jobs", href: "/admin/jobs", icon: ClipboardList },
   { label: "Technicians", href: "/admin/technicians", icon: Wrench },
+  { label: "Marketplace", href: "/admin/marketplace", icon: ShoppingBag },
   { label: "Commissions", href: "/admin/commissions", icon: BadgeDollarSign },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
@@ -27,11 +29,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`
-        relative flex flex-col bg-black border-r border-black-border
-        transition-all duration-300 ease-in-out flex-shrink-0
-        ${collapsed ? "w-[68px]" : "w-[220px]"}
-      `}
+      className={`relative flex flex-col bg-black border-r border-black-border transition-all duration-300 ease-in-out flex-shrink-0 ${collapsed ? "w-[68px]" : "w-[220px]"}`}
     >
       {/* Logo */}
       <div
@@ -63,16 +61,7 @@ export default function Sidebar() {
               key={href}
               onClick={() => navigate(href)}
               title={collapsed ? label : undefined}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-                transition-colors duration-150 w-full text-left
-                ${
-                  active
-                    ? "bg-green-subtle text-green"
-                    : "text-white-muted hover:bg-black-hover hover:text-white"
-                }
-                ${collapsed ? "justify-center" : ""}
-              `}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 w-full text-left ${active ? "bg-green-subtle text-green" : "text-white-muted hover:bg-black-hover hover:text-white"} ${collapsed ? "justify-center" : ""}`}
             >
               <Icon size={18} strokeWidth={1.75} className="flex-shrink-0" />
               {!collapsed && <span>{label}</span>}
@@ -81,7 +70,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Bottom — logout */}
+      {/* Bottom */}
       <div className="px-3 py-4 border-t border-black-border">
         <button
           onClick={() => navigate("/")}

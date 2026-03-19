@@ -13,6 +13,10 @@ const pageMeta = {
     title: "Technicians",
     subtitle: "Manage verified specialists",
   },
+  "/admin/marketplace": {
+    title: "Marketplace",
+    subtitle: "Manage device listings — phones & laptops",
+  },
   "/admin/commissions": {
     title: "Commissions",
     subtitle: "Track and record platform earnings",
@@ -22,8 +26,6 @@ const pageMeta = {
 
 export function useAdminPage() {
   const { pathname } = useLocation();
-
-  // Match exact, then prefix
   return (
     pageMeta[pathname] ??
     Object.entries(pageMeta).find(
