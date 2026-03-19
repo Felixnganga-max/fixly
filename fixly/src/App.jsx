@@ -15,7 +15,7 @@ import JobDetail from "./components/JobDetail";
 import Technicians from "./components/Technicians";
 import Commissions from "./components/Comissions";
 import Settings from "./components/Settings";
-import Marketplace from "./pages/MarketPlace";
+import Marketplace from "./pages/Marketplace";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import About from "./pages/About";
