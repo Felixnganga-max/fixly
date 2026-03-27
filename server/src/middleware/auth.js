@@ -25,7 +25,7 @@ exports.protect = async (req, res, next) => {
     }
 
     // Verify signature and expiry
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, "fixly_super_secret_jwt_key_2024");
 
     // Confirm admin still exists and is active in DB
     const admin = await Admin.findById(decoded.id).select("-password");

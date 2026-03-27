@@ -13,8 +13,15 @@ const asyncHandler = (fn) => (req, res, next) =>
 // @route  POST /api/repair-requests
 // @access Public
 exports.submitRequest = asyncHandler(async (req, res) => {
-  const { name, phone, location, deviceType, issueType, issueDescription } =
-    req.body;
+  const {
+    name,
+    phone,
+    location,
+    deviceType,
+    deviceModel,
+    issueType,
+    issueDescription,
+  } = req.body;
 
   if (!name || !phone || !location || !deviceType) {
     return res.status(400).json({
@@ -28,6 +35,7 @@ exports.submitRequest = asyncHandler(async (req, res) => {
     phone,
     location,
     deviceType,
+    deviceModel: deviceModel || "",
     issueType: issueType || "",
     issueDescription: issueDescription || "",
   });

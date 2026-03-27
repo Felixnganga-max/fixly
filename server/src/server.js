@@ -1,15 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const connectDB = require("./db/db");
+const connectDB = require("./config/db");
 const errorHandler = require("./middleware/Errorhandler");
 
-const authRoutes = require("../src/routers/authRoutes");
-const repairRequestRoutes = require("./routers/Repairrequestroutes");
-const technicianRoutes = require("./routers/Technicianroutes");
-const shopOwnerRoutes = require("./routers/Shopownerroutes");
-const marketplaceRoutes = require("./routers/Marketplaceroutes");
-const commissionRoutes = require("./routers/Commissionroutes");
+const authRoutes = require("../src/routes/authRoutes");
+const repairRequestRoutes = require("./routes/repairRequestRoutes");
+const technicianRoutes = require("./routes/technicianRoutes");
+const shopOwnerRoutes = require("./routes/shopOwnerRoutes");
+const marketplaceRoutes = require("./routes/marketplaceRoutes");
+const commissionRoutes = require("./routes/commissionRoutes");
+const purchaseRoutes = require("./routes/purchaseRoutes");
 
 // ── Load env ──────────────────────────────────────────────────
 dotenv.config();
@@ -35,12 +36,13 @@ app.get("/health", (req, res) => {
 });
 
 // ── Routes ────────────────────────────────────────────────────
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/repair-requests", require("./routes/repairRequestRoutes"));
-app.use("/api/technicians", require("./routes/technicianRoutes"));
-app.use("/api/shop-owners", require("./routes/shopOwnerRoutes"));
-app.use("/api/marketplace", require("./routes/marketplaceRoutes"));
+app.use("/fixly/auth", require("./routes/authRoutes"));
+app.use("/fixly/repair-requests", require("./routes/repairRequestRoutes"));
+app.use("/fixly/technicians", require("./routes/technicianRoutes"));
+app.use("/fixly/shop-owners", require("./routes/shopOwnerRoutes"));
+app.use("/fixly/marketplace", require("./routes/marketplaceRoutes"));
 app.use("/api/commissions", require("./routes/commissionRoutes"));
+app.use("/fixly/product-purchase", require("./routes/purchaseRoutes"));
 
 // ── 404 handler ───────────────────────────────────────────────
 app.use((req, res) => {

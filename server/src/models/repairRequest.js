@@ -17,6 +17,8 @@ const repairRequestSchema = new mongoose.Schema(
       enum: ["phone", "laptop"],
       required: [true, "Device type is required"],
     },
+    deviceModel: { type: String, trim: true, default: "" }, // e.g. "HP ProBook 450 G8", "Samsung Galaxy S22"
+
     issueType: { type: String, trim: true, default: "" }, // e.g. "Cracked screen"
     issueDescription: { type: String, trim: true, default: "" }, // free-text from customer
 

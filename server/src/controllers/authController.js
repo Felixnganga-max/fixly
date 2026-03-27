@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const Admin = require("../models/admin");
 
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// Generate signed JWT
 const signToken = (id, role) =>
-  jwt.sign({ id, role }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  jwt.sign({ id, role }, "fixly_super_secret_jwt_key_2024", {
+    expiresIn: "7d",
   });
 
 // @desc   Admin sign in
@@ -22,7 +22,6 @@ exports.login = asyncHandler(async (req, res) => {
       .json({ success: false, message: "Email and password are required" });
   }
 
-  // Find admin and include password field
   const admin = await Admin.findOne({ email }).select("+password");
 
   if (!admin || !admin.active) {
@@ -31,7 +30,7 @@ exports.login = asyncHandler(async (req, res) => {
       .json({ success: false, message: "Invalid credentials" });
   }
 
-  const isMatch = await admin.matchPassword(password);
+  const isMatch = await bcrypt.compare(password, admin.password);
   if (!isMatch) {
     return res
       .status(401)
@@ -39,8 +38,6 @@ exports.login = asyncHandler(async (req, res) => {
   }
 
   const token = signToken(admin._id, admin.role);
-
-  // Remove password from response
   admin.password = undefined;
 
   res.status(200).json({
@@ -87,15 +84,15 @@ exports.changePassword = asyncHandler(async (req, res) => {
   }
 
   const admin = await Admin.findById(req.user.id).select("+password");
-  const isMatch = await admin.matchPassword(currentPassword);
 
+  const isMatch = await bcrypt.compare(currentPassword, admin.password);
   if (!isMatch) {
     return res
       .status(401)
       .json({ success: false, message: "Current password is incorrect" });
   }
 
-  admin.password = newPassword;
+  admin.password = await bcrypt.hash(newPassword, 12);
   await admin.save();
 
   res
