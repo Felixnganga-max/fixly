@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ShieldCheck,
@@ -8,14 +8,86 @@ import {
   CheckCircle2,
   ArrowLeft,
   Share2,
+  Loader2,
 } from "lucide-react";
-import {
-  ALL_PRODUCTS,
-  PHONE_PRODUCTS,
-  LAPTOP_PRODUCTS,
-  PHONE_SPEC_GROUPS,
-  LAPTOP_SPEC_GROUPS,
-} from "../assets/Productassets";
+import { getListingById, getAllListings } from "../Hooks/marketplaceApi";
+import BuyNowModal from "../components/BuyNow";
+
+const PHONE_SPEC_GROUPS = [
+  {
+    group: "Display",
+    fields: [
+      { key: "screenSize", label: "Screen Size", unit: '"' },
+      { key: "resolution", label: "Resolution" },
+      { key: "displayType", label: "Display Type" },
+      { key: "refreshRate", label: "Refresh Rate", unit: "Hz" },
+    ],
+  },
+  {
+    group: "Performance",
+    fields: [
+      { key: "processor", label: "Processor" },
+      { key: "ram", label: "RAM" },
+      { key: "storage", label: "Storage" },
+      { key: "os", label: "Operating System" },
+    ],
+  },
+  {
+    group: "Camera",
+    fields: [
+      { key: "mainCamera", label: "Main Camera" },
+      { key: "frontCamera", label: "Front Camera" },
+      { key: "cameraFeatures", label: "Features" },
+    ],
+  },
+  {
+    group: "Battery & Connectivity",
+    fields: [
+      { key: "battery", label: "Battery", unit: "mAh" },
+      { key: "charging", label: "Charging" },
+      { key: "connectivity", label: "Connectivity" },
+      { key: "sim", label: "SIM" },
+    ],
+  },
+];
+
+const LAPTOP_SPEC_GROUPS = [
+  {
+    group: "Display",
+    fields: [
+      { key: "screenSize", label: "Screen Size", unit: '"' },
+      { key: "resolution", label: "Resolution" },
+      { key: "displayType", label: "Display Type" },
+      { key: "refreshRate", label: "Refresh Rate", unit: "Hz" },
+    ],
+  },
+  {
+    group: "Performance",
+    fields: [
+      { key: "processor", label: "Processor" },
+      { key: "ram", label: "RAM" },
+      { key: "storage", label: "Storage" },
+      { key: "gpu", label: "GPU" },
+      { key: "os", label: "Operating System" },
+    ],
+  },
+  {
+    group: "Battery & Build",
+    fields: [
+      { key: "battery", label: "Battery", unit: "Wh" },
+      { key: "weight", label: "Weight" },
+      { key: "dimensions", label: "Dimensions" },
+    ],
+  },
+  {
+    group: "Connectivity",
+    fields: [
+      { key: "ports", label: "Ports" },
+      { key: "connectivity", label: "Wireless" },
+      { key: "webcam", label: "Webcam" },
+    ],
+  },
+];
 
 const conditionStyle = {
   New: "bg-green-light text-green border-green-dark/30",
@@ -27,17 +99,57 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // When backend is ready: replace this with a fetch(`/api/products/${id}`)
-  const product = ALL_PRODUCTS.find((p) => p.id === id);
-
+  const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [activeImg, setActiveImg] = useState(0);
   const [activeTab, setActiveTab] = useState("specs");
   const [copied, setCopied] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
 
-  if (!product) {
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      setError("");
+      setActiveImg(0);
+      try {
+        const data = await getListingById(id);
+        if (cancelled) return;
+        setProduct(data);
+
+        const res = await getAllListings({
+          category: data.category,
+          brand: data.brand,
+          limit: 5,
+        });
+        if (cancelled) return;
+        setRelated(res.data.filter((p) => p._id !== id).slice(0, 4));
+      } catch (err) {
+        if (!cancelled) setError(err.message || "Product not found");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-beige flex items-center justify-center">
+        <Loader2 size={28} className="animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="min-h-screen bg-beige flex items-center justify-center flex-col gap-4">
-        <p className="text-gray-500 text-lg">Product not found.</p>
+        <p className="text-gray-500 text-lg">{error || "Product not found."}</p>
         <button
           onClick={() => navigate("/marketplace")}
           className="text-green text-sm hover:underline"
@@ -48,19 +160,24 @@ export default function ProductDetail() {
     );
   }
 
-  const isPhone = PHONE_PRODUCTS.some((p) => p.id === id);
+  const isPhone = product.category === "phone";
   const specGroups = isPhone ? PHONE_SPEC_GROUPS : LAPTOP_SPEC_GROUPS;
-  const related = (isPhone ? PHONE_PRODUCTS : LAPTOP_PRODUCTS)
-    .filter((p) => p.id !== id && p.brand === product.brand)
-    .slice(0, 4);
-
-  const discount = product.oldPrice
-    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
-    : null;
+  const images = product.images?.length
+    ? product.images
+    : [
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=700&auto=format&fit=crop&q=80",
+      ];
+  const discount =
+    product.discount ??
+    (product.oldPrice
+      ? Math.round(
+          ((product.oldPrice - product.price) / product.oldPrice) * 100,
+        )
+      : null);
+  const specs = product.specs || {};
 
   const prevImg = () => setActiveImg((i) => Math.max(0, i - 1));
-  const nextImg = () =>
-    setActiveImg((i) => Math.min(product.images.length - 1, i + 1));
+  const nextImg = () => setActiveImg((i) => Math.min(images.length - 1, i + 1));
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -72,6 +189,11 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-beige">
+      {/* Buy Now Modal */}
+      {showBuyModal && (
+        <BuyNowModal product={product} onClose={() => setShowBuyModal(false)} />
+      )}
+
       {/* Breadcrumb */}
       <div className="bg-white border-b border-beige-dark px-6 py-3">
         <div className="max-w-7xl mx-auto flex items-center gap-2 text-xs text-gray-400">
@@ -82,9 +204,7 @@ export default function ProductDetail() {
             <ArrowLeft size={13} strokeWidth={2} /> Marketplace
           </button>
           <span>/</span>
-          <span className="text-gray-400">
-            {isPhone ? "Phones" : "Laptops"}
-          </span>
+          <span>{isPhone ? "Phones" : "Laptops"}</span>
           <span>/</span>
           <span className="text-gray-500">{product.brand}</span>
           <span>/</span>
@@ -101,10 +221,9 @@ export default function ProductDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           {/* ── Images ── */}
           <div className="flex flex-col gap-4">
-            {/* Main image */}
             <div className="relative bg-white border border-beige-dark rounded-2xl overflow-hidden aspect-square group">
               <img
-                src={product.images[activeImg]}
+                src={images[activeImg]}
                 alt={product.name}
                 className="w-full h-full object-cover transition-all duration-500"
                 onError={(e) => {
@@ -112,7 +231,6 @@ export default function ProductDetail() {
                     "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=700&auto=format&fit=crop&q=80";
                 }}
               />
-              {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 {discount && (
                   <span className="text-xs font-bold px-3 py-1 rounded-full bg-black text-white">
@@ -130,8 +248,7 @@ export default function ProductDetail() {
                   <ShieldCheck size={12} strokeWidth={2.5} /> Verified
                 </div>
               )}
-              {/* Arrow controls */}
-              {product.images.length > 1 && (
+              {images.length > 1 && (
                 <>
                   <button
                     onClick={prevImg}
@@ -142,7 +259,7 @@ export default function ProductDetail() {
                   </button>
                   <button
                     onClick={nextImg}
-                    disabled={activeImg === product.images.length - 1}
+                    disabled={activeImg === images.length - 1}
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white border border-beige-dark rounded-full flex items-center justify-center hover:border-gray-400 transition-colors disabled:opacity-30"
                   >
                     <ChevronRight size={16} strokeWidth={2} />
@@ -151,10 +268,9 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {/* Thumbnails */}
-            {product.images.length > 1 && (
-              <div className="flex gap-3">
-                {product.images.map((img, i) => (
+            {images.length > 1 && (
+              <div className="flex gap-3 flex-wrap">
+                {images.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveImg(i)}
@@ -171,13 +287,16 @@ export default function ProductDetail() {
                     />
                   </button>
                 ))}
-                {/* Dot indicators */}
                 <div className="flex items-center gap-1.5 ml-2">
-                  {product.images.map((_, i) => (
+                  {images.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveImg(i)}
-                      className={`rounded-full transition-all duration-200 ${activeImg === i ? "w-4 h-2 bg-black" : "w-2 h-2 bg-beige-dark hover:bg-gray-400"}`}
+                      className={`rounded-full transition-all duration-200 ${
+                        activeImg === i
+                          ? "w-4 h-2 bg-black"
+                          : "w-2 h-2 bg-beige-dark hover:bg-gray-400"
+                      }`}
                     />
                   ))}
                 </div>
@@ -187,7 +306,6 @@ export default function ProductDetail() {
 
           {/* ── Info panel ── */}
           <div className="flex flex-col gap-6">
-            {/* Brand + name */}
             <div>
               <p className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-1">
                 {product.brand}
@@ -200,33 +318,35 @@ export default function ProductDetail() {
               </h1>
             </div>
 
-            {/* Rating */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-0.5">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star
-                    key={i}
-                    size={16}
-                    className={
-                      i <= Math.round(product.rating)
-                        ? "fill-amber-400 text-amber-400"
-                        : "fill-gray-200 text-gray-200"
-                    }
-                  />
-                ))}
+            {product.rating > 0 && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star
+                      key={i}
+                      size={16}
+                      className={
+                        i <= Math.round(product.rating)
+                          ? "fill-amber-400 text-amber-400"
+                          : "fill-gray-200 text-gray-200"
+                      }
+                    />
+                  ))}
+                </div>
+                <span
+                  className="font-mono font-semibold text-black text-sm"
+                  style={{ color: "#0D1117" }}
+                >
+                  {product.rating.toFixed(1)}
+                </span>
+                {product.reviews > 0 && (
+                  <span className="text-gray-400 text-sm">
+                    ({product.reviews} reviews)
+                  </span>
+                )}
               </div>
-              <span
-                className="font-mono font-semibold text-black text-sm"
-                style={{ color: "#0D1117" }}
-              >
-                {product.rating.toFixed(1)}
-              </span>
-              <span className="text-gray-400 text-sm">
-                ({product.reviews} reviews)
-              </span>
-            </div>
+            )}
 
-            {/* Price */}
             <div className="flex items-baseline gap-4">
               <span
                 className="font-mono font-extrabold text-4xl text-black"
@@ -241,30 +361,27 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {/* Short desc */}
             <p className="text-gray-500 text-base leading-relaxed border-t border-beige-dark pt-5">
               {product.shortDescription}
             </p>
 
-            {/* Key quick specs */}
+            {/* Quick specs grid */}
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: "Condition", value: product.condition },
                 {
                   label: "Screen",
-                  value: product.specs.screenSize
-                    ? `${product.specs.screenSize}"`
-                    : "—",
+                  value: specs.screenSize ? `${specs.screenSize}"` : "—",
                 },
-                { label: "RAM", value: product.specs.ram || "—" },
-                { label: "Storage", value: product.specs.storage || "—" },
+                { label: "RAM", value: specs.ram || "—" },
+                { label: "Storage", value: specs.storage || "—" },
                 {
                   label: "Battery",
-                  value: product.specs.battery
-                    ? `${product.specs.battery} ${isPhone ? "mAh" : "Wh"}`
+                  value: specs.battery
+                    ? `${specs.battery} ${isPhone ? "mAh" : "Wh"}`
                     : "—",
                 },
-                { label: "OS", value: product.specs.os?.split(",")[0] || "—" },
+                { label: "OS", value: specs.os?.split(",")[0] || "—" },
               ].map(({ label, value }) => (
                 <div
                   key={label}
@@ -281,9 +398,30 @@ export default function ProductDetail() {
               ))}
             </div>
 
-            {/* CTA buttons */}
+            {/* Listed by shop */}
+            {product.listedBy?.shopName && (
+              <div className="flex items-center gap-2 text-sm text-gray-500 bg-beige border border-beige-dark rounded-xl px-4 py-3">
+                <span className="text-gray-400 text-xs">Listed by</span>
+                <span
+                  className="font-semibold text-black text-sm"
+                  style={{ color: "#0D1117" }}
+                >
+                  {product.listedBy.shopName}
+                </span>
+                {product.listedBy.location && (
+                  <span className="text-gray-400 text-xs">
+                    · {product.listedBy.location}
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-3 pt-2">
-              <button className="flex-1 bg-black hover:bg-green text-white hover:text-black font-bold text-base py-4 rounded-xl border border-transparent hover:border-green-dark transition-all duration-200">
+              {/* ── Buy Now triggers modal ── */}
+              <button
+                onClick={() => setShowBuyModal(true)}
+                className="flex-1 bg-black hover:bg-green text-white hover:text-black font-bold text-base py-4 rounded-xl border border-transparent hover:border-green-dark transition-all duration-200"
+              >
                 Buy Now
               </button>
               <button
@@ -306,7 +444,7 @@ export default function ProductDetail() {
                   className="text-green flex-shrink-0"
                   strokeWidth={2}
                 />
-                This device has been verified by Professionals254
+                This device has been verified by Fixly
               </div>
             )}
           </div>
@@ -334,11 +472,11 @@ export default function ProductDetail() {
             ))}
           </div>
 
-          {/* Specs tab */}
+          {/* Specs */}
           {activeTab === "specs" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {specGroups.map(({ group, fields }) => {
-                const hasAny = fields.some((f) => product.specs[f.key]);
+                const hasAny = fields.some((f) => specs[f.key]);
                 if (!hasAny) return null;
                 return (
                   <div
@@ -355,7 +493,7 @@ export default function ProductDetail() {
                     </div>
                     <div className="divide-y divide-beige-dark">
                       {fields.map(({ key, label, unit }) => {
-                        if (!product.specs[key]) return null;
+                        if (!specs[key]) return null;
                         return (
                           <div key={key} className="flex gap-4 px-5 py-3">
                             <span className="text-gray-400 text-sm w-36 flex-shrink-0">
@@ -365,8 +503,8 @@ export default function ProductDetail() {
                               className="text-black text-sm font-medium leading-relaxed"
                               style={{ color: "#0D1117" }}
                             >
-                              {product.specs[key]}
-                              {unit && !product.specs[key].includes(unit)
+                              {specs[key]}
+                              {unit && !String(specs[key]).includes(unit)
                                 ? ` ${unit}`
                                 : ""}
                             </span>
@@ -377,30 +515,41 @@ export default function ProductDetail() {
                   </div>
                 );
               })}
+              {specGroups.every(
+                ({ fields }) => !fields.some((f) => specs[f.key]),
+              ) && (
+                <p className="text-gray-400 text-sm col-span-2">
+                  No specifications listed yet.
+                </p>
+              )}
             </div>
           )}
 
-          {/* Features tab */}
+          {/* Features */}
           {activeTab === "features" && (
             <div className="bg-white border border-beige-dark rounded-2xl p-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {product.features.map((f, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <CheckCircle2
-                      size={16}
-                      className="text-green flex-shrink-0 mt-0.5"
-                      strokeWidth={2}
-                    />
-                    <span className="text-gray-600 text-sm leading-relaxed">
-                      {f}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {product.features?.length ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {product.features.map((f, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <CheckCircle2
+                        size={16}
+                        className="text-green flex-shrink-0 mt-0.5"
+                        strokeWidth={2}
+                      />
+                      <span className="text-gray-600 text-sm leading-relaxed">
+                        {f}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-sm">No features listed yet.</p>
+              )}
             </div>
           )}
 
-          {/* Overview tab */}
+          {/* Overview */}
           {activeTab === "overview" && (
             <div className="bg-white border border-beige-dark rounded-2xl p-8">
               <p className="text-gray-600 text-base leading-relaxed mb-8">
@@ -412,19 +561,24 @@ export default function ProductDetail() {
                   { label: "Condition", value: product.condition },
                   {
                     label: "Verified",
-                    value: product.verified
-                      ? "Yes — by Professionals254"
-                      : "Not verified",
+                    value: product.verified ? "Yes — by Fixly" : "Not verified",
                   },
                   {
                     label: "Rating",
-                    value: `${product.rating}/5 (${product.reviews} reviews)`,
+                    value:
+                      product.rating > 0
+                        ? `${product.rating}/5 (${product.reviews} reviews)`
+                        : "Not rated",
                   },
                   {
                     label: "Price",
                     value: `KES ${product.price.toLocaleString()}`,
                   },
                   { label: "Type", value: isPhone ? "Smartphone" : "Laptop" },
+                  {
+                    label: "Views",
+                    value: product.views?.toLocaleString() ?? "—",
+                  },
                 ].map(({ label, value }) => (
                   <div
                     key={label}
@@ -456,16 +610,16 @@ export default function ProductDetail() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {related.map((p) => (
                 <div
-                  key={p.id}
+                  key={p._id}
                   onClick={() => {
-                    navigate(`/product/${p.id}`);
+                    navigate(`/product/${p._id}`);
                     window.scrollTo(0, 0);
                   }}
                   className="group bg-white border border-beige-dark rounded-2xl overflow-hidden cursor-pointer hover:border-green hover:shadow-md transition-all duration-300 hover:-translate-y-1"
                 >
                   <div className="w-full h-40 bg-beige overflow-hidden">
                     <img
-                      src={p.images[0]}
+                      src={p.images?.[0] || ""}
                       alt={p.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {

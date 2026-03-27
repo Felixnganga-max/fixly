@@ -1,134 +1,173 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Plus,
   Search,
   MapPin,
   Phone,
-  Wrench,
   Laptop,
   Smartphone,
   X,
   CheckCircle2,
+  Loader2,
+  RefreshCw,
+  Trash2,
 } from "lucide-react";
-
-const MOCK_TECHS = [
-  {
-    _id: "t1",
-    name: "James Mwangi",
-    phone: "0721 111 222",
-    category: "phone",
-    specializations: ["Screen repair", "Battery replacement", "Water damage"],
-    shopAddress: "Moi Avenue, Shop 12, CBD",
-    verified: true,
-    availability: "Available",
-  },
-  {
-    _id: "t2",
-    name: "Kevin Odhiambo",
-    phone: "0733 222 333",
-    category: "phone",
-    specializations: ["Charging ports", "Speaker repair", "Camera fix"],
-    shopAddress: "Ngong Road, Prestige Plaza",
-    verified: true,
-    availability: "Busy",
-  },
-  {
-    _id: "t3",
-    name: "Faith Njeri",
-    phone: "0755 333 444",
-    category: "laptop",
-    specializations: ["OS installs", "SSD upgrades", "Motherboard repair"],
-    shopAddress: "Westlands, Ring Rd, Suite 4B",
-    verified: true,
-    availability: "Available",
-  },
-  {
-    _id: "t4",
-    name: "Moses Kariuki",
-    phone: "0700 444 555",
-    category: "laptop",
-    specializations: ["Keyboard repair", "Screen replacement", "Data recovery"],
-    shopAddress: "CBD, Kimathi Street, 2nd Fl",
-    verified: false,
-    availability: "Offline",
-  },
-];
+import {
+  getAllTechnicians,
+  createTechnician,
+  updateAvailability,
+  updateTechnician,
+  deleteTechnician,
+} from "../Hooks/technicianApi"; // adjust path
 
 const EMPTY_FORM = {
   name: "",
   phone: "",
+  email: "",
   category: "phone",
   specializations: "",
   shopAddress: "",
   verified: false,
+  notes: "",
+};
+
+const AVAIL_CYCLE = {
+  Available: "Busy",
+  Busy: "Offline",
+  Offline: "Available",
+};
+
+const availColor = {
+  Available: "text-green bg-green-light border-green-dark/30",
+  Busy: "text-amber-700 bg-amber-100 border-amber-300",
+  Offline: "text-gray-400 bg-gray-100 border-gray-300",
 };
 
 export default function Technicians() {
-  const [techs, setTechs] = useState(MOCK_TECHS);
+  // ── Data ─────────────────────────────────────────────────
+  const [techs, setTechs] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // ── Filters ───────────────────────────────────────────────
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("All");
+
+  // ── Modal ─────────────────────────────────────────────────
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [formErr, setFormErr] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const filtered = techs.filter((t) => {
-    const matchSearch =
-      !search ||
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.phone.includes(search);
-    const matchCat = catFilter === "All" || t.category === catFilter;
-    return matchSearch && matchCat;
-  });
+  // ── Inline action loading (per card) ─────────────────────
+  const [busyId, setBusyId] = useState(null); // id currently being toggled
 
+  // ── Fetch ─────────────────────────────────────────────────
+  const fetchTechs = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const params = { limit: 100 };
+      if (catFilter !== "All") params.category = catFilter;
+      if (search.trim()) params.search = search.trim();
+
+      const res = await getAllTechnicians(params);
+      setTechs(res.data);
+      setTotal(res.total);
+    } catch (err) {
+      setError(err.message || "Failed to load technicians");
+    } finally {
+      setLoading(false);
+    }
+  }, [catFilter, search]);
+
+  useEffect(() => {
+    const t = setTimeout(fetchTechs, search ? 400 : 0);
+    return () => clearTimeout(t);
+  }, [fetchTechs, search]);
+
+  // ── Add technician ────────────────────────────────────────
   const setField = (k) => (e) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const handleSave = async () => {
-    if (!form.name || !form.phone || !form.shopAddress) return;
+    if (!form.name.trim() || !form.phone.trim() || !form.shopAddress.trim()) {
+      setFormErr("Name, phone and shop address are required.");
+      return;
+    }
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    const newTech = {
-      _id: `t${Date.now()}`,
-      ...form,
-      specializations: form.specializations
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      verified: form.verified === true || form.verified === "true",
-      availability: "Available",
-    };
-    setTechs((prev) => [newTech, ...prev]);
-    setForm(EMPTY_FORM);
-    setShowModal(false);
-    setSaving(false);
+    setFormErr("");
+    try {
+      const payload = {
+        ...form,
+        specializations: form.specializations
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+        verified: form.verified === true || form.verified === "true",
+      };
+      const created = await createTechnician(payload);
+      setTechs((prev) => [created, ...prev]);
+      setTotal((n) => n + 1);
+      setForm(EMPTY_FORM);
+      setShowModal(false);
+    } catch (err) {
+      setFormErr(err.message || "Failed to add technician");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const toggleAvailability = (id) => {
-    setTechs((prev) =>
-      prev.map((t) => {
-        if (t._id !== id) return t;
-        const next = {
-          Available: "Busy",
-          Busy: "Offline",
-          Offline: "Available",
-        };
-        return { ...t, availability: next[t.availability] };
-      }),
-    );
+  // ── Toggle availability ───────────────────────────────────
+  const handleToggleAvailability = async (tech) => {
+    const next = AVAIL_CYCLE[tech.availability];
+    setBusyId(tech._id);
+    try {
+      const updated = await updateAvailability(tech._id, next);
+      setTechs((prev) =>
+        prev.map((t) => (t._id === updated._id ? updated : t)),
+      );
+    } catch {
+      // silently fail — could add toast here
+    } finally {
+      setBusyId(null);
+    }
   };
 
-  const toggleVerified = (id) => {
-    setTechs((prev) =>
-      prev.map((t) => (t._id === id ? { ...t, verified: !t.verified } : t)),
-    );
+  // ── Toggle verified ───────────────────────────────────────
+  const handleToggleVerified = async (tech) => {
+    setBusyId(tech._id + "_v");
+    try {
+      const updated = await updateTechnician(tech._id, {
+        verified: !tech.verified,
+      });
+      setTechs((prev) =>
+        prev.map((t) => (t._id === updated._id ? updated : t)),
+      );
+    } catch {
+      // silently fail
+    } finally {
+      setBusyId(null);
+    }
   };
 
-  const availColor = {
-    Available: "text-green bg-green-light border-green-dark/30",
-    Busy: "text-amber-700 bg-amber-100 border-amber-300",
-    Offline: "text-gray-400 bg-gray-100 border-gray-300",
+  // ── Delete ────────────────────────────────────────────────
+  const handleDelete = async (id) => {
+    if (!window.confirm("Remove this technician?")) return;
+    setBusyId(id + "_d");
+    try {
+      await deleteTechnician(id);
+      setTechs((prev) => prev.filter((t) => t._id !== id));
+      setTotal((n) => n - 1);
+    } catch {
+      // silently fail
+    } finally {
+      setBusyId(null);
+    }
   };
 
+  // ── Render ────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-6 max-w-7xl">
       {/* Toolbar */}
@@ -157,110 +196,173 @@ export default function Technicians() {
             <option value="phone">Phone</option>
             <option value="laptop">Laptop</option>
           </select>
+          <button
+            onClick={fetchTechs}
+            disabled={loading}
+            className="flex items-center gap-2 bg-white border border-beige-dark rounded-xl px-4 py-2.5 text-gray-500 hover:text-black text-sm transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          </button>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setFormErr("");
+            setShowModal(true);
+          }}
           className="flex items-center gap-2 bg-green hover:bg-green-dark text-black font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors duration-200"
         >
           <Plus size={16} strokeWidth={2.5} /> Add Technician
         </button>
       </div>
 
+      {/* Count */}
+      <p className="text-gray-400 text-sm">
+        {loading
+          ? "Loading..."
+          : `${total} technician${total !== 1 ? "s" : ""}`}
+      </p>
+
+      {/* Error */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <p className="text-red-600 text-sm font-medium">{error}</p>
+        </div>
+      )}
+
       {/* Cards grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-        {filtered.map((tech) => (
-          <div
-            key={tech._id}
-            className="bg-white border border-beige-dark rounded-2xl p-6 flex flex-col gap-4"
-          >
-            {/* Top */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-11 h-11 rounded-xl bg-beige border border-beige-dark flex items-center justify-center font-display font-bold text-black text-sm flex-shrink-0"
-                  style={{ color: "#0D1117" }}
-                >
-                  {tech.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </div>
-                <div>
-                  <p
-                    className="font-display font-bold text-black text-sm leading-tight"
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <Loader2 size={24} className="animate-spin text-gray-400" />
+        </div>
+      ) : techs.length === 0 ? (
+        <div className="flex items-center justify-center py-24 text-gray-400 text-sm">
+          No technicians found.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          {techs.map((tech) => (
+            <div
+              key={tech._id}
+              className="bg-white border border-beige-dark rounded-2xl p-6 flex flex-col gap-4"
+            >
+              {/* Top */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-11 h-11 rounded-xl bg-beige border border-beige-dark flex items-center justify-center font-display font-bold text-black text-sm flex-shrink-0"
                     style={{ color: "#0D1117" }}
                   >
-                    {tech.name}
-                  </p>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    {tech.category === "phone" ? (
-                      <Smartphone
-                        size={12}
-                        strokeWidth={1.75}
-                        className="text-gray-400"
-                      />
-                    ) : (
-                      <Laptop
-                        size={12}
-                        strokeWidth={1.75}
-                        className="text-gray-400"
-                      />
+                    {tech.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </div>
+                  <div>
+                    <p
+                      className="font-display font-bold text-black text-sm leading-tight"
+                      style={{ color: "#0D1117" }}
+                    >
+                      {tech.name}
+                    </p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      {tech.category === "phone" ? (
+                        <Smartphone
+                          size={12}
+                          strokeWidth={1.75}
+                          className="text-gray-400"
+                        />
+                      ) : (
+                        <Laptop
+                          size={12}
+                          strokeWidth={1.75}
+                          className="text-gray-400"
+                        />
+                      )}
+                      <span className="text-gray-400 text-xs capitalize">
+                        {tech.category} Specialist
+                      </span>
+                    </div>
+                    {tech.rating > 0 && (
+                      <p className="text-gray-400 text-xs mt-0.5">
+                        ★ {tech.rating.toFixed(1)} · {tech.jobsCompleted} jobs
+                      </p>
                     )}
-                    <span className="text-gray-400 text-xs capitalize">
-                      {tech.category} Specialist
-                    </span>
                   </div>
                 </div>
-              </div>
-              <button
-                onClick={() => toggleAvailability(tech._id)}
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-colors duration-200 ${availColor[tech.availability]}`}
-              >
-                {tech.availability}
-              </button>
-            </div>
-
-            {/* Specs */}
-            <div className="flex flex-wrap gap-1.5">
-              {tech.specializations.map((s) => (
-                <span
-                  key={s}
-                  className="text-xs px-2.5 py-1 bg-beige border border-beige-dark text-gray-500 rounded-full"
+                <button
+                  onClick={() => handleToggleAvailability(tech)}
+                  disabled={busyId === tech._id}
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-colors duration-200 disabled:opacity-60 ${availColor[tech.availability]}`}
                 >
-                  {s}
-                </span>
-              ))}
-            </div>
-
-            {/* Info */}
-            <div className="flex flex-col gap-2 pt-3 border-t border-beige-dark text-xs text-gray-500">
-              <div className="flex items-center gap-2">
-                <MapPin size={12} strokeWidth={1.75} />
-                {tech.shopAddress}
+                  {busyId === tech._id ? "..." : tech.availability}
+                </button>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone size={12} strokeWidth={1.75} />
-                {tech.phone}
+
+              {/* Specializations */}
+              {tech.specializations.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {tech.specializations.map((s) => (
+                    <span
+                      key={s}
+                      className="text-xs px-2.5 py-1 bg-beige border border-beige-dark text-gray-500 rounded-full"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Info */}
+              <div className="flex flex-col gap-2 pt-3 border-t border-beige-dark text-xs text-gray-500">
+                <div className="flex items-center gap-2">
+                  <MapPin size={12} strokeWidth={1.75} /> {tech.shopAddress}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone size={12} strokeWidth={1.75} /> {tech.phone}
+                </div>
+                {tech.shopOwner?.shopName && (
+                  <div className="text-gray-400 text-xs">
+                    Shop: {tech.shopOwner.shopName}
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleToggleVerified(tech)}
+                  disabled={busyId === tech._id + "_v"}
+                  className={`flex-1 flex items-center gap-2 justify-center text-xs font-semibold px-3 py-2 rounded-xl border transition-all duration-200 disabled:opacity-60 ${
+                    tech.verified
+                      ? "bg-green-light border-green-dark/30 text-green"
+                      : "bg-beige border-beige-dark text-gray-400 hover:border-gray-300"
+                  }`}
+                >
+                  <CheckCircle2 size={13} strokeWidth={2} />
+                  {busyId === tech._id + "_v"
+                    ? "..."
+                    : tech.verified
+                      ? "Verified"
+                      : "Mark Verified"}
+                </button>
+                <button
+                  onClick={() => handleDelete(tech._id)}
+                  disabled={busyId === tech._id + "_d"}
+                  className="p-2 rounded-xl border border-beige-dark text-gray-300 hover:text-red-500 hover:border-red-200 transition-colors disabled:opacity-40"
+                >
+                  {busyId === tech._id + "_d" ? (
+                    <Loader2 size={13} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={13} />
+                  )}
+                </button>
               </div>
             </div>
+          ))}
+        </div>
+      )}
 
-            {/* Verified toggle */}
-            <button
-              onClick={() => toggleVerified(tech._id)}
-              className={`flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl border transition-all duration-200 ${
-                tech.verified
-                  ? "bg-green-light border-green-dark/30 text-green"
-                  : "bg-beige border-beige-dark text-gray-400 hover:border-gray-300"
-              }`}
-            >
-              <CheckCircle2 size={13} strokeWidth={2} />
-              {tech.verified ? "Verified" : "Mark as Verified"}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Add Technician Modal ── */}
+      {/* Add Technician Modal */}
       {showModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center px-4"
@@ -282,6 +384,12 @@ export default function Technicians() {
               </button>
             </div>
 
+            {formErr && (
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                <p className="text-red-600 text-sm">{formErr}</p>
+              </div>
+            )}
+
             {[
               {
                 key: "name",
@@ -296,6 +404,12 @@ export default function Technicians() {
                 type: "tel",
               },
               {
+                key: "email",
+                label: "Email (optional)",
+                placeholder: "e.g. james@fixly.co.ke",
+                type: "email",
+              },
+              {
                 key: "shopAddress",
                 label: "Shop Address",
                 placeholder: "e.g. Moi Avenue, Shop 12, CBD",
@@ -305,6 +419,12 @@ export default function Technicians() {
                 key: "specializations",
                 label: "Specializations (comma-separated)",
                 placeholder: "e.g. Screen repair, Battery replacement",
+                type: "text",
+              },
+              {
+                key: "notes",
+                label: "Notes (optional)",
+                placeholder: "Any additional info...",
                 type: "text",
               },
             ].map(({ key, label, placeholder, type }) => (
@@ -350,7 +470,11 @@ export default function Technicians() {
                 disabled={saving}
                 className="flex-1 py-3 rounded-xl bg-green hover:bg-green-dark text-black font-bold text-sm transition-colors duration-200 disabled:opacity-60"
               >
-                {saving ? "Saving..." : "Add Technician"}
+                {saving ? (
+                  <Loader2 size={15} className="animate-spin mx-auto" />
+                ) : (
+                  "Add Technician"
+                )}
               </button>
             </div>
           </div>

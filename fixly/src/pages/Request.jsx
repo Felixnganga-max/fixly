@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Smartphone, Laptop, ArrowLeft, Loader2 } from "lucide-react";
+import { submitRepairRequest } from "../Hooks/requestApi"; // adjust path
 
 const deviceConfig = {
   phone: {
     icon: Smartphone,
     label: "Phone Repair",
+    placeholder: "e.g. Samsung Galaxy A54, iPhone 13",
     issues: [
       "Cracked / broken screen",
       "Battery not charging",
@@ -20,6 +22,7 @@ const deviceConfig = {
   laptop: {
     icon: Laptop,
     label: "Laptop Repair",
+    placeholder: "e.g. HP ProBook 450 G8, Dell Inspiron 15",
     issues: [
       "Won't turn on",
       "Slow / overheating",
@@ -42,11 +45,13 @@ export default function Request() {
     name: "",
     phone: "",
     location: "",
+    deviceModel: "", // ← new
     issue: "",
     description: "",
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [submitErr, setSubmitErr] = useState("");
 
   if (!config) {
     return (
@@ -67,6 +72,7 @@ export default function Request() {
   const set = (key) => (e) => {
     setForm((f) => ({ ...f, [key]: e.target.value }));
     setErrors((err) => ({ ...err, [key]: "" }));
+    setSubmitErr("");
   };
 
   const validate = () => {
@@ -74,6 +80,7 @@ export default function Request() {
     if (!form.name.trim()) e.name = "Your name is required";
     if (!form.phone.trim()) e.phone = "Phone number is required";
     if (!form.location.trim()) e.location = "Location is required";
+    if (!form.deviceModel.trim()) e.deviceModel = "Device model is required";
     if (!form.issue) e.issue = "Please select an issue";
     return e;
   };
@@ -84,10 +91,21 @@ export default function Request() {
       setErrors(e);
       return;
     }
+
     setLoading(true);
-    await new Promise((res) => setTimeout(res, 1200));
-    setLoading(false);
-    navigate("/confirmation", { state: { form, device } });
+    setSubmitErr("");
+
+    try {
+      const created = await submitRepairRequest({
+        ...form,
+        deviceType: device,
+      });
+      navigate("/confirmation", { state: { request: created, device } });
+    } catch (err) {
+      setSubmitErr(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -98,8 +116,7 @@ export default function Request() {
           onClick={() => navigate("/")}
           className="flex items-center gap-2 text-gray-400 hover:text-black text-sm mb-10 transition-colors duration-200"
         >
-          <ArrowLeft size={15} strokeWidth={2} />
-          Back
+          <ArrowLeft size={15} strokeWidth={2} /> Back
         </button>
 
         {/* Header */}
@@ -121,9 +138,15 @@ export default function Request() {
           </p>
         </div>
 
+        {/* Submit error */}
+        {submitErr && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <p className="text-error text-sm font-medium">{submitErr}</p>
+          </div>
+        )}
+
         {/* Form */}
         <div className="flex flex-col gap-6">
-          {/* Name */}
           <Field label="Your Name" error={errors.name}>
             <input
               type="text"
@@ -134,7 +157,6 @@ export default function Request() {
             />
           </Field>
 
-          {/* Phone */}
           <Field label="Phone / WhatsApp Number" error={errors.phone}>
             <input
               type="tel"
@@ -145,7 +167,6 @@ export default function Request() {
             />
           </Field>
 
-          {/* Location */}
           <Field label="Your Location" error={errors.location}>
             <input
               type="text"
@@ -156,7 +177,17 @@ export default function Request() {
             />
           </Field>
 
-          {/* Issue selector */}
+          {/* ── NEW: Device model ── */}
+          <Field label="Device Model" error={errors.deviceModel}>
+            <input
+              type="text"
+              placeholder={config.placeholder}
+              value={form.deviceModel}
+              onChange={set("deviceModel")}
+              className={inputClass(errors.deviceModel)}
+            />
+          </Field>
+
           <Field label="What's the issue?" error={errors.issue}>
             <div className="grid grid-cols-2 gap-2">
               {config.issues.map((issue) => (
@@ -182,7 +213,6 @@ export default function Request() {
             </div>
           </Field>
 
-          {/* Additional description */}
           <Field label="Anything else we should know? (optional)">
             <textarea
               placeholder="e.g. The screen cracked after it dropped, touch still works but display is damaged..."
@@ -193,7 +223,6 @@ export default function Request() {
             />
           </Field>
 
-          {/* Submit */}
           <button
             onClick={handleSubmit}
             disabled={loading}
@@ -201,8 +230,7 @@ export default function Request() {
           >
             {loading ? (
               <>
-                <Loader2 size={16} className="animate-spin" />
-                Submitting...
+                <Loader2 size={16} className="animate-spin" /> Submitting...
               </>
             ) : (
               "Submit Request →"

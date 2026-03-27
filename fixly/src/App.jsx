@@ -1,10 +1,9 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 // Public pages
 import Home from "./pages/Home";
 import Request from "./pages/Request";
-// import Confirmation from "./pages/Confirmation";
 import ProductDetail from "./pages/ProductDetails";
 
 // Admin
@@ -21,25 +20,77 @@ import Footer from "./components/Footer";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import DashboardMarketplace from "./pages/DashboardMarketplace";
+import AddListingPage from "./components/AddListingPage";
+import { getToken } from "./Hooks/loginApi"; // adjust path if needed
+
+// ── Auth guard ────────────────────────────────────────────────
+function RequireAuth({ children }) {
+  const token = getToken();
+  const location = useLocation();
+
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
+
+// ── Layout wrapper — hides Navbar/Footer on /dashboard/* ──────
+function PublicLayout({ children }) {
+  const { pathname } = useLocation();
+  const isDashboard =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+
+  return (
+    <>
+      {!isDashboard && <Navbar />}
+      {children}
+      {!isDashboard && <Footer />}
+    </>
+  );
+}
 
 const App = () => {
   return (
-    <>
-      <Navbar />
+    <PublicLayout>
       <Routes>
         {/* ── Public ── */}
         <Route path="/" element={<Home />} />
         <Route path="/request/:device" element={<Request />} />
-        {/* <Route path="/confirmation" element={<Confirmation />} /> */}
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/login" element={<Login />} />
 
-        {/* ── Admin ── */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* ── Dashboard (auth-gated, no Navbar/Footer) ── */}
+        <Route
+          path="/dashboard/marketplace/add"
+          element={
+            <RequireAuth>
+              <AddListingPage />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/dashboard/marketplace/edit/:id"
+          element={
+            <RequireAuth>
+              <AddListingPage />
+            </RequireAuth>
+          }
+        />
+
+        {/* ── Admin (auth-gated, no Navbar/Footer) ── */}
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth>
+              <AdminLayout />
+            </RequireAuth>
+          }
+        >
           <Route index element={<Dashboard />} />
-          {/* Add these as you build them: */}
           <Route path="jobs" element={<Jobs />} />
           <Route path="jobs/:id" element={<JobDetail />} />
           <Route path="technicians" element={<Technicians />} />
@@ -48,8 +99,7 @@ const App = () => {
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
-      <Footer />
-    </>
+    </PublicLayout>
   );
 };
 

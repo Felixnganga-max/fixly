@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { loginAdmin } from "../Hooks/loginApi";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,18 +38,7 @@ export default function Login() {
     setAuthErr("");
 
     try {
-      // Replace with real API call:
-      // const res = await fetch("/api/auth/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email: form.email, password: form.password }),
-      // });
-      // const data = await res.json();
-      // if (!res.ok) throw new Error(data.message || "Invalid credentials");
-      // localStorage.setItem("token", data.token);
-      // navigate("/admin");
-
-      await new Promise((r) => setTimeout(r, 1200));
+      await loginAdmin(form.email, form.password);
       navigate("/admin");
     } catch (err) {
       setAuthErr(err.message || "Invalid email or password");
@@ -56,7 +46,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-
   const inputCls = (err) =>
     `w-full bg-beige border rounded-xl px-4 py-3 text-sm text-black placeholder:text-gray-400 outline-none focus:border-green transition-colors duration-200 ${
       err ? "border-error" : "border-beige-dark hover:border-gray-400"
