@@ -3,23 +3,31 @@ import { useLocation } from "react-router-dom";
 const pageMeta = {
   "/admin": {
     title: "Dashboard",
-    subtitle: "Overview of all platform activity",
+    // subtitle: "Overview of all platform activity",
   },
   "/admin/jobs": {
     title: "Jobs",
-    subtitle: "Manage and assign repair requests",
+    // subtitle: "Manage and assign repair requests",
   },
   "/admin/technicians": {
     title: "Technicians",
-    subtitle: "Manage verified specialists",
+    // subtitle: "Manage verified specialists",
   },
   "/admin/marketplace": {
     title: "Marketplace",
-    subtitle: "Manage device listings — phones & laptops",
+    // subtitle: "Manage device listings — phones & laptops",
+  },
+  "/admin/shop-owners": {
+    title: "Shop Owners",
+    // subtitle: "Manage device listings — phones & laptops",
+  },
+  "/admin/purchases": {
+    title: "Purchases",
+    // subtitle: "Manage device listings — phones & laptops",
   },
   "/admin/commissions": {
     title: "Commissions",
-    subtitle: "Track and record platform earnings",
+    // subtitle: "Track and record platform earnings",
   },
   "/admin/settings": { title: "Settings", subtitle: "Platform configuration" },
 };

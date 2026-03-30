@@ -6,6 +6,61 @@ const navLinks = [
   { label: "About Us", href: "/about-us" },
 ];
 
+// ── Logo component — swap the variant you prefer ──────────────
+function Logo() {
+  return (
+    <a href="/" className="flex items-center select-none">
+      {/*
+        VARIANT A (current pick):
+        "Fix" in black, "ly" in bright lime green, small wrench-dot above the i
+        Clean, modern, the green pops much more than Tailwind's default green
+      */}
+      <span
+        className="font-display font-extrabold tracking-tight leading-none"
+        style={{ fontSize: "1.6rem", letterSpacing: "-0.04em" }}
+      >
+        <span style={{ color: "#0D1117" }}>Fix</span>
+        <span style={{ color: "#16a34a" }}>ly</span>
+      </span>
+    </a>
+  );
+
+  /*
+    VARIANT B — pill badge style:
+    "fix" on dark background, "ly" in bright green — like a tag
+
+    return (
+      <a href="/" className="flex items-center select-none">
+        <span
+          className="font-display font-extrabold tracking-tight leading-none px-3 py-1 rounded-lg"
+          style={{ fontSize: "1.4rem", letterSpacing: "-0.04em", background: "#0D1117" }}
+        >
+          <span style={{ color: "#fff" }}>fix</span>
+          <span style={{ color: "#16a34a" }}>ly</span>
+        </span>
+      </a>
+    );
+
+    VARIANT C — dot accent:
+    A bright green dot sits before the name like a status indicator
+
+    return (
+      <a href="/" className="flex items-center gap-2 select-none">
+        <span
+          className="w-2 h-2 rounded-full flex-shrink-0"
+          style={{ background: "#16a34a", boxShadow: "0 0 8px #16a34a" }}
+        />
+        <span
+          className="font-display font-extrabold tracking-tight leading-none"
+          style={{ fontSize: "1.6rem", letterSpacing: "-0.04em", color: "#0D1117" }}
+        >
+          fixly
+        </span>
+      </a>
+    );
+  */
+}
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [deviceOpen, setDeviceOpen] = useState(false);
@@ -15,12 +70,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex items-center justify-between h-[68px]">
           {/* Logo */}
-          <a
-            href="/"
-            className="font-display text-2xl font-extrabold !text-black tracking-tight"
-          >
-            Fix<span className="text-green">ly</span>
-          </a>
+          <Logo />
 
           {/* Desktop Nav Links */}
           <ul className="hidden md:flex items-center gap-8 list-none">
@@ -36,9 +86,8 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* Desktop Right — Admin Login + CTA */}
+          {/* Desktop Right */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Admin Login */}
             <a
               href="/login"
               className="inline-flex items-center gap-1.5 !text-gray-500 hover:!text-black text-sm font-medium transition-colors duration-200"
@@ -47,7 +96,6 @@ export default function Navbar() {
               Admin
             </a>
 
-            {/* Get a Repair dropdown */}
             <div className="relative">
               <button
                 onClick={() => setDeviceOpen(!deviceOpen)}
@@ -61,7 +109,6 @@ export default function Navbar() {
                 />
               </button>
 
-              {/* Dropdown */}
               {deviceOpen && (
                 <div className="absolute right-0 mt-2 w-52 bg-white border border-beige-dark rounded-xl overflow-hidden shadow-sm">
                   <a
@@ -132,7 +179,6 @@ export default function Navbar() {
               </a>
             </li>
           ))}
-          {/* Admin Login — mobile */}
           <li>
             <a
               href="/login"

@@ -22,6 +22,8 @@ import Login from "./pages/Login";
 import DashboardMarketplace from "./pages/DashboardMarketplace";
 import AddListingPage from "./components/AddListingPage";
 import { getToken } from "./Hooks/loginApi"; // adjust path if needed
+import PurchaseAdmin from "./pages/PurchaseAdmin";
+import ShopOwners from "./components/ShopOwners";
 
 // ── Auth guard ────────────────────────────────────────────────
 function RequireAuth({ children }) {
@@ -95,6 +97,9 @@ const App = () => {
           <Route path="jobs/:id" element={<JobDetail />} />
           <Route path="technicians" element={<Technicians />} />
           <Route path="marketplace" element={<DashboardMarketplace />} />
+          <Route path="purchases" element={<PurchaseAdmin />} />
+          <Route path="shop-owners" element={<ShopOwners />} />
+
           <Route path="commissions" element={<Commissions />} />
           <Route path="settings" element={<Settings />} />
         </Route>

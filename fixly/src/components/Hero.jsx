@@ -1,18 +1,17 @@
 import { useState } from "react";
+import { assets } from "../assets/assets";
 
 const devices = [
   {
     id: "phone",
     label: "Fix My Phone",
-    image:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=80",
+    image: assets.phone,
     alt: "Smartphone being repaired",
   },
   {
     id: "laptop",
     label: "Fix My Laptop",
-    image:
-      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&auto=format&fit=crop&q=80",
+    image: assets.laptop,
     alt: "Laptop open on a desk",
   },
 ];
@@ -21,12 +20,12 @@ export default function Hero() {
   const [hovered, setHovered] = useState(null);
 
   return (
-    <section className="relative w-full overflow-hidden bg-beige px-4 sm:px-6 pt-10 pb-10">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative w-full overflow-hidden bg-beige px-2 sm:px-4 pt-10 pb-10">
+      <div className="max-w-7xl mx-auto">
         {/* Headline */}
-        <h1 className="font-display text-center text-[clamp(2.6rem,6vw,4.5rem)] font-extrabold !text-black leading-[1.08] tracking-tight max-w-5xl mx-auto">
+        <h1 className="font-display text-center text-[clamp(2.0rem,5vw,3.5rem)] font-extrabold !text-black leading-[1.08] tracking-tight max-w-5xl mx-auto">
           Broken device? <br />
-          <span className="text-green relative text-3xl md:text-4xl">
+          <span className="text-green relative text-2xl md:text-3xl italic">
             Get it fixed by verified technicians in minutes!
             <svg
               className="absolute -bottom-2 left-0 w-full"
@@ -54,7 +53,7 @@ export default function Hero() {
               onMouseEnter={() => setHovered(id)}
               onMouseLeave={() => setHovered(null)}
               className={`
-                group relative flex flex-col overflow-hidden rounded-xl border-2
+                group relative flex flex-col overflow-hidden rounded-xs border-2
                 w-full cursor-pointer
                 transition-all duration-300
                 ${
@@ -65,11 +64,11 @@ export default function Hero() {
               `}
             >
               {/* Image */}
-              <div className="w-full h-64 sm:h-72 lg:h-80 overflow-hidden bg-beige-dark">
+              <div className="w-full h-70 sm:h-80 lg:h-88 overflow-hidden bg-beige-dark">
                 <img
                   src={image}
                   alt={alt}
-                  className={`w-full h-full object-cover transition-transform duration-500 ${hovered === id ? "scale-105" : "scale-100"}`}
+                  className={`w-full h-full object-cover transition-transform duration-500 ${hovered === id ? "scale-101" : "scale-100"}`}
                 />
               </div>
 
@@ -80,7 +79,7 @@ export default function Hero() {
                 </span>
                 <span
                   className={`
-                  text-sm font-bold px-5 py-2.5 rounded-full transition-all duration-300
+                  text-lg font-semibold px-7 py-3.5 rounded-sm transition-all duration-300
                   ${
                     hovered === id
                       ? "bg-green text-black"

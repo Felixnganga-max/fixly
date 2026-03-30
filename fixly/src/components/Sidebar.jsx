@@ -18,6 +18,8 @@ const navItems = [
   { label: "Jobs", href: "/admin/jobs", icon: ClipboardList },
   { label: "Technicians", href: "/admin/technicians", icon: Wrench },
   { label: "Marketplace", href: "/admin/marketplace", icon: ShoppingBag },
+  { label: "Sales", href: "/admin/purchases", icon: BadgeDollarSign },
+  { label: "Shop Owners", href: "/admin/shop-owners", icon: BadgeDollarSign },
   { label: "Commissions", href: "/admin/commissions", icon: BadgeDollarSign },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];

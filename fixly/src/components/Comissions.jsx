@@ -1,313 +1,452 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  DollarSign,
   TrendingUp,
   Clock,
   CheckCircle2,
   Search,
+  Loader2,
+  AlertTriangle,
+  RefreshCw,
+  ShoppingBag,
+  Wrench,
+  X,
 } from "lucide-react";
+import {
+  getAllCommissions,
+  getCommissionStats,
+  markCommissionPaid,
+} from "../Hooks/commissionsApi";
 
-const TIERS = [
-  { range: "KES 0 – 2,000", commission: 200 },
-  { range: "KES 2,001 – 5,000", commission: 500 },
-  { range: "KES 5,001 – 10,000", commission: 1000 },
-  { range: "KES 10,001+", commission: 1500 },
-];
-
-const MOCK_COMMISSIONS = [
-  {
-    _id: "c1",
-    jobId: "1",
-    techName: "James Mwangi",
-    customer: "Amina Wanjiku",
-    device: "phone",
-    repairPrice: 3500,
-    commission: 500,
-    status: "Pending",
-    date: new Date("2025-01-15"),
-  },
-  {
-    _id: "c2",
-    jobId: "2",
-    techName: "Faith Njeri",
-    customer: "Brian Otieno",
-    device: "laptop",
-    repairPrice: 7500,
-    commission: 1000,
-    status: "Paid",
-    date: new Date("2025-01-14"),
-  },
-  {
-    _id: "c3",
-    jobId: "3",
-    techName: "Kevin Odhiambo",
-    customer: "Cynthia Kamau",
-    device: "phone",
-    repairPrice: 1500,
-    commission: 200,
-    status: "Paid",
-    date: new Date("2025-01-13"),
-  },
-  {
-    _id: "c4",
-    jobId: "4",
-    techName: "Faith Njeri",
-    customer: "David Maina",
-    device: "laptop",
-    repairPrice: 12000,
-    commission: 1500,
-    status: "Pending",
-    date: new Date("2025-01-12"),
-  },
-  {
-    _id: "c5",
-    jobId: "6",
-    techName: "Faith Njeri",
-    customer: "Samuel Kipchoge",
-    device: "laptop",
-    repairPrice: 4500,
-    commission: 500,
-    status: "Paid",
-    date: new Date("2025-01-10"),
-  },
-];
-
-export default function Commissions() {
-  const [commissions, setCommissions] = useState(MOCK_COMMISSIONS);
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
-
-  const filtered = commissions.filter((c) => {
-    const matchSearch =
-      !search ||
-      c.techName.toLowerCase().includes(search.toLowerCase()) ||
-      c.customer.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "All" || c.status === filter;
-    return matchSearch && matchFilter;
+// ── Helpers ────────────────────────────────────────────────────
+const fmtKes = (n) => `KES ${Number(n).toLocaleString()}`;
+const fmtDate = (d) =>
+  new Date(d).toLocaleDateString("en-KE", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 
-  const totalEarned = commissions
-    .filter((c) => c.status === "Paid")
-    .reduce((s, c) => s + c.commission, 0);
-  const totalPending = commissions
-    .filter((c) => c.status === "Pending")
-    .reduce((s, c) => s + c.commission, 0);
-  const totalAll = commissions.reduce((s, c) => s + c.commission, 0);
+export default function Commissions() {
+  const [commissions, setCommissions] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState(""); // "" | "repair" | "sale"
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [pages, setPages] = useState(1);
+  const [markingId, setMarkingId] = useState(null);
+  const LIMIT = 20;
 
-  const markPaid = (id) => {
-    setCommissions((prev) =>
-      prev.map((c) => (c._id === id ? { ...c, status: "Paid" } : c)),
-    );
+  // ── Load stats ─────────────────────────────────────────────
+  const loadStats = useCallback(async () => {
+    setStatsLoading(true);
+    try {
+      const res = await getCommissionStats();
+      setStats(res.data);
+    } catch {
+      // non-fatal
+    } finally {
+      setStatsLoading(false);
+    }
+  }, []);
+
+  // ── Load commissions ───────────────────────────────────────
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await getAllCommissions({
+        status: statusFilter || undefined,
+        type: typeFilter || undefined,
+        page,
+        limit: LIMIT,
+      });
+      setCommissions(res.data);
+      setTotal(res.total);
+      setPages(Math.ceil(res.total / LIMIT));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter, typeFilter, page]);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // ── Mark paid ──────────────────────────────────────────────
+  const handleMarkPaid = async (id) => {
+    setMarkingId(id);
+    try {
+      const res = await markCommissionPaid(id);
+      setCommissions((prev) => prev.map((c) => (c._id === id ? res.data : c)));
+      loadStats(); // refresh totals
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setMarkingId(null);
+    }
   };
+
+  // ── Client-side search (name / customer) ───────────────────
+  const filtered = search.trim()
+    ? commissions.filter((c) => {
+        const q = search.toLowerCase();
+        return (
+          c.technician?.name?.toLowerCase().includes(q) ||
+          c.job?.name?.toLowerCase().includes(q) ||
+          c.purchase?.firstName?.toLowerCase().includes(q) ||
+          c.purchase?.listingSnapshot?.name?.toLowerCase().includes(q)
+        );
+      })
+    : commissions;
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl">
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* ── Summary cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Total Earned",
-            value: `KES ${totalEarned.toLocaleString()}`,
+            value: statsLoading ? "—" : fmtKes(stats?.totalEarned ?? 0),
             icon: CheckCircle2,
             color: "text-green",
           },
           {
             label: "Pending Payout",
-            value: `KES ${totalPending.toLocaleString()}`,
+            value: statsLoading ? "—" : fmtKes(stats?.totalPending ?? 0),
             icon: Clock,
             color: "text-amber-500",
           },
           {
-            label: "All Time",
-            value: `KES ${totalAll.toLocaleString()}`,
-            icon: TrendingUp,
+            label: "Repairs (9%)",
+            value: statsLoading ? "—" : fmtKes(stats?.repair?.earned ?? 0),
+            sub: `${fmtKes(stats?.repair?.pending ?? 0)} pending`,
+            icon: Wrench,
             color: "text-blue-500",
           },
-        ].map(({ label, value, icon: Icon, color }) => (
+          {
+            label: "Sales (4.5%)",
+            value: statsLoading ? "—" : fmtKes(stats?.sale?.earned ?? 0),
+            sub: `${fmtKes(stats?.sale?.pending ?? 0)} pending`,
+            icon: ShoppingBag,
+            color: "text-purple-500",
+          },
+        ].map(({ label, value, sub, icon: Icon, color }) => (
           <div
             key={label}
-            className="bg-white border border-beige-dark rounded-2xl p-6 flex items-center gap-4"
+            className="bg-white border border-beige-dark rounded-2xl p-5 flex items-center gap-4"
           >
             <div className="w-11 h-11 rounded-xl bg-beige border border-beige-dark flex items-center justify-center flex-shrink-0">
               <Icon size={18} className={color} strokeWidth={1.75} />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-gray-400 text-xs">{label}</p>
               <p
-                className="font-display font-extrabold text-xl text-black mt-0.5"
+                className="font-display font-extrabold text-lg leading-tight"
                 style={{ color: "#0D1117" }}
               >
                 {value}
               </p>
+              {sub && <p className="text-gray-400 text-xs mt-0.5">{sub}</p>}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Commission tier table */}
-      <div className="bg-white border border-beige-dark rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-beige-dark">
-          <h3
-            className="font-display font-bold text-black text-base"
-            style={{ color: "#0D1117" }}
-          >
-            Commission Tiers
-          </h3>
-          <p className="text-gray-400 text-xs mt-0.5">
-            Fixed flat-rate commissions per repair price range
-          </p>
+      {/* ── Rate info strip ── */}
+      <div className="flex flex-wrap gap-3">
+        <div className="flex items-center gap-2 bg-white border border-beige-dark rounded-xl px-4 py-2.5 text-sm">
+          <Wrench size={13} className="text-blue-500" strokeWidth={2} />
+          <span className="text-gray-500">Repair commission</span>
+          <span className="font-bold font-mono" style={{ color: "#0D1117" }}>
+            9%
+          </span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-beige-dark bg-beige">
-                <th className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
-                  Repair Price Range
-                </th>
-                <th className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
-                  Platform Commission
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {TIERS.map((tier, i) => (
-                <tr
-                  key={i}
-                  className="border-b border-beige-dark last:border-none"
-                >
-                  <td className="px-6 py-4 text-gray-600">{tier.range}</td>
-                  <td className="px-6 py-4 font-semibold text-green font-mono">
-                    KES {tier.commission.toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex items-center gap-2 bg-white border border-beige-dark rounded-xl px-4 py-2.5 text-sm">
+          <ShoppingBag size={13} className="text-purple-500" strokeWidth={2} />
+          <span className="text-gray-500">Sale commission</span>
+          <span className="font-bold font-mono" style={{ color: "#0D1117" }}>
+            4.5%
+          </span>
+        </div>
+        <div className="ml-auto">
+          <button
+            onClick={() => {
+              load();
+              loadStats();
+            }}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-beige-dark bg-white text-sm font-semibold text-gray-500 hover:border-gray-400 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw
+              size={13}
+              className={loading ? "animate-spin" : ""}
+              strokeWidth={2}
+            />
+            Refresh
+          </button>
         </div>
       </div>
 
-      {/* Commission records */}
+      {/* ── Commission records ── */}
       <div className="bg-white border border-beige-dark rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-beige-dark gap-4 flex-wrap">
+        {/* Header + filters */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-beige-dark">
           <h3
-            className="font-display font-bold text-black text-base"
+            className="font-display font-bold text-base"
             style={{ color: "#0D1117" }}
           >
             Commission Records
+            {total > 0 && (
+              <span className="ml-2 text-xs font-semibold text-gray-400 bg-beige border border-beige-dark px-2 py-0.5 rounded-full">
+                {total}
+              </span>
+            )}
           </h3>
-          <div className="flex gap-3">
-            <div className="flex items-center gap-2 bg-beige border border-beige-dark rounded-xl px-4 py-2">
+
+          <div className="flex flex-wrap gap-2">
+            {/* Search */}
+            <div className="flex items-center gap-2 bg-beige border border-beige-dark rounded-xl px-3 py-2">
               <Search size={13} className="text-gray-400" strokeWidth={2} />
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-transparent outline-none text-sm text-black placeholder:text-gray-400 w-36"
+                className="bg-transparent outline-none text-sm placeholder:text-gray-400 w-32"
               />
+              {search && (
+                <button onClick={() => setSearch("")}>
+                  <X size={12} className="text-gray-400 hover:text-gray-600" />
+                </button>
+              )}
             </div>
+
+            {/* Type filter */}
             <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="bg-beige border border-beige-dark rounded-xl px-4 py-2 text-sm text-gray-600 outline-none cursor-pointer"
+              value={typeFilter}
+              onChange={(e) => {
+                setTypeFilter(e.target.value);
+                setPage(1);
+              }}
+              className="bg-beige border border-beige-dark rounded-xl px-3 py-2 text-sm text-gray-600 outline-none cursor-pointer"
             >
-              <option value="All">All</option>
+              <option value="">All types</option>
+              <option value="repair">Repairs</option>
+              <option value="sale">Sales</option>
+            </select>
+
+            {/* Status filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="bg-beige border border-beige-dark rounded-xl px-3 py-2 text-sm text-gray-600 outline-none cursor-pointer"
+            >
+              <option value="">All statuses</option>
               <option value="Pending">Pending</option>
               <option value="Paid">Paid</option>
             </select>
           </div>
         </div>
 
+        {/* Error */}
+        {error && (
+          <div className="flex items-center gap-2 mx-6 my-4 text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm">
+            <AlertTriangle size={15} /> {error}
+          </div>
+        )}
+
+        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-beige-dark bg-beige">
-                <th className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
-                  Technician
-                </th>
-                <th className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
-                  Customer
-                </th>
-                <th className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
-                  Repair Price
-                </th>
-                <th className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
-                  Commission
-                </th>
-                <th className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
-                  Status
-                </th>
-                <th className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
-                  Date
-                </th>
-                <th className="px-6 py-3" />
+                {[
+                  "Type",
+                  "From",
+                  "Contact",
+                  "Base Price",
+                  "Commission",
+                  "Status",
+                  "Date",
+                  "",
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody>
-              {filtered.length === 0 ? (
+            <tbody className="divide-y divide-beige-dark">
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-16 text-center">
+                    <Loader2
+                      size={22}
+                      className="animate-spin text-gray-300 mx-auto"
+                    />
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-6 py-16 text-center text-gray-400 text-sm"
                   >
-                    No records found.
+                    No commission records found.
                   </td>
                 </tr>
               ) : (
-                filtered.map((c) => (
-                  <tr
-                    key={c._id}
-                    className="border-b border-beige-dark last:border-none hover:bg-beige/50 transition-colors duration-150"
-                  >
-                    <td
-                      className="px-6 py-4 font-semibold text-black text-sm"
-                      style={{ color: "#0D1117" }}
+                filtered.map((c) => {
+                  const isRepair = c.type === "repair";
+                  const fromName = isRepair
+                    ? c.job?.name || "—"
+                    : c.purchase?.firstName || "—";
+                  const contact = isRepair
+                    ? c.job?.phone || "—"
+                    : c.purchase?.email || c.purchase?.phone || "—";
+                  const techOrProduct = isRepair
+                    ? c.technician?.name || "—"
+                    : c.purchase?.listingSnapshot?.name ||
+                      c.listing?.name ||
+                      "—";
+
+                  return (
+                    <tr
+                      key={c._id}
+                      className="hover:bg-beige/40 transition-colors"
                     >
-                      {c.techName}
-                    </td>
-                    <td className="px-6 py-4 text-gray-500 text-sm">
-                      {c.customer}
-                    </td>
-                    <td className="px-6 py-4 font-mono text-gray-600 text-sm">
-                      KES {c.repairPrice.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 font-mono font-semibold text-green text-sm">
-                      KES {c.commission.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                          c.status === "Paid"
-                            ? "bg-green-light text-green border-green-dark/30"
-                            : "bg-amber-100 text-amber-700 border-amber-300"
-                        }`}
-                      >
-                        {c.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-400 text-xs whitespace-nowrap">
-                      {new Date(c.date).toLocaleDateString("en-KE", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-6 py-4">
-                      {c.status === "Pending" && (
-                        <button
-                          onClick={() => markPaid(c._id)}
-                          className="text-xs font-semibold text-green hover:text-green-dark transition-colors duration-200 whitespace-nowrap"
+                      {/* Type */}
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                            isRepair
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : "bg-purple-50 text-purple-700 border-purple-200"
+                          }`}
                         >
-                          Mark Paid
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                          {isRepair ? (
+                            <Wrench size={11} strokeWidth={2} />
+                          ) : (
+                            <ShoppingBag size={11} strokeWidth={2} />
+                          )}
+                          {isRepair ? "Repair" : "Sale"}
+                        </span>
+                      </td>
+
+                      {/* From (customer name) */}
+                      <td className="px-5 py-4">
+                        <p
+                          className="font-semibold text-sm"
+                          style={{ color: "#0D1117" }}
+                        >
+                          {fromName}
+                        </p>
+                        <p className="text-gray-400 text-xs">{techOrProduct}</p>
+                      </td>
+
+                      {/* Contact */}
+                      <td className="px-5 py-4 text-gray-500 text-xs">
+                        {contact}
+                      </td>
+
+                      {/* Base price */}
+                      <td className="px-5 py-4 font-mono text-gray-600 text-sm">
+                        {fmtKes(c.basePrice)}
+                      </td>
+
+                      {/* Commission */}
+                      <td className="px-5 py-4">
+                        <p className="font-mono font-bold text-sm text-green">
+                          {fmtKes(c.amount)}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          {isRepair ? "9%" : "4.5%"}
+                        </p>
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-5 py-4">
+                        <span
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                            c.status === "Paid"
+                              ? "bg-green-light text-green border-green-dark/30"
+                              : "bg-amber-100 text-amber-700 border-amber-300"
+                          }`}
+                        >
+                          {c.status}
+                        </span>
+                      </td>
+
+                      {/* Date */}
+                      <td className="px-5 py-4 text-gray-400 text-xs whitespace-nowrap">
+                        {fmtDate(c.createdAt)}
+                      </td>
+
+                      {/* Action */}
+                      <td className="px-5 py-4">
+                        {c.status === "Pending" && (
+                          <button
+                            onClick={() => handleMarkPaid(c._id)}
+                            disabled={markingId === c._id}
+                            className="flex items-center gap-1.5 text-xs font-semibold text-green hover:text-green-dark transition-colors disabled:opacity-50"
+                          >
+                            {markingId === c._id ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              <CheckCircle2 size={12} strokeWidth={2} />
+                            )}
+                            Mark Paid
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {pages > 1 && (
+          <div className="flex items-center justify-between px-6 py-4 border-t border-beige-dark">
+            <p className="text-sm text-gray-400">
+              Page {page} of {pages} · {total} records
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 rounded-xl border border-beige-dark text-sm font-semibold text-gray-500 hover:border-gray-400 transition-colors disabled:opacity-40"
+              >
+                Prev
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.min(pages, p + 1))}
+                disabled={page === pages}
+                className="px-4 py-2 rounded-xl border border-beige-dark text-sm font-semibold text-gray-500 hover:border-gray-400 transition-colors disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
