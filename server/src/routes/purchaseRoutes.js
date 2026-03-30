@@ -5,6 +5,8 @@ const {
   getAllRequests,
   getRequestById,
   updateRequest,
+  assignShop,
+  unassignShop,
   deleteRequest,
 } = require("../controllers/purchaseController");
 
@@ -12,6 +14,8 @@ const {
 router.get("/", getAllRequests);
 router.get("/:id", getRequestById);
 router.patch("/:id", updateRequest);
+router.patch("/:id/assign-shop", assignShop);
+router.patch("/:id/unassign-shop", unassignShop);
 router.delete("/:id", deleteRequest);
 
 module.exports = router;

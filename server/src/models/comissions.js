@@ -1,52 +1,78 @@
 const mongoose = require("mongoose");
 
-// ── Flat-tier commission structure ───────────────────────────
-// Matches the TIERS table in Commissions.jsx and the MVP doc.
-// Change values here to update the entire system.
-const COMMISSION_TIERS = [
-  { min: 0, max: 2000, amount: 200 },
-  { min: 2001, max: 5000, amount: 500 },
-  { min: 5001, max: 10000, amount: 1000 },
-  { min: 10001, max: null, amount: 1500 }, // null max = 10001+
-];
+// ── Commission rates ──────────────────────────────────────────
+const RATES = {
+  repair: 0.09, // 9%   — auto-triggered when repair → Completed
+  sale: 0.045, // 4.5% — auto-triggered when purchase → completed
+};
 
 const commissionSchema = new mongoose.Schema(
   {
+    type: {
+      type: String,
+      enum: ["repair", "sale"],
+      required: true,
+    },
+
+    // ── Repair fields ─────────────────────────────────────
     job: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "RepairRequest",
-      required: true,
+      default: null,
     },
     technician: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Technician",
-      required: true,
+      default: null,
     },
-    repairPrice: { type: Number, required: true, min: 0 },
+
+    // ── Sale fields ───────────────────────────────────────
+    purchase: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PurchaseRequest",
+      default: null,
+    },
+    listing: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MarketplaceListing",
+      default: null,
+    },
+
+    // ── Shared ────────────────────────────────────────────
+    basePrice: { type: Number, required: true, min: 0 },
+    rate: { type: Number, required: true },
     amount: { type: Number, required: true, min: 0 },
-    status: { type: String, enum: ["Pending", "Paid"], default: "Pending" },
+
+    status: {
+      type: String,
+      enum: ["Pending", "Paid"],
+      default: "Pending",
+    },
     paidAt: { type: Date, default: null },
     notes: { type: String, default: "" },
   },
   { timestamps: true },
 );
 
-// Static — calculate commission amount from repair price
-commissionSchema.statics.calculateAmount = function (repairPrice) {
-  const tier = COMMISSION_TIERS.find(
-    (t) => repairPrice >= t.min && (t.max === null || repairPrice <= t.max),
-  );
-  return tier ? tier.amount : 1500;
+// @param {number} price
+// @param {"repair"|"sale"} type
+commissionSchema.statics.calculateAmount = function (price, type = "repair") {
+  const rate = RATES[type] ?? RATES.repair;
+  return Math.round(price * rate);
 };
 
-// Static — expose tiers for frontend display
-commissionSchema.statics.getTiers = function () {
-  return COMMISSION_TIERS;
+commissionSchema.statics.getRates = function () {
+  return {
+    repair: { rate: RATES.repair, percent: "9%" },
+    sale: { rate: RATES.sale, percent: "4.5%" },
+  };
 };
 
 commissionSchema.index({ status: 1 });
+commissionSchema.index({ type: 1 });
 commissionSchema.index({ technician: 1 });
-commissionSchema.index({ job: 1 }, { unique: true }); // one commission per job
 commissionSchema.index({ createdAt: -1 });
+commissionSchema.index({ job: 1 }, { sparse: true, unique: true });
+commissionSchema.index({ purchase: 1 }, { sparse: true, unique: true });
 
 module.exports = mongoose.model("Commission", commissionSchema);

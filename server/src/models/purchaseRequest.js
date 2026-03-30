@@ -7,6 +7,7 @@ const purchaseRequestSchema = new mongoose.Schema(
       ref: "MarketplaceListing",
       required: true,
     },
+
     // Snapshot of listing at time of request (in case listing changes/gets deleted)
     listingSnapshot: {
       name: String,
@@ -16,6 +17,7 @@ const purchaseRequestSchema = new mongoose.Schema(
       condition: String,
       image: String, // first image
     },
+
     // Buyer info
     firstName: { type: String, required: true, trim: true },
     email: {
@@ -40,6 +42,14 @@ const purchaseRequestSchema = new mongoose.Schema(
       default: "undecided",
     },
 
+    // ── Shop assignment ──────────────────────────────────────────────────────
+    assignedShop: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ShopOwner",
+      default: null,
+    },
+    assignedAt: { type: Date, default: null },
+
     // Status tracking
     status: {
       type: String,
@@ -59,5 +69,6 @@ purchaseRequestSchema.index({ listing: 1 });
 purchaseRequestSchema.index({ status: 1 });
 purchaseRequestSchema.index({ email: 1 });
 purchaseRequestSchema.index({ createdAt: -1 });
+purchaseRequestSchema.index({ assignedShop: 1 });
 
 module.exports = mongoose.model("PurchaseRequest", purchaseRequestSchema);

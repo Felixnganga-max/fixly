@@ -4,14 +4,6 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/Errorhandler");
 
-const authRoutes = require("../src/routes/authRoutes");
-const repairRequestRoutes = require("./routes/repairRequestRoutes");
-const technicianRoutes = require("./routes/technicianRoutes");
-const shopOwnerRoutes = require("./routes/shopOwnerRoutes");
-const marketplaceRoutes = require("./routes/marketplaceRoutes");
-const commissionRoutes = require("./routes/commissionRoutes");
-const purchaseRoutes = require("./routes/purchaseRoutes");
-
 // ── Load env ──────────────────────────────────────────────────
 dotenv.config();
 
@@ -19,6 +11,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const PORT = process.env.PORT;
 
 // ── Middleware ────────────────────────────────────────────────
 app.use(
@@ -41,8 +34,8 @@ app.use("/fixly/repair-requests", require("./routes/repairRequestRoutes"));
 app.use("/fixly/technicians", require("./routes/technicianRoutes"));
 app.use("/fixly/shop-owners", require("./routes/shopOwnerRoutes"));
 app.use("/fixly/marketplace", require("./routes/marketplaceRoutes"));
-app.use("/api/commissions", require("./routes/commissionRoutes"));
-app.use("/fixly/product-purchase", require("./routes/purchaseRoutes"));
+app.use("/fixly/commissions", require("./routes/commissionRoutes")); // ← was /api/commissions
+app.use("/fixly/purchase-requests", require("./routes/purchaseRoutes"));
 
 // ── 404 handler ───────────────────────────────────────────────
 app.use((req, res) => {
@@ -55,7 +48,6 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // ── Start server ──────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(
     `Fixly API running on port ${PORT} [${process.env.NODE_ENV || "development"}]`,

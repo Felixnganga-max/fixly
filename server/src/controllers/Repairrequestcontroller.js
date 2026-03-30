@@ -1,7 +1,6 @@
 const RepairRequest = require("../models/repairRequest");
 const Commission = require("../models/comissions");
 
-// ── Helper ────────────────────────────────────────────────────
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
@@ -9,8 +8,8 @@ const asyncHandler = (fn) => (req, res, next) =>
 // PUBLIC
 // ─────────────────────────────────────────────────────────────
 
-// @desc   Submit new repair request (customer facing)
-// @route  POST /api/repair-requests
+// @desc   Submit new repair request
+// @route  POST /fixly/repair-requests
 // @access Public
 exports.submitRequest = asyncHandler(async (req, res) => {
   const {
@@ -43,8 +42,8 @@ exports.submitRequest = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: request });
 });
 
-// @desc   Get single request by ID (for confirmation page)
-// @route  GET /api/repair-requests/:id
+// @desc   Get single repair request (confirmation page)
+// @route  GET /fixly/repair-requests/:id
 // @access Public
 exports.getRequestById = asyncHandler(async (req, res) => {
   const request = await RepairRequest.findById(req.params.id)
@@ -56,7 +55,6 @@ exports.getRequestById = asyncHandler(async (req, res) => {
       .status(404)
       .json({ success: false, message: "Request not found" });
   }
-
   res.status(200).json({ success: true, data: request });
 });
 
@@ -64,8 +62,8 @@ exports.getRequestById = asyncHandler(async (req, res) => {
 // ADMIN
 // ─────────────────────────────────────────────────────────────
 
-// @desc   Get all requests with filters and pagination
-// @route  GET /api/repair-requests
+// @desc   Get all repair requests
+// @route  GET /fixly/repair-requests
 // @access Private/Admin
 exports.getAllRequests = asyncHandler(async (req, res) => {
   const {
@@ -112,7 +110,7 @@ exports.getAllRequests = asyncHandler(async (req, res) => {
 });
 
 // @desc   Assign technician + set quote
-// @route  PATCH /api/repair-requests/:id/assign
+// @route  PATCH /fixly/repair-requests/:id/assign
 // @access Private/Admin
 exports.assignRequest = asyncHandler(async (req, res) => {
   const {
@@ -158,7 +156,7 @@ exports.assignRequest = asyncHandler(async (req, res) => {
 });
 
 // @desc   Update request status
-// @route  PATCH /api/repair-requests/:id/status
+// @route  PATCH /fixly/repair-requests/:id/status
 // @access Private/Admin
 exports.updateStatus = asyncHandler(async (req, res) => {
   const { status, adminNotes } = req.body;
@@ -187,21 +185,25 @@ exports.updateStatus = asyncHandler(async (req, res) => {
       .json({ success: false, message: "Request not found" });
   }
 
-  // Auto-create commission when job is completed
+  // ── Auto-create repair commission when marked Completed ──
+  // Requires estimatedPriceMin to have been set during assignment
   if (status === "Completed" && request.estimatedPriceMin) {
-    const repairPrice = request.estimatedPriceMin;
-    const commissionAmt = Commission.calculateAmount(repairPrice);
+    const basePrice = request.estimatedPriceMin;
+    const rate = 0.09;
+    const amount = Commission.calculateAmount(basePrice, "repair");
 
     await Commission.findOneAndUpdate(
       { job: request._id },
       {
+        type: "repair",
         job: request._id,
         technician: request.assignedTechnician,
-        repairPrice,
-        amount: commissionAmt,
+        basePrice,
+        rate,
+        amount,
         status: "Pending",
       },
-      { upsert: true, new: true },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
     );
   }
 
@@ -210,8 +212,8 @@ exports.updateStatus = asyncHandler(async (req, res) => {
     .json({ success: true, message: "Status updated", data: request });
 });
 
-// @desc   Admin stats overview
-// @route  GET /api/repair-requests/stats
+// @desc   Repair request stats
+// @route  GET /fixly/repair-requests/stats
 // @access Private/Admin
 exports.getStats = asyncHandler(async (req, res) => {
   const [
@@ -249,8 +251,8 @@ exports.getStats = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc   Delete a request (admin only)
-// @route  DELETE /api/repair-requests/:id
+// @desc   Delete repair request
+// @route  DELETE /fixly/repair-requests/:id
 // @access Private/Admin
 exports.deleteRequest = asyncHandler(async (req, res) => {
   const request = await RepairRequest.findByIdAndDelete(req.params.id);
