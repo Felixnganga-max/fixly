@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000/fixly/auth";
+const BASE_URL = "https://fixly-wcao.vercel.app/fixly/auth";
 
 /**
  * Login admin and persist token to localStorage

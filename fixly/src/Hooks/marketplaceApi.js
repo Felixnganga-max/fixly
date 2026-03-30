@@ -1,6 +1,6 @@
 import { getToken } from "./loginApi";
 
-const BASE_URL = "http://localhost:5000/fixly/marketplace";
+const BASE_URL = "https://fixly-wcao.vercel.app/fixly/marketplace";
 
 const authHeaders = () => ({
   "Content-Type": "application/json",

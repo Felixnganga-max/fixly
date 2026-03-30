@@ -1,6 +1,6 @@
 import { getToken } from "./loginApi"; // reuse your existing token helper
 
-const BASE_URL = "http://localhost:5000/fixly/repair-requests";
+const BASE_URL = "https://fixly-wcao.vercel.app/fixly/repair-requests";
 
 const authHeaders = () => ({
   "Content-Type": "application/json",

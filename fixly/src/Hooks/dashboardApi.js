@@ -1,4 +1,4 @@
-const BASE = "http://localhost:5000/fixly";
+const BASE = "https://fixly-wcao.vercel.app/fixly";
 
 function getToken() {
   return localStorage.getItem("token");

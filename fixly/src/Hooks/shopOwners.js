@@ -1,6 +1,6 @@
 import { getToken } from "./loginApi";
 
-const BASE_URL = "http://localhost:5000/fixly/shop-owners";
+const BASE_URL = "https://fixly-wcao.vercel.app/fixly/shop-owners";
 
 const authHeaders = () => ({
   "Content-Type": "application/json",

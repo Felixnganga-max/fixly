@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000/fixly";
+const BASE_URL = "https://fixly-wcao.vercel.app/fixly";
 
 /**
  * Get the auth token from localStorage
