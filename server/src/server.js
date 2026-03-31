@@ -22,7 +22,7 @@ app.use(
   cors({
     origin: [
       process.env.CLIENT_URL || "http://localhost:5173",
-      "https://www.fixlykenya.co.ke/",
+      "https://www.fixlykenya.co.ke",
       "'https://fixly-wcao.vercel.app",
     ],
     credentials: true,
