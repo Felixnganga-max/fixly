@@ -3,6 +3,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/Errorhandler");
+const { connectRedis } = require("./config/redis");
+const { startViewWorker } = require("./utils/viewWorker");
 
 // ── Load env ──────────────────────────────────────────────────
 dotenv.config();
@@ -23,7 +25,7 @@ app.use(
     origin: [
       process.env.CLIENT_URL || "http://localhost:5173",
       "https://www.fixlykenya.co.ke",
-      "'https://fixly-wcao.vercel.app",
+      "https://fixly-wcao.vercel.app", // fixed: removed stray single-quote
     ],
     credentials: true,
   }),
@@ -54,7 +56,9 @@ app.use("/fixly/auth", require("./routes/authRoutes"));
 app.use("/fixly/repair-requests", require("./routes/repairRequestRoutes"));
 app.use("/fixly/technicians", require("./routes/technicianRoutes"));
 app.use("/fixly/shop-owners", require("./routes/shopOwnerRoutes"));
-app.use("/fixly/marketplace", require("./routes/marketplaceRoutes"));
+app.use("/fixly/marketplace", require("./routes/marketplaceRoutes")); // upgraded file
+app.use("/fixly/brands", require("./routes/brandsRoutes")); // new
+app.use("/fixly/alerts", require("./routes/alerts")); // new
 app.use("/fixly/commissions", require("./routes/commissionRoutes"));
 app.use("/fixly/purchase-requests", require("./routes/purchaseRoutes"));
 
@@ -67,6 +71,20 @@ app.use((req, res) => {
 
 // ── Global error handler ──────────────────────────────────────
 app.use(errorHandler);
+
+// ── Startup (Redis + view worker) ─────────────────────────────
+// connectRedis is non-fatal — app runs fine if Redis is unavailable
+connectRedis();
+
+// Only start the view worker in long-running environments.
+// On Vercel (serverless), instances are ephemeral so the worker
+// isn't useful — the recordView fallback writes directly to DB instead.
+if (
+  process.env.NODE_ENV !== "production" ||
+  process.env.ENABLE_VIEW_WORKER === "true"
+) {
+  startViewWorker();
+}
 
 // ── Start server (local dev only) ─────────────────────────────
 if (process.env.NODE_ENV !== "production") {
