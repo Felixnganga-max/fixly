@@ -30,10 +30,9 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getAllListings, getBrandNames } from "../Hooks/marketplaceApi";
-import { useWishlist } from "../hooks/wishList";
-import { useCompare } from "../hooks/useCompare";
-import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
-
+import { useWishlist } from "../Hooks/useWishlist";
+import { useCompare } from "../Hooks/useCompare";
+import { useRecentlyViewed } from "../Hooks/useRecentlyViewed";
 // ─────────────────────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────

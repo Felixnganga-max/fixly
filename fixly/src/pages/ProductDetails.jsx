@@ -31,9 +31,8 @@ import {
 } from "lucide-react";
 import { getListingById, getAllListings } from "../Hooks/marketplaceApi";
 import BuyNowModal from "../components/BuyNow";
-import { useWishlist } from "../hooks/wishList";
-import { useCompare } from "../hooks/useCompare";
-
+import { useWishlist } from "../Hooks/useWishlist";
+import { useCompare } from "../Hooks/useCompare";
 // ── Constants ──────────────────────────────────────────────────
 const PHONE_SPEC_GROUPS = [
   {
