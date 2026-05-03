@@ -3,7 +3,7 @@
   "builds": [{ "src": "src/server.js", "use": "@vercel/node" }],
   "routes": [
     {
-    "src": "/(.*)",
+      "src": "/(.*)",
       "methods": ["OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
@@ -11,10 +11,16 @@
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "false"
       },
-      "dest": "src/server.js"
+      "status": 200,
+      "continue": false
     },
     {
       "src": "/(.*)",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+      },
       "dest": "src/server.js"
     }
   ]
