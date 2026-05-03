@@ -23,7 +23,7 @@ const ensureDB = async () => {
 app.use(
   cors({
     origin: [
-      process.env.CLIENT_URL || "http://localhost:5173",
+      "http://localhost:5173",
       "https://www.fixlykenya.co.ke",
       "https://fixly-wcao.vercel.app", // fixed: removed stray single-quote
     ],
