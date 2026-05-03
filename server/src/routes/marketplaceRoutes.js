@@ -17,9 +17,9 @@ const {
 } = require("../controllers/priceAlerts");
 const { cacheMiddleware } = require("../utils/cache");
 
-// Swap these for your actual auth middleware:
-const { protect, adminOnly } = require("../middleware/auth");
-const { uploadProductImages } = require("../middleware/upload");
+// // Swap these for your actual auth middleware:
+// const { protect, adminOnly } = require("../middleware/auth");
+// const { uploadProductImages } = require("../middleware/upload");
 
 // ── Public ──────────────────────────────────────────────────────
 
