@@ -106,8 +106,8 @@ function Logo() {
           lineHeight: 1,
         }}
       >
-        <span style={{ color: "var(--color-black, #0d1117)" }}>Fix</span>
-        <span style={{ color: "var(--color-green, #005f02)" }}>ly</span>
+        <span style={{ color: "var(--color-black, #0d1117)" }}>Fixly</span>
+        <span style={{ color: "var(--color-green, #005f02)" }}> World</span>
       </span>
     </a>
   );

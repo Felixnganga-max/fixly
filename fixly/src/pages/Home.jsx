@@ -7,12 +7,12 @@ import TechnicianSection from "../components/TechnicianSection";
 import Footer from "../components/Footer";
 import Testimonials from "../components/Testimonials";
 import MarketplaceShowcase from "../components/MarketplaceShowcase";
+import HomeShowcase from "../components/HomeShowcase";
 
 const Home = () => {
   return (
     <div>
-      <Hero />
-      <MarketplaceShowcase />
+      <HomeShowcase />
       <HowItWorks />
       <Testimonials />
     </div>

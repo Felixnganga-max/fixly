@@ -1,881 +1,934 @@
 /**
- * MarketplaceShowcase.jsx  —  L99 Homepage Section
- *
- * Uses ONLY project design tokens from :root — no @import, no new fonts.
- * Fonts: var(--font-display) / var(--font-body) / var(--font-mono)
- * Colors: var(--color-*) | Radii: var(--radius-*)
+ * MarketplaceShowcase.jsx
+ * Homepage section — pulls real listings from your API.
+ * Phones and laptops shown in separate rows.
+ * Gracefully handles few listings now, scales as you add more.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowRight,
   ShieldCheck,
   ChevronRight,
-  ChevronLeft,
   Laptop,
   Smartphone,
-  Flame,
-  TrendingUp,
-  Zap,
   Eye,
+  Star,
+  Zap,
+  ArrowRight,
+  Tag,
+  TrendingUp,
 } from "lucide-react";
 import { getAllListings } from "../Hooks/marketplaceApi";
 
-/* ══════════════════════════════════════════════════════════
-   CONSTANTS
-══════════════════════════════════════════════════════════ */
-
-const LAPTOP_KEYS = [
-  "laptop",
-  "macbook",
-  "notebook",
-  "chromebook",
-  "thinkpad",
-  "xps",
-  "elitebook",
-  "probook",
-  "ideapad",
-  "legion",
-  "rog",
-  "zenbook",
-  "aspire",
-  "nitro",
-  "surface",
-  "razer",
-  "msi stealth",
-];
-const PHONE_KEYS = [
-  "phone",
-  "smartphone",
-  "iphone",
-  "samsung",
-  "pixel",
-  "android",
-  "mobile",
-  "xiaomi",
-  "oneplus",
-  "redmi",
-  "tecno",
-  "infinix",
-  "itel",
-  "oppo",
-  "vivo",
-  "realme",
-  "huawei",
-  "nokia",
-  "motorola",
-];
-const TABLET_KEYS = ["ipad", "galaxy tab", "tab s", "tab a", "tablet"];
-
-function classify(p) {
-  const h = `${p.name} ${p.brand} ${p.category ?? ""}`.toLowerCase();
-  if (TABLET_KEYS.some((k) => h.includes(k))) return "tablet";
-  if (LAPTOP_KEYS.some((k) => h.includes(k))) return "laptop";
-  if (PHONE_KEYS.some((k) => h.includes(k))) return "phone";
-  return "other";
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-const FALLBACK =
+// ─── Constants ────────────────────────────────────────────────────────────────
+const FALLBACK_IMG =
   "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80";
 
-const HERO_SLIDES = [
-  {
-    img: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&auto=format&fit=crop&q=85",
-    tag: "Editor's pick",
-    title: "MacBook Pro M3",
-    sub: "From KES 175,000 · Verified sellers",
-    cta: "Browse Macs",
-  },
-  {
-    img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&auto=format&fit=crop&q=85",
-    tag: "Hot right now",
-    title: "iPhone 15 Pro Max",
-    sub: "From KES 135,000 · Nairobi CBD",
-    cta: "Browse iPhones",
-  },
-  {
-    img: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=1200&auto=format&fit=crop&q=85",
-    tag: "Best value",
-    title: "Budget Laptops",
-    sub: "Ryzen & Core i5 · under KES 60k",
-    cta: "Explore now",
-  },
-];
-
-const ANIMATED_WORDS = ["buying.", "selling.", "upgrading.", "flipping."];
-
-const COND_CHIP = {
-  New: { bg: "var(--color-green-light)", color: "var(--color-green)" },
-  "Like New": { bg: "#e6f0ff", color: "var(--color-info)" },
-  Good: { bg: "var(--color-green-light)", color: "var(--color-green-dark)" },
-  Used: { bg: "#fef3cd", color: "#7a5a00" },
-  Refurbished: { bg: "#ede9fe", color: "#5b21b6" },
-  Fair: { bg: "#fef3cd", color: "#7a5a00" },
-  "For Parts": { bg: "#fee2e2", color: "var(--color-error)" },
+const COND_STYLES = {
+  New: { bg: "#dcfce7", color: "#15803d" },
+  Used: { bg: "#fef9c3", color: "#854d0e" },
+  Refurbished: { bg: "#ede9fe", color: "#6d28d9" },
+  "Like New": { bg: "#dbeafe", color: "#1d4ed8" },
+  Fair: { bg: "#ffedd5", color: "#c2410c" },
 };
 
-/* ══════════════════════════════════════════════════════════
-   SUB-COMPONENTS
-══════════════════════════════════════════════════════════ */
-
-function HeroCarousel({ onCTAClick }) {
-  const [cur, setCur] = useState(0);
-  const [fading, setFading] = useState(false);
-
-  const go = useCallback(
-    (next) => {
-      if (fading) return;
-      setFading(true);
-      setTimeout(() => {
-        setCur(next);
-        setFading(false);
-      }, 340);
-    },
-    [fading],
-  );
-
-  useEffect(() => {
-    const t = setInterval(() => go((cur + 1) % HERO_SLIDES.length), 4600);
-    return () => clearInterval(t);
-  }, [cur, go]);
-
-  const s = HERO_SLIDES[cur];
-
-  return (
-    <div className="sc-car">
-      {HERO_SLIDES.map((sl, i) => (
-        <div key={i} className={`sc-car-slide${i === cur ? " a" : ""}`}>
-          <img src={sl.img} alt="" className="sc-car-img" />
-          <div className="sc-car-ov" />
-        </div>
-      ))}
-      <div className="sc-car-content" style={{ opacity: fading ? 0 : 1 }}>
-        <span className="sc-car-tag">{s.tag}</span>
-        <h2 className="sc-car-title">{s.title}</h2>
-        <p className="sc-car-sub">{s.sub}</p>
-        <button className="sc-car-cta" onClick={onCTAClick}>
-          {s.cta} <ArrowRight size={12} />
-        </button>
-      </div>
-      <button
-        className="sc-car-btn sc-car-prev"
-        onClick={() => go((cur - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-        aria-label="Prev"
-      >
-        <ChevronLeft size={14} />
-      </button>
-      <button
-        className="sc-car-btn sc-car-next"
-        onClick={() => go((cur + 1) % HERO_SLIDES.length)}
-        aria-label="Next"
-      >
-        <ChevronRight size={14} />
-      </button>
-      <div className="sc-car-dots">
-        {HERO_SLIDES.map((_, i) => (
-          <button
-            key={i}
-            className={`sc-car-dot${i === cur ? " on" : ""}`}
-            onClick={() => go(i)}
-            aria-label={`Slide ${i + 1}`}
-          />
-        ))}
-      </div>
-    </div>
-  );
+// ─── Classify listings by category field ──────────────────────────────────────
+function isPhone(p) {
+  return (p.category || "").toLowerCase() === "phone";
+}
+function isLaptop(p) {
+  return (p.category || "").toLowerCase() === "laptop";
 }
 
-function AnimatedTitle() {
-  const [idx, setIdx] = useState(0);
-  const [vis, setVis] = useState(true);
-  useEffect(() => {
-    const t = setInterval(() => {
-      setVis(false);
-      setTimeout(() => {
-        setIdx((i) => (i + 1) % ANIMATED_WORDS.length);
-        setVis(true);
-      }, 280);
-    }, 2800);
-    return () => clearInterval(t);
-  }, []);
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function Skeleton() {
   return (
-    <h2 className="sc-hero-title">
-      Devices worth{" "}
-      <em
-        className="sc-word"
+    <div
+      style={{
+        background: "white",
+        borderRadius: 14,
+        overflow: "hidden",
+        border: "1px solid #f0ebe0",
+      }}
+    >
+      <div
         style={{
-          opacity: vis ? 1 : 0,
-          transform: vis ? "translateY(0)" : "translateY(8px)",
+          width: "100%",
+          paddingTop: "90%",
+          background:
+            "linear-gradient(90deg,#f0ebe0 25%,#f8f4ee 50%,#f0ebe0 75%)",
+          backgroundSize: "200% 100%",
+          animation: "ms-shim 1.4s infinite",
+        }}
+      />
+      <div
+        style={{
+          padding: "12px 14px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 7,
         }}
       >
-        {ANIMATED_WORDS[idx]}
-      </em>
-    </h2>
-  );
-}
-
-function TrustBar({ total }) {
-  const items = [
-    { Icon: ShieldCheck, val: "100%", label: "Verified sellers" },
-    { Icon: Eye, val: total > 0 ? `${total}+` : "—", label: "Live listings" },
-    { Icon: TrendingUp, val: "50+", label: "Weekly sales" },
-    { Icon: Zap, val: "< 2h", label: "Avg response" },
-  ];
-  return (
-    <div className="sc-trust">
-      {items.map(({ Icon, val, label }) => (
-        <div key={label} className="sc-trust-item">
-          <Icon size={13} strokeWidth={2} className="sc-trust-icon" />
-          <span className="sc-trust-val">{val}</span>
-          <span className="sc-trust-label">{label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Ticker({ items }) {
-  const deals = items
-    .filter((p) => p.oldPrice && p.price < p.oldPrice)
-    .slice(0, 6);
-  if (!deals.length) return null;
-  const all = [...deals, ...deals];
-  return (
-    <div className="sc-ticker">
-      <span className="sc-ticker-label">
-        <Flame size={10} fill="currentColor" /> Hot deals
-      </span>
-      <div className="sc-ticker-track">
-        <div className="sc-ticker-inner">
-          {all.map((p, i) => (
-            <span key={i} className="sc-ticker-item">
-              {p.brand} {p.name} ·{" "}
-              <strong>KES {p.price?.toLocaleString()}</strong>
-              <span className="sc-ticker-was">
-                {" "}
-                was {p.oldPrice?.toLocaleString()}
-              </span>
-              &nbsp;·&nbsp;
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <div className="sc-card sc-skel" aria-hidden>
-      <div className="sc-img-wrap sc-skel-block" />
-      <div className="sc-card-body">
-        <div className="sc-skel-line" style={{ width: "38%" }} />
         <div
-          className="sc-skel-line"
-          style={{ width: "78%", height: 13, marginTop: 6 }}
+          style={{
+            height: 8,
+            width: "35%",
+            borderRadius: 4,
+            background: "#f0ebe0",
+            animation: "ms-shim 1.4s infinite",
+          }}
         />
-        <div className="sc-skel-line" style={{ width: "52%", marginTop: 10 }} />
+        <div
+          style={{
+            height: 12,
+            width: "80%",
+            borderRadius: 4,
+            background: "#f0ebe0",
+            animation: "ms-shim 1.4s infinite",
+          }}
+        />
+        <div
+          style={{
+            height: 16,
+            width: "50%",
+            borderRadius: 4,
+            background: "#f0ebe0",
+            marginTop: 4,
+            animation: "ms-shim 1.4s infinite",
+          }}
+        />
       </div>
     </div>
   );
 }
 
-function ProductCard({ p, index }) {
+// ─── Product card ─────────────────────────────────────────────────────────────
+function ProductCard({ product, index }) {
   const navigate = useNavigate();
-  const cond = COND_CHIP[p.condition] || COND_CHIP["Used"];
+  const pid = product._id || product.id;
+  const cond = COND_STYLES[product.condition] || COND_STYLES["Used"];
   const discount =
-    p.oldPrice && p.price < p.oldPrice
-      ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100)
-      : null;
+    product.oldPrice && product.price < product.oldPrice
+      ? Math.round(
+          ((product.oldPrice - product.price) / product.oldPrice) * 100,
+        )
+      : product.discount;
 
   return (
     <article
-      className="sc-card"
-      style={{ "--i": index }}
-      onClick={() => navigate(`/product/${p._id}`)}
       tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && navigate(`/product/${p._id}`)}
-      aria-label={`${p.name} — KES ${p.price?.toLocaleString()}`}
+      onKeyDown={(e) => e.key === "Enter" && navigate(`/product/${pid}`)}
+      onClick={() => navigate(`/product/${pid}`)}
+      style={{
+        background: "white",
+        borderRadius: 14,
+        overflow: "hidden",
+        border: "1px solid #eee8db",
+        cursor: "pointer",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        animation: `ms-fadein 0.45s ${index * 55}ms both ease`,
+        transition:
+          "transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease",
+        fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.boxShadow = "0 12px 36px rgba(13,17,23,0.11)";
+        e.currentTarget.style.borderColor = "#c8bfad";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "";
+        e.currentTarget.style.boxShadow = "";
+        e.currentTarget.style.borderColor = "#eee8db";
+      }}
     >
-      <div className="sc-img-wrap">
+      {/* Image */}
+      <div
+        style={{
+          position: "relative",
+          overflow: "hidden",
+          paddingTop: "90%",
+          background: "#f5f0e8",
+        }}
+      >
         <img
-          src={p.images?.[0] || FALLBACK}
-          alt={p.name}
-          className="sc-card-img"
-          draggable={false}
+          src={product.images?.[0] || FALLBACK_IMG}
+          alt={product.name}
           onError={(e) => {
-            e.target.src = FALLBACK;
+            e.target.src = FALLBACK_IMG;
+          }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transition: "transform 0.5s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "scale(1.06)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "";
           }}
         />
-        <div className="sc-badge-row">
-          {p.verified && (
-            <span className="sc-badge sc-badge-v">
-              <ShieldCheck size={9} strokeWidth={2.5} /> Verified
+        {/* Badges */}
+        <div
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: 4,
+          }}
+        >
+          {product.verified && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+                background: "rgba(13,17,23,0.78)",
+                backdropFilter: "blur(6px)",
+                color: "#4ade80",
+                fontSize: 9,
+                fontWeight: 700,
+                padding: "2px 7px",
+                borderRadius: 100,
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
+              <ShieldCheck size={8} strokeWidth={2.5} /> OK
             </span>
           )}
           {discount && (
-            <span className="sc-badge sc-badge-d">-{discount}%</span>
+            <span
+              style={{
+                background: "#ef4444",
+                color: "white",
+                fontSize: 9,
+                fontWeight: 700,
+                padding: "2px 7px",
+                borderRadius: 100,
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
+              -{discount}%
+            </span>
           )}
         </div>
+        {/* Condition */}
         <span
-          className="sc-cond-chip"
-          style={{ background: cond.bg, color: cond.color }}
+          style={{
+            position: "absolute",
+            bottom: 8,
+            left: 8,
+            background: cond.bg,
+            color: cond.color,
+            fontSize: 8,
+            fontWeight: 700,
+            padding: "2px 8px",
+            borderRadius: 100,
+            fontFamily: "var(--font-mono, monospace)",
+          }}
         >
-          {p.condition}
+          {product.condition}
         </span>
-        <div className="sc-ov">
-          <span className="sc-ov-cta">View details</span>
+        {/* Hover overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: 0,
+            transition: "all 0.22s ease",
+          }}
+          className="ms-card-ov"
+        >
+          <span
+            style={{
+              background: "#0d1117",
+              color: "rgba(255,255,255,0.85)",
+              fontSize: 10,
+              fontWeight: 700,
+              padding: "7px 16px",
+              borderRadius: 100,
+              transform: "translateY(4px)",
+              transition: "transform 0.22s ease",
+            }}
+          >
+            View details
+          </span>
         </div>
       </div>
 
-      <div className="sc-card-body">
-        <p className="sc-brand">{p.brand}</p>
-        <h3 className="sc-name">{p.name}</h3>
-        {p.rating > 0 && (
-          <div className="sc-stars">
+      {/* Body */}
+      <div
+        style={{
+          padding: "11px 13px 14px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+          flex: 1,
+        }}
+      >
+        <p
+          style={{
+            fontSize: 8.5,
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "#9e927f",
+            margin: 0,
+            fontFamily: "var(--font-mono, monospace)",
+          }}
+        >
+          {product.brand}
+        </p>
+        <h3
+          style={{
+            fontSize: 13,
+            fontWeight: 700,
+            color: "#0d1117",
+            margin: 0,
+            lineHeight: 1.25,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            fontFamily: "var(--font-display, 'Syne', sans-serif)",
+          }}
+        >
+          {product.name}
+        </h3>
+
+        {product.rating > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
             {[1, 2, 3, 4, 5].map((i) => (
               <span
                 key={i}
-                className={`sc-star${i <= Math.round(p.rating) ? " on" : ""}`}
+                style={{
+                  fontSize: 10,
+                  color:
+                    i <= Math.round(product.rating) ? "#f59e0b" : "#e8e0d0",
+                }}
               >
                 ★
               </span>
             ))}
-            <span className="sc-rating">{p.rating.toFixed(1)}</span>
+            <span
+              style={{
+                fontSize: 9,
+                color: "#9e927f",
+                marginLeft: 3,
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
+              {product.rating.toFixed(1)}
+            </span>
           </div>
         )}
-        <div className="sc-price-row">
-          <span className="sc-price">KES {p.price?.toLocaleString()}</span>
-          {p.oldPrice && (
-            <span className="sc-old-price">
-              KES {p.oldPrice?.toLocaleString()}
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+            color: "#9e927f",
+            marginTop: "auto",
+          }}
+        >
+          <Eye size={9} />
+          <span
+            style={{ fontSize: 9, fontFamily: "var(--font-mono, monospace)" }}
+          >
+            {product.views || 0} views
+          </span>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: 7,
+            marginTop: 4,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: 14,
+              fontWeight: 700,
+              color: "#0d1117",
+            }}
+          >
+            KES {product.price?.toLocaleString()}
+          </span>
+          {product.oldPrice && (
+            <span
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: 10,
+                color: "#b5a99a",
+                textDecoration: "line-through",
+              }}
+            >
+              {product.oldPrice?.toLocaleString()}
             </span>
           )}
         </div>
-        {p.location && <p className="sc-loc">📍 {p.location}</p>}
       </div>
 
-      <div className="sc-arrow">
-        <ChevronRight size={13} />
+      {/* Arrow */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 12,
+          right: 12,
+          width: 22,
+          height: 22,
+          borderRadius: "50%",
+          background: "#f5f0e8",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#0d1117",
+          opacity: 0,
+          transform: "translateX(-4px)",
+          transition: "opacity 0.22s ease, transform 0.22s ease",
+        }}
+        className="ms-arrow"
+      >
+        <ChevronRight size={12} />
       </div>
     </article>
   );
 }
 
-function CategoryRow({
+// ─── Empty state ──────────────────────────────────────────────────────────────
+function EmptyState({ label, ctaRoute }) {
+  const navigate = useNavigate();
+  return (
+    <div
+      style={{
+        gridColumn: "1/-1",
+        textAlign: "center",
+        padding: "40px 20px",
+        color: "#9e927f",
+        fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+      }}
+    >
+      <p style={{ fontSize: 13, fontWeight: 500 }}>
+        No {label} listed yet — check back soon.
+      </p>
+      <button
+        onClick={() => navigate(ctaRoute)}
+        style={{
+          marginTop: 12,
+          fontSize: 11,
+          fontWeight: 700,
+          color: "#005f02",
+          background: "none",
+          border: "1px solid #c5d9a0",
+          padding: "6px 16px",
+          borderRadius: 100,
+          cursor: "pointer",
+          fontFamily: "var(--font-mono, monospace)",
+          letterSpacing: "0.06em",
+        }}
+      >
+        Browse all →
+      </button>
+    </div>
+  );
+}
+
+// ─── Section row ─────────────────────────────────────────────────────────────
+function CategorySection({
   label,
-  Icon,
+  icon: Icon,
   badge,
   items,
   loading,
-  onToggle,
-  expanded,
+  ctaRoute,
+  accentColor,
 }) {
+  const navigate = useNavigate();
+  const [showAll, setShowAll] = useState(false);
+  const INITIAL_COUNT = 4;
+  const visible = showAll ? items : items.slice(0, INITIAL_COUNT);
+  const hasMore = items.length > INITIAL_COUNT;
+
   return (
-    <div className="sc-row">
-      <div className="sc-row-hdr">
-        <div className="sc-row-left">
-          <span className="sc-row-pill">
-            <Icon size={12} strokeWidth={2.5} />
+    <div style={{ marginBottom: 48 }}>
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 16,
+          flexWrap: "wrap",
+          gap: 8,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
+              background: "#0d1117",
+              color: "rgba(255,255,255,0.85)",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.07em",
+              textTransform: "uppercase",
+              padding: "6px 14px 6px 11px",
+              borderRadius: 100,
+              fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+            }}
+          >
+            <Icon size={12} strokeWidth={2.5} style={{ color: accentColor }} />
             {label}
           </span>
-          {badge && <span className="sc-row-badge">{badge}</span>}
+          {badge && !loading && (
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 700,
+                background: "#fef9c3",
+                color: "#854d0e",
+                padding: "2px 10px",
+                borderRadius: 100,
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
+              {badge}
+            </span>
+          )}
         </div>
-        {!loading && items.length > 0 && (
-          <button className="sc-more" onClick={onToggle}>
-            {expanded ? "Show less" : `Show all ${items.length}`}{" "}
-            <ChevronRight size={11} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {!loading && hasMore && (
+            <button
+              onClick={() => setShowAll((v) => !v)}
+              style={{
+                fontSize: 10.5,
+                fontWeight: 600,
+                color: "#6b5f52",
+                background: "none",
+                border: "1.5px solid #e8e0d0",
+                padding: "5px 13px",
+                borderRadius: 100,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+                transition: "border-color 0.2s, color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = "#0d1117";
+                e.target.style.color = "#0d1117";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = "#e8e0d0";
+                e.target.style.color = "#6b5f52";
+              }}
+            >
+              {showAll ? "Show less" : `See all ${items.length}`}{" "}
+              <ChevronRight size={11} />
+            </button>
+          )}
+          <button
+            onClick={() => navigate(ctaRoute)}
+            style={{
+              fontSize: 10.5,
+              fontWeight: 700,
+              color: "white",
+              background: accentColor,
+              border: "none",
+              padding: "6px 14px",
+              borderRadius: 100,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+              transition: "filter 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.filter = "brightness(1.12)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.filter = "";
+            }}
+          >
+            Browse all <ArrowRight size={11} />
           </button>
-        )}
+        </div>
       </div>
 
-      {/* Desktop */}
-      <div className="sc-grid-d">
+      {/* Grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+          gap: 12,
+        }}
+      >
         {loading ? (
-          Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-        ) : items.length === 0 ? (
-          <p className="sc-empty">No {label.toLowerCase()} listed right now.</p>
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} />)
+        ) : visible.length === 0 ? (
+          <EmptyState label={label.toLowerCase()} ctaRoute={ctaRoute} />
         ) : (
-          items.map((p, i) => <ProductCard key={p._id} p={p} index={i} />)
+          visible.map((p, i) => (
+            <ProductCard key={p._id || p.id} product={p} index={i} />
+          ))
         )}
       </div>
+    </div>
+  );
+}
 
-      {/* Mobile scroll */}
-      <div className="sc-grid-m">
-        <div className="sc-scroll-inner">
-          {loading
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="sc-scroll-col">
-                  <SkeletonCard />
-                  <SkeletonCard />
-                </div>
-              ))
-            : (() => {
-                const cols = [];
-                for (let i = 0; i < items.length; i += 2) {
-                  cols.push(
-                    <div key={i} className="sc-scroll-col">
-                      <ProductCard p={items[i]} index={i} />
-                      {items[i + 1] && (
-                        <ProductCard p={items[i + 1]} index={i + 1} />
-                      )}
-                    </div>,
-                  );
-                }
-                return cols;
-              })()}
+// ─── Ticker ───────────────────────────────────────────────────────────────────
+function DealsTicker({ items }) {
+  const deals = items.filter((p) => p.oldPrice && p.price < p.oldPrice);
+  if (!deals.length) return null;
+  const repeated = [...deals, ...deals, ...deals];
+  return (
+    <div
+      style={{
+        background: "#005f02",
+        display: "flex",
+        alignItems: "center",
+        height: 32,
+        overflow: "hidden",
+        marginBottom: 0,
+      }}
+    >
+      <span
+        style={{
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          gap: 5,
+          fontSize: 9,
+          fontWeight: 700,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.9)",
+          padding: "0 16px 0 14px",
+          borderRight: "1px solid rgba(255,255,255,0.2)",
+          height: "100%",
+          fontFamily: "var(--font-mono, monospace)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        <Tag size={9} style={{ fill: "currentColor" }} /> Hot deals
+      </span>
+      <div style={{ flex: 1, overflow: "hidden" }}>
+        <div
+          style={{
+            display: "inline-flex",
+            whiteSpace: "nowrap",
+            alignItems: "center",
+            fontSize: 10.5,
+            color: "rgba(255,255,255,0.7)",
+            padding: "0 20px",
+            animation: "ms-tick 28s linear infinite",
+            fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+          }}
+        >
+          {repeated.map((p, i) => {
+            const pct = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
+            return (
+              <span key={i} style={{ marginRight: 32 }}>
+                {p.brand} {p.name} ·{" "}
+                <strong style={{ color: "white" }}>
+                  KES {p.price?.toLocaleString()}
+                </strong>
+                <span
+                  style={{
+                    textDecoration: "line-through",
+                    color: "rgba(255,255,255,0.4)",
+                    marginLeft: 6,
+                  }}
+                >
+                  {p.oldPrice?.toLocaleString()}
+                </span>
+                <span
+                  style={{ color: "#a3e635", fontWeight: 700, marginLeft: 6 }}
+                >
+                  -{pct}%
+                </span>
+              </span>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════
-   MAIN EXPORT
-══════════════════════════════════════════════════════════ */
-
-export default function MarketplaceShowcase() {
+// ─── Section header ───────────────────────────────────────────────────────────
+function SectionHeader({ total }) {
   const navigate = useNavigate();
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 12,
+        marginBottom: 28,
+        paddingBottom: 20,
+        borderBottom: "1px solid #e8e0d0",
+      }}
+    >
+      <div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 6,
+          }}
+        >
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "#005f02",
+              fontFamily: "var(--font-mono, monospace)",
+            }}
+          >
+            <TrendingUp size={10} /> Marketplace · Nairobi
+          </span>
+        </div>
+        <h2
+          style={{
+            fontFamily: "var(--font-display, 'Syne', sans-serif)",
+            fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
+            fontWeight: 800,
+            color: "#0d1117",
+            margin: 0,
+            letterSpacing: "-0.03em",
+            lineHeight: 1.1,
+          }}
+        >
+          Featured listings
+        </h2>
+        <p
+          style={{
+            fontSize: 13,
+            color: "#9e927f",
+            margin: "6px 0 0",
+            fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+          }}
+        >
+          {total > 0
+            ? `${total} verified listings`
+            : "Verified phones & laptops"}{" "}
+          · Nairobi's best prices
+        </p>
+      </div>
+      <button
+        onClick={() => navigate("/marketplace")}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          background: "#0d1117",
+          color: "rgba(255,255,255,0.85)",
+          border: "none",
+          padding: "11px 22px",
+          borderRadius: 10,
+          fontSize: 12,
+          fontWeight: 700,
+          cursor: "pointer",
+          fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+          transition: "background 0.22s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "#005f02";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#0d1117";
+        }}
+      >
+        Full marketplace <ArrowRight size={13} />
+      </button>
+    </div>
+  );
+}
+
+// ─── Main export ──────────────────────────────────────────────────────────────
+export default function MarketplaceShowcase() {
   const [all, setAll] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showAllLaptops, setShowAllLaptops] = useState(false);
-  const [showAllPhones, setShowAllPhones] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    getAllListings({ limit: 100, page: 1 })
-      .then((res) => setAll(shuffle(res.data || [])))
-      .catch(() => setAll([]))
+    getAllListings({ limit: 100 })
+      .then((res) => setAll(res.data || []))
+      .catch((err) => setError(err.message || "Failed to load"))
       .finally(() => setLoading(false));
   }, []);
 
-  const laptops = all.filter((p) => classify(p) === "laptop");
-  const phones = all.filter((p) => classify(p) === "phone");
-  const visLaptops = showAllLaptops ? laptops : laptops.slice(0, 4);
-  const visPhones = showAllPhones ? phones : phones.slice(0, 4);
+  const phones = useMemo(() => all.filter(isPhone), [all]);
+  const laptops = useMemo(() => all.filter(isLaptop), [all]);
 
   return (
     <>
       <style>{`
-        /* ── All tokens come from :root in your global CSS ── */
-
-        .sc-section {
-          background: var(--color-beige);
-          font-family: var(--font-body);
-          overflow: hidden;
-        }
-
-        /* HERO */
-        .sc-hero { display: grid; grid-template-columns: 1fr; }
-        @media(min-width:768px) {
-          .sc-hero { grid-template-columns: 46% 54%; min-height: 360px; }
-        }
-
-        .sc-hero-left {
-          position: relative; z-index: 0;
-          background: var(--color-black);
-          padding: 40px 30px 36px;
-          display: flex; flex-direction: column; justify-content: center; gap: 14px;
-          overflow: hidden;
-        }
-        .sc-hero-left::before {
-          content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-          background-image:
-            linear-gradient(rgba(0,95,2,.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,95,2,.08) 1px, transparent 1px);
-          background-size: 34px 34px;
-        }
-        .sc-hero-left::after {
-          content: ''; position: absolute;
-          width: 340px; height: 340px;
-          background: radial-gradient(circle, rgba(0,95,2,.28) 0%, transparent 68%);
-          top: -90px; right: -80px; pointer-events: none; z-index: 0;
-          animation: sc-orb 9s ease-in-out infinite;
-        }
-        @keyframes sc-orb {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50%      { transform: translate(-22px,22px) scale(1.08); }
-        }
-
-        .sc-eyebrow {
-          position: relative; z-index: 1;
-          font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
-          color: var(--color-green);
-          font-family: var(--font-mono);
-        }
-        .sc-hero-title {
-          position: relative; z-index: 1;
-          font-family: var(--font-display);
-          font-size: clamp(1.9rem, 3.8vw, 3.1rem);
-          font-weight: 700; line-height: 1.05;
-          color: var(--color-white); margin: 0; max-width: 15ch;
-        }
-        .sc-word {
-          display: inline-block; font-style: italic; color: var(--color-green);
-          transition: opacity .26s ease, transform .26s ease;
-        }
-        .sc-hero-sub {
-          position: relative; z-index: 1;
-          font-size: 12px; color: var(--color-white-muted);
-          max-width: 34ch; line-height: 1.65; margin: 0;
-          font-family: var(--font-body);
-        }
-        .sc-hero-cta {
-          position: relative; z-index: 1;
-          display: inline-flex; align-items: center; gap: 8px;
-          background: var(--color-green); color: var(--color-white);
-          border: none; padding: 11px 22px; border-radius: var(--radius-xl);
-          font-family: var(--font-body); font-size: 12.5px; font-weight: 700;
-          cursor: pointer; width: fit-content;
-          transition: transform .22s ease, box-shadow .22s ease;
-        }
-        .sc-hero-cta:hover {
-          transform: translateX(3px);
-          box-shadow: 0 4px 18px rgba(0,95,2,.35);
-        }
-
-        /* CAROUSEL */
-        .sc-hero-right { position: relative; overflow: hidden; min-height: 230px; }
-        .sc-car { position: absolute; inset: 0; }
-        .sc-car-slide { position: absolute; inset: 0; opacity: 0; transition: opacity .5s ease; }
-        .sc-car-slide.a { opacity: 1; }
-        .sc-car-img { width: 100%; height: 100%; object-fit: cover; }
-        .sc-car-ov {
-          position: absolute; inset: 0;
-          background:
-            linear-gradient(to right, rgba(13,17,23,.45) 0%, transparent 55%),
-            linear-gradient(to top,   rgba(13,17,23,.6)  0%, transparent 50%);
-        }
-        .sc-car-content {
-          position: absolute; bottom: 28px; left: 24px;
-          display: flex; flex-direction: column; gap: 8px;
-          transition: opacity .3s ease;
-        }
-        .sc-car-tag {
-          font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
-          color: var(--color-white); background: var(--color-green);
-          padding: 3px 10px; border-radius: var(--radius-xl); width: fit-content;
-          font-family: var(--font-mono);
-        }
-        .sc-car-title {
-          font-family: var(--font-display);
-          font-size: clamp(1.4rem, 2.8vw, 2rem); font-weight: 700;
-          color: var(--color-white); margin: 0; line-height: 1.1;
-        }
-        .sc-car-sub {
-          font-size: 11px; color: rgba(255,255,255,.65); margin: 0;
-          font-family: var(--font-body);
-        }
-        .sc-car-cta {
-          display: inline-flex; align-items: center; gap: 6px;
-          color: var(--color-white); border: 1.5px solid rgba(255,255,255,.45);
-          background: rgba(255,255,255,.1); backdrop-filter: blur(6px);
-          padding: 7px 16px; border-radius: var(--radius-xl);
-          font-family: var(--font-body); font-size: 11px; font-weight: 600;
-          cursor: pointer; width: fit-content;
-          transition: background .22s ease, border-color .22s ease;
-        }
-        .sc-car-cta:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.8); }
-        .sc-car-btn {
-          position: absolute; top: 50%; transform: translateY(-50%);
-          width: 30px; height: 30px; border-radius: 50%;
-          background: rgba(255,255,255,.16); backdrop-filter: blur(8px);
-          border: 1px solid rgba(255,255,255,.22);
-          color: var(--color-white); cursor: pointer; z-index: 2;
-          display: flex; align-items: center; justify-content: center;
-          transition: background .22s ease;
-        }
-        .sc-car-btn:hover { background: rgba(255,255,255,.32); }
-        .sc-car-prev { left: 10px; } .sc-car-next { right: 10px; }
-        .sc-car-dots {
-          position: absolute; bottom: 10px; right: 16px;
-          display: flex; gap: 5px; z-index: 2;
-        }
-        .sc-car-dot {
-          width: 5px; height: 5px; border-radius: 50%;
-          background: rgba(255,255,255,.32); border: none; cursor: pointer; padding: 0;
-          transition: background .2s, transform .2s;
-        }
-        .sc-car-dot.on { background: var(--color-white); transform: scale(1.35); }
-
-        /* TRUST BAR */
-        .sc-trust {
-          display: flex; align-items: center; justify-content: space-around;
-          flex-wrap: wrap; gap: 8px;
-          background: var(--color-black); padding: 12px 28px;
-        }
-        .sc-trust-item { display: flex; align-items: center; gap: 7px; }
-        .sc-trust-icon { color: var(--color-green); flex-shrink: 0; }
-        .sc-trust-val {
-          font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-          color: var(--color-white-soft);
-        }
-        .sc-trust-label {
-          font-size: 9.5px; color: var(--color-white-dim);
-          text-transform: uppercase; letter-spacing: .07em;
-          font-family: var(--font-body);
-        }
-
-        /* TICKER */
-        .sc-ticker {
-          display: flex; align-items: center; height: 32px;
-          background: var(--color-green); overflow: hidden;
-        }
-        .sc-ticker-label {
-          flex-shrink: 0; display: flex; align-items: center; gap: 5px;
-          font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-          color: var(--color-white); padding: 0 16px 0 14px;
-          border-right: 1px solid rgba(255,255,255,.25); height: 100%;
-          white-space: nowrap; font-family: var(--font-mono);
-        }
-        .sc-ticker-track { flex: 1; overflow: hidden; }
-        .sc-ticker-inner {
-          display: inline-flex; align-items: center; white-space: nowrap;
-          animation: sc-tick 30s linear infinite;
-          font-size: 10.5px; color: rgba(255,255,255,.75);
-          padding: 0 20px; font-family: var(--font-body);
-        }
-        .sc-ticker-inner strong { color: var(--color-white); font-weight: 700; }
-        .sc-ticker-was { text-decoration: line-through; color: rgba(255,255,255,.45); }
-        @keyframes sc-tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-        /* INNER */
-        .sc-inner { max-width: 1280px; margin: 0 auto; padding: 28px 22px 52px; }
-
-        /* ROW */
-        .sc-row { margin-bottom: 36px; }
-        .sc-row-hdr {
-          display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
-        }
-        .sc-row-left { display: flex; align-items: center; gap: 8px; }
-        .sc-row-pill {
-          display: inline-flex; align-items: center; gap: 6px;
-          background: var(--color-black); color: var(--color-white-soft);
-          font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
-          padding: 5px 13px 5px 10px; border-radius: var(--radius-xl);
-          font-family: var(--font-body);
-        }
-        .sc-row-badge {
-          font-size: 9px; font-weight: 700;
-          background: #fef08a; color: #713f12;
-          padding: 2px 9px; border-radius: var(--radius-xl);
-          font-family: var(--font-mono);
-        }
-        .sc-more {
-          display: inline-flex; align-items: center; gap: 4px;
-          background: none; border: 1.5px solid var(--color-beige-dark);
-          color: var(--color-beige-text); font-family: var(--font-body);
-          font-size: 10.5px; font-weight: 600;
-          padding: 5px 13px; border-radius: var(--radius-xl); cursor: pointer;
-          transition: border-color .22s ease, color .22s ease;
-        }
-        .sc-more:hover { border-color: var(--color-black); color: var(--color-black); }
-
-        /* DESKTOP GRID */
-        .sc-grid-d { display: none; }
-        @media(min-width:580px)  { .sc-grid-d { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; } }
-        @media(min-width:860px)  { .sc-grid-d { grid-template-columns: repeat(3,1fr); } }
-        @media(min-width:1100px) { .sc-grid-d { grid-template-columns: repeat(4,1fr); } }
-
-        /* MOBILE SCROLL */
-        .sc-grid-m {
-          display: block; overflow-x: auto; -webkit-overflow-scrolling: touch;
-          scrollbar-width: none; margin: 0 -22px; padding: 0 22px 4px;
-        }
-        .sc-grid-m::-webkit-scrollbar { display: none; }
-        @media(min-width:580px) { .sc-grid-m { display: none; } }
-        .sc-scroll-inner { display: flex; gap: 10px; width: max-content; padding-right: 22px; }
-        .sc-scroll-col { display: flex; flex-direction: column; gap: 10px; width: 145px; flex-shrink: 0; }
-
-        /* CARD */
-        .sc-card {
-          position: relative; background: var(--color-white);
-          border: 1px solid var(--color-beige-dark); border-radius: var(--radius-lg);
-          overflow: hidden; cursor: pointer;
-          display: flex; flex-direction: column;
-          box-shadow: 0 1px 4px rgba(13,17,23,.05), 0 4px 14px rgba(13,17,23,.04);
-          animation: sc-fadein .4s ease both;
-          animation-delay: calc(var(--i,0) * 55ms);
-          transition: box-shadow .22s ease, border-color .22s ease, transform .22s ease;
-          outline-offset: 3px;
-        }
-        .sc-card:hover, .sc-card:focus-visible {
-          border-color: rgba(0,95,2,.3);
-          box-shadow: 0 8px 30px rgba(13,17,23,.12);
-          transform: translateY(-3px);
-        }
-        @keyframes sc-fadein {
-          from { opacity: 0; transform: translateY(12px); }
+        @keyframes ms-fadein {
+          from { opacity: 0; transform: translateY(14px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-
-        .sc-img-wrap {
-          position: relative; aspect-ratio: 1;
-          background: var(--color-beige-dark); overflow: hidden;
+        @keyframes ms-shim {
+          to { background-position: -200% 0; }
         }
-        .sc-card-img {
-          width: 100%; height: 100%; object-fit: cover; display: block;
-          transition: transform .5s cubic-bezier(.25,.46,.45,.94);
+        @keyframes ms-tick {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-33.333%); }
         }
-        .sc-card:hover .sc-card-img { transform: scale(1.07); }
-
-        .sc-badge-row {
-          position: absolute; top: 7px; right: 7px;
-          display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
-        }
-        .sc-badge {
-          display: inline-flex; align-items: center; gap: 3px;
-          font-size: 8.5px; font-weight: 700; padding: 2px 7px;
-          border-radius: var(--radius-xl); font-family: var(--font-mono);
-        }
-        .sc-badge-v {
-          background: rgba(13,17,23,.82); backdrop-filter: blur(6px);
-          color: var(--color-green); border: 1px solid rgba(0,95,2,.3);
-        }
-        .sc-badge-d { background: var(--color-error); color: var(--color-white); }
-
-        .sc-cond-chip {
-          position: absolute; bottom: 7px; left: 7px;
-          font-size: 8px; font-weight: 700; padding: 2px 7px;
-          border-radius: var(--radius-xl); font-family: var(--font-mono);
-        }
-
-        .sc-ov {
-          position: absolute; inset: 0;
-          background: rgba(13,17,23,0);
-          display: flex; align-items: center; justify-content: center;
-          opacity: 0; transition: opacity .22s ease, background .22s ease;
-        }
-        .sc-card:hover .sc-ov { opacity: 1; background: rgba(13,17,23,.1); }
-        .sc-ov-cta {
-          background: var(--color-black); color: var(--color-white-soft);
-          font-size: 10px; font-weight: 700; letter-spacing: .03em;
-          padding: 7px 16px; border-radius: var(--radius-xl);
-          transform: translateY(5px); transition: transform .22s ease;
-          font-family: var(--font-body);
-        }
-        .sc-card:hover .sc-ov-cta { transform: translateY(0); }
-
-        .sc-card-body {
-          padding: 10px 12px 28px; flex: 1;
-          display: flex; flex-direction: column; gap: 3px;
-        }
-        .sc-brand {
-          font-size: 8.5px; font-weight: 700; letter-spacing: .12em;
-          text-transform: uppercase; color: var(--color-beige-text);
-          margin: 0; font-family: var(--font-mono);
-        }
-        .sc-name {
-          font-family: var(--font-display); font-size: 13px; line-height: 1.22;
-          color: var(--color-black); margin: 0;
-          display: -webkit-box; -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical; overflow: hidden;
-        }
-        .sc-stars { display: flex; align-items: center; gap: 1px; margin-top: 2px; }
-        .sc-star { font-size: 10px; color: var(--color-beige-dark); }
-        .sc-star.on { color: var(--color-warning); }
-        .sc-rating { font-size: 9px; color: var(--color-beige-text); margin-left: 3px; font-family: var(--font-mono); }
-        .sc-price-row { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; }
-        .sc-price { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--color-black); }
-        .sc-old-price { font-family: var(--font-mono); font-size: 9px; color: var(--color-beige-text); text-decoration: line-through; }
-        .sc-loc { font-size: 9px; color: var(--color-beige-text); margin: 2px 0 0; font-family: var(--font-body); }
-
-        .sc-arrow {
-          position: absolute; bottom: 9px; right: 9px;
-          width: 22px; height: 22px; border-radius: 50%;
-          background: var(--color-beige); display: flex; align-items: center; justify-content: center;
-          color: var(--color-black); opacity: 0; transform: translateX(-4px);
-          transition: opacity .22s ease, transform .22s ease;
-        }
-        .sc-card:hover .sc-arrow, .sc-card:focus-visible .sc-arrow {
-          opacity: 1; transform: translateX(0);
-        }
-
-        /* SKELETON */
-        .sc-skel { pointer-events: none; }
-        .sc-skel-block {
-          background: linear-gradient(90deg, var(--color-beige-dark) 25%, var(--color-beige) 50%, var(--color-beige-dark) 75%);
-          background-size: 200% 100%; animation: sc-shim 1.5s infinite;
-        }
-        .sc-skel-line {
-          height: 8px; border-radius: var(--radius-sm); margin: 4px 12px 0;
-          background: linear-gradient(90deg, var(--color-beige-dark) 25%, var(--color-beige) 50%, var(--color-beige-dark) 75%);
-          background-size: 200% 100%; animation: sc-shim 1.5s infinite;
-        }
-        @keyframes sc-shim { to { background-position: -200% 0; } }
-        .sc-empty {
-          grid-column: 1/-1; font-size: 12px; color: var(--color-beige-text);
-          padding: 32px 0; text-align: center; font-family: var(--font-body);
-        }
-
-        /* DIVIDER */
-        .sc-divider {
-          height: 1px;
-          background: linear-gradient(to right, var(--color-green), transparent);
-          margin: 4px 0 32px;
-        }
+        .ms-card-ov:hover { opacity: 1 !important; background: rgba(0,0,0,0.08) !important; }
+        article:hover .ms-card-ov { opacity: 1; background: rgba(0,0,0,0.08); }
+        article:hover .ms-arrow { opacity: 1 !important; transform: translateX(0) !important; }
       `}</style>
 
-      <section className="sc-section">
-        {/* HERO */}
-        <div className="sc-hero">
-          <div className="sc-hero-left">
-            <span className="sc-eyebrow">Marketplace · Nairobi</span>
-            <AnimatedTitle />
-            <p className="sc-hero-sub">
-              Curated laptops &amp; smartphones from verified sellers across
-              Kenya. Every listing hand-checked before going live.
-            </p>
-            <button
-              className="sc-hero-cta"
-              onClick={() => navigate("/marketplace")}
+      <section
+        style={{
+          background: "#f5f0e8",
+          fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+        }}
+      >
+        {/* Deals ticker — only when there are discounted items */}
+        <DealsTicker items={all} />
+
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "36px 24px 56px",
+          }}
+        >
+          {/* Section header */}
+          <SectionHeader total={all.length} />
+
+          {/* Error */}
+          {error && (
+            <div
+              style={{
+                background: "#fee2e2",
+                border: "1px solid #fca5a5",
+                borderRadius: 10,
+                padding: "12px 16px",
+                marginBottom: 24,
+              }}
             >
-              Browse all listings <ArrowRight size={13} />
-            </button>
-          </div>
-          <div className="sc-hero-right">
-            <HeroCarousel onCTAClick={() => navigate("/marketplace")} />
-          </div>
+              <p style={{ color: "#991b1b", fontSize: 13, margin: 0 }}>
+                {error}
+              </p>
+            </div>
+          )}
+
+          {/* Divider line between sections */}
+          <CategorySection
+            label="Laptops"
+            icon={Laptop}
+            badge={
+              !loading && laptops.length > 0
+                ? `${laptops.length} listed`
+                : undefined
+            }
+            items={laptops}
+            loading={loading}
+            ctaRoute="/marketplace?tab=laptops"
+            accentColor="#f97316"
+          />
+
+          {/* Green gradient divider */}
+          <div
+            style={{
+              height: 1,
+              background: "linear-gradient(to right, #005f02, transparent)",
+              margin: "0 0 40px",
+            }}
+          />
+
+          <CategorySection
+            label="Smartphones"
+            icon={Smartphone}
+            badge={
+              !loading && phones.length > 0
+                ? `${phones.length} listed`
+                : undefined
+            }
+            items={phones}
+            loading={loading}
+            ctaRoute="/marketplace?tab=phones"
+            accentColor="#06b6d4"
+          />
         </div>
 
-        {/* TRUST BAR */}
-        <TrustBar total={all.length} />
-
-        {/* TICKER */}
-        <Ticker items={all} />
-
-        {/* PRODUCT ROWS */}
-        <div className="sc-inner">
-          <CategoryRow
-            label="Laptops"
-            Icon={Laptop}
-            badge={laptops.length > 0 ? `${laptops.length} listed` : undefined}
-            items={visLaptops}
-            loading={loading}
-            onToggle={() => setShowAllLaptops((v) => !v)}
-            expanded={showAllLaptops}
-          />
-
-          <div className="sc-divider" />
-
-          <CategoryRow
-            label="Smartphones"
-            Icon={Smartphone}
-            badge={phones.length > 0 ? `${phones.length} listed` : undefined}
-            items={visPhones}
-            loading={loading}
-            onToggle={() => setShowAllPhones((v) => !v)}
-            expanded={showAllPhones}
-          />
+        {/* Bottom CTA strip */}
+        <div
+          style={{
+            borderTop: "1px solid #e8e0d0",
+            background: "white",
+            padding: "22px 24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 18,
+            flexWrap: "wrap",
+          }}
+        >
+          {[
+            {
+              icon: <ShieldCheck size={13} style={{ color: "#005f02" }} />,
+              text: "All sellers verified",
+            },
+            {
+              icon: <Zap size={13} style={{ color: "#f97316" }} />,
+              text: "Instant WhatsApp contact",
+            },
+            {
+              icon: <Star size={13} style={{ color: "#f59e0b" }} />,
+              text: "Rated by real buyers",
+            },
+          ].map(({ icon, text }) => (
+            <span
+              key={text}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 11,
+                color: "#6b5f52",
+                fontWeight: 500,
+                fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
+              }}
+            >
+              {icon} {text}
+            </span>
+          ))}
         </div>
       </section>
     </>
