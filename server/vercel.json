@@ -3,7 +3,7 @@
   "builds": [{ "src": "src/server.js", "use": "@vercel/node" }],
   "routes": [
     {
-      "src": "/(.*)",
+    "src": "/(.*)",
       "methods": ["OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
