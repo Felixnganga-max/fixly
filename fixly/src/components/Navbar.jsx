@@ -1,458 +1,195 @@
 import { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 
-const navLinks = [
-  { label: "Marketplace", href: "/marketplace" },
-  { label: "About Us", href: "/about-us" },
+/**
+ * NAVBAR ONLY. Sticky, sitewide. Built from the "Online Store" reference.
+ * Self-contained (own palette + fonts). Pair it with <Hero /> or use it alone.
+ *
+ * Same scaling grid as Hero: reference card = 783 wide, so 1u = 1/783 of the
+ * stage width. Navbar height = 60u (the reference's hanging-tab height).
+ * The active tab follows the current route.
+ */
+
+const LINKS_BEFORE = [
+  { label: "Home", to: "/" },
+  { label: "Marketplace", to: "/marketplace" },
+];
+const LINKS_AFTER = [{ label: "About Us", to: "/about-us" }];
+
+const REPAIRS = [
+  { to: "/request/phone", label: "Fix My Phone", sub: "Screens, battery & more" },
+  { to: "/request/laptop", label: "Fix My Laptop", sub: "Hardware & software" },
 ];
 
-const devices = [
-  {
-    href: "/request/phone",
-    label: "Fix My Phone",
-    sub: "Screens, battery & more",
-    icon: (
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#005f02"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect x="5" y="2" width="14" height="20" rx="2" />
-        <circle cx="12" cy="18" r="1" fill="#005f02" stroke="none" />
-      </svg>
-    ),
-  },
-  {
-    href: "/request/laptop",
-    label: "Fix My Laptop",
-    sub: "Hardware & software",
-    icon: (
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#005f02"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect x="2" y="3" width="20" height="14" rx="2" />
-        <path d="M0 21h24" />
-      </svg>
-    ),
-  },
-];
-
-function LockIcon() {
+function Wrench() {
   return (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="11" width="18" height="11" rx="2" />
-      <path d="M7 11V7a5 5 0 0110 0v4" />
+    <svg className="nb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
     </svg>
   );
 }
 
-function ChevronIcon({ open }) {
+function Chevron({ open }) {
   return (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      style={{
-        transition: "transform 0.22s cubic-bezier(0.22,1,0.36,1)",
-        transform: open ? "rotate(180deg)" : "rotate(0deg)",
-      }}
-    >
+    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" aria-hidden="true"
+      style={{ transition: "transform .22s cubic-bezier(.22,1,.36,1)", transform: open ? "rotate(180deg)" : "none" }}>
       <polyline points="6 9 12 15 18 9" />
     </svg>
   );
 }
 
-function Logo() {
-  return (
-    <a
-      href="/"
-      style={{
-        textDecoration: "none",
-        display: "flex",
-        alignItems: "center",
-        lineHeight: 1,
-      }}
-    >
-      <span
-        style={{
-          fontFamily: "var(--font-display, 'Syne', sans-serif)",
-          fontSize: "1.55rem",
-          fontWeight: 800,
-          letterSpacing: "-0.04em",
-          lineHeight: 1,
-        }}
-      >
-        <span style={{ color: "var(--color-black, #0d1117)" }}>Fixly</span>
-        <span style={{ color: "var(--color-green, #005f02)" }}> World</span>
-      </span>
-    </a>
-  );
+const u = (n) => `calc(var(--u) * ${n})`;
+
+const CSS = `
+@import url("https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Montserrat:wght@500;700;800&display=swap");
+
+.nb-root {
+  --nb-bg: #f7e6d9;
+  --nb-tint: #f0c09b;
+  --nb-accent: #e89454;
+  --nb-ink: #050505;
+  position: sticky; top: 0; z-index: 50;
+  background: var(--nb-bg); color: var(--nb-ink);
+  font-family: 'Montserrat', sans-serif;
+  transition: box-shadow .2s ease;
+}
+.nb-root--scrolled { box-shadow: 0 1px 0 var(--nb-tint), 0 12px 24px -18px rgba(120,70,30,.5); }
+.nb-stage { container-type: inline-size; max-width: 1240px; margin: 0 auto; }
+.nb-bar   { --u: calc(100cqw / 783); position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; min-height: 64px; padding: 0 20px; }
+
+/* ───────── MOBILE (default) ───────── */
+.nb-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+.nb-ico  { width: 28px; height: 28px; }
+.nb-logo-a { font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: 1; }
+.nb-logo-b { font-family: 'Kaushan Script', cursive; font-size: 24px; color: var(--nb-accent); transform: rotate(-6deg); margin: 14px 0 0 -4px; line-height: 1; }
+.nb-ham { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--nb-tint); background: transparent; cursor: pointer; }
+.nb-ham span { display: block; width: 18px; height: 1.5px; background: var(--nb-ink); border-radius: 2px; transition: all .28s cubic-bezier(.22,1,.36,1); }
+.nb-ham--open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nb-ham--open span:nth-child(2) { opacity: 0; }
+.nb-ham--open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+.nb-menu { flex-basis: 100%; overflow: hidden; max-height: 0; transition: max-height .38s cubic-bezier(.22,1,.36,1); }
+.nb-menu--open { max-height: 560px; padding-bottom: 12px; }
+.nb-links { display: flex; flex-direction: column; padding-top: 8px; }
+.nb-links a, .nb-drop a { display: block; padding: 14px 0; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: inherit; text-decoration: none; border-bottom: 1px solid var(--nb-tint); }
+.nb-links a.is-active { color: var(--nb-accent); }
+.nb-rep-btn { display: none; }
+.nb-drop-txt small { display: none; }
+
+/* ───────── DESKTOP: the reference nav, scaled ───────── */
+@media (min-width: 880px) {
+  .nb-bar { display: block; height: ${u(60)}; min-height: 0; padding: 0; }
+  .nb-ham { display: none; }
+  .nb-menu { display: contents; }
+
+  .nb-logo { position: absolute; left: ${u(24)}; top: ${u(24)}; width: ${u(150)}; height: ${u(44)}; display: block; }
+  .nb-ico { position: absolute; left: 0; top: 0; width: ${u(40)}; height: ${u(40)}; }
+  .nb-logo-a { position: absolute; left: ${u(46)}; top: ${u(3)}; font-size: ${u(21)}; letter-spacing: .05em; }
+  .nb-logo-b { position: absolute; left: ${u(74)}; top: ${u(21)}; margin: 0; font-size: ${u(25)}; }
+
+  .nb-links { position: absolute; left: ${u(235)}; top: 0; height: ${u(60)}; flex-direction: row; gap: ${u(12)}; padding: 0; }
+  .nb-links a, .nb-rep-btn {
+    display: flex; align-items: center; gap: 6px; box-sizing: border-box; height: 100%;
+    padding: ${u(14)} ${u(13)} 0; border: 0; border-bottom: 0; background: none; cursor: pointer;
+    font: 700 max(9px, ${u(7.6)}) 'Montserrat', sans-serif; letter-spacing: .2em; text-transform: uppercase;
+    color: inherit; text-decoration: none; white-space: nowrap; transition: color .18s;
+  }
+  .nb-links a.is-active, .nb-rep-btn.is-active { background: var(--nb-tint); color: inherit; }
+  .nb-links a:not(.is-active):hover, .nb-rep-btn:not(.is-active):hover { color: var(--nb-accent); }
+  .nb-rep { position: relative; height: 100%; }
+
+  .nb-drop { position: absolute; top: 100%; left: 0; min-width: 220px; background: #fffaf6; border: 1px solid var(--nb-tint); border-radius: 10px; overflow: hidden; box-shadow: 0 14px 30px -12px rgba(120,70,30,.35); transition: opacity .2s, transform .22s cubic-bezier(.22,1,.36,1); }
+  .nb-drop--closed { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+  .nb-drop--open   { opacity: 1; transform: none; }
+  .nb-drop a { padding: 13px 16px; font-size: 11px; letter-spacing: .12em; }
+  .nb-drop a:last-child { border-bottom: 0; }
+  .nb-drop a:hover { background: color-mix(in srgb, var(--nb-tint) 40%, transparent); }
+  .nb-drop-txt { display: flex; flex-direction: column; gap: 3px; }
+  .nb-drop-txt small { display: block; font-size: 10px; font-weight: 500; letter-spacing: .02em; text-transform: none; color: #8a6a55; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .nb-root, .nb-menu, .nb-ham span, .nb-drop { transition: none; }
+}
+`;
+
 export default function Navbar() {
-  const [deviceOpen, setDeviceOpen] = useState(false);
+  const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropOpen, setDropOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const dropRef = useRef(null);
 
-  // Close dropdown on outside click
+  const isActive = (to) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
+  const repairsActive = pathname.startsWith("/request");
+
   useEffect(() => {
-    const handler = (e) => {
-      if (dropRef.current && !dropRef.current.contains(e.target)) {
-        setDeviceOpen(false);
-      }
+    const close = (e) => {
+      if (dropRef.current && !dropRef.current.contains(e.target)) setDropOpen(false);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    document.addEventListener("mousedown", close);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      document.removeEventListener("mousedown", close);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
+  useEffect(() => { setMenuOpen(false); setDropOpen(false); }, [pathname]);
+
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+    <nav className={`nb-root ${scrolled ? "nb-root--scrolled" : ""}`} aria-label="Main">
+      <style>{CSS}</style>
+      <div className="nb-stage">
+        <div className="nb-bar">
+          <Link to="/" className="nb-logo" aria-label="Fixly World home">
+            <Wrench />
+            <span className="nb-logo-a">Fixly</span>
+            <span className="nb-logo-b">World</span>
+          </Link>
 
-        /* ── Nav shell ── */
-        .nb-root {
-          position: sticky; top: 0; z-index: 50;
-          width: 100%;
-          background: var(--color-beige, #f5f0e8);
-          border-bottom: 1px solid var(--color-beige-dark, #e8e0d0);
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-        }
-        .nb-inner {
-          max-width: 1100px; margin: 0 auto; padding: 0 24px;
-          display: flex; align-items: center; justify-content: space-between;
-          height: 66px;
-        }
-
-        /* ── Desktop links ── */
-        .nb-links { display: flex; align-items: center; gap: 2px; list-style: none; }
-        @media(max-width:640px){ .nb-links, .nb-right { display: none !important; } .nb-ham { display: flex !important; } }
-
-        .nb-links a {
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 13.5px; font-weight: 500;
-          color: var(--color-beige-text, #6b6155);
-          text-decoration: none;
-          padding: 6px 14px;
-          border-radius: 100px;
-          transition: color 0.18s, background 0.18s;
-        }
-        .nb-links a:hover {
-          color: var(--color-black, #0d1117);
-          background: var(--color-beige-dark, #e8e0d0);
-        }
-
-        /* ── Right cluster ── */
-        .nb-right { display: flex; align-items: center; gap: 8px; }
-
-        .nb-admin {
-          display: flex; align-items: center; gap: 5px;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 13px; font-weight: 500;
-          color: var(--color-beige-text, #6b6155);
-          text-decoration: none;
-          padding: 7px 12px; border-radius: 100px;
-          border: 1px solid transparent;
-          transition: all 0.18s;
-        }
-        .nb-admin:hover {
-          color: var(--color-black, #0d1117);
-          background: var(--color-beige-dark, #e8e0d0);
-          border-color: var(--color-beige-dark, #e8e0d0);
-        }
-
-        /* ── CTA pill ── */
-        .nb-cta-wrap { position: relative; }
-        .nb-cta {
-          display: inline-flex; align-items: center; gap: 7px;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 13.5px; font-weight: 600;
-          background: var(--color-black, #0d1117);
-          color: var(--color-beige, #f5f0e8);
-          padding: 9px 18px; border-radius: 100px;
-          border: 1.5px solid var(--color-black, #0d1117);
-          cursor: pointer;
-          transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-          white-space: nowrap;
-        }
-        .nb-cta:hover {
-          background: transparent;
-          color: var(--color-black, #0d1117);
-        }
-
-        /* ── Dropdown ── */
-        .nb-drop {
-          position: absolute; top: calc(100% + 10px); right: 0;
-          width: 230px;
-          background: var(--color-black, #0d1117);
-          border: 1px solid var(--color-black-border, #30363d);
-          border-radius: var(--radius-lg, 14px);
-          overflow: hidden;
-          box-shadow: 0 16px 40px -8px rgba(0,0,0,0.45);
-          transition: opacity 0.2s, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .nb-drop--closed { opacity: 0; transform: translateY(-8px) scale(0.97); pointer-events: none; }
-        .nb-drop--open   { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-
-        .nb-drop a {
-          display: flex; align-items: center; gap: 12px;
-          padding: 14px 18px;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 13.5px; font-weight: 500;
-          color: #c9d1d9;
-          text-decoration: none;
-          transition: background 0.15s, color 0.15s;
-        }
-        .nb-drop a:hover { background: var(--color-black-card, #161b22); color: white; }
-        .nb-drop a + a { border-top: 1px solid var(--color-black-border, #30363d); }
-
-        .nb-drop-icon {
-          width: 30px; height: 30px; border-radius: 8px;
-          background: rgba(0, 95, 2, 0.15);
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
-        }
-        .nb-drop-txt { display: flex; flex-direction: column; gap: 1px; }
-        .nb-drop-txt span:first-child { font-size: 13.5px; font-weight: 600; }
-        .nb-drop-txt span:last-child { font-size: 11px; color: var(--color-white-muted, #8b949e); }
-
-        /* ── Hamburger ── */
-        .nb-ham {
-          display: none;
-          flex-direction: column; align-items: center; justify-content: center; gap: 5px;
-          width: 38px; height: 38px;
-          border-radius: var(--radius-md, 10px);
-          border: 1px solid var(--color-beige-dark, #e8e0d0);
-          background: transparent; cursor: pointer;
-          transition: background 0.18s;
-        }
-        .nb-ham:hover { background: var(--color-beige-dark, #e8e0d0); }
-        .nb-ham span {
-          display: block; width: 18px; height: 1.5px;
-          background: var(--color-black, #0d1117);
-          border-radius: 2px;
-          transform-origin: center;
-          transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .nb-ham--open span:nth-child(1) { transform: rotate(45deg) translate(4.5px, 4.5px); }
-        .nb-ham--open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-        .nb-ham--open span:nth-child(3) { transform: rotate(-45deg) translate(4.5px, -4.5px); }
-
-        /* ── Mobile menu ── */
-        .nb-mob {
-          overflow: hidden;
-          max-height: 0;
-          background: var(--color-beige, #f5f0e8);
-          border-top: 1px solid transparent;
-          transition: max-height 0.38s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s;
-        }
-        .nb-mob--open {
-          max-height: 520px;
-          border-top-color: var(--color-beige-dark, #e8e0d0);
-        }
-
-        .nb-mob-links { list-style: none; padding: 12px 24px 4px; }
-        .nb-mob-links li a {
-          display: flex; align-items: center; gap: 10px;
-          padding: 13px 0;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 14px; font-weight: 500;
-          color: var(--color-beige-text, #6b6155);
-          text-decoration: none;
-          border-bottom: 1px solid var(--color-beige-dark, #e8e0d0);
-          transition: color 0.18s;
-        }
-        .nb-mob-links li:last-child a { border-bottom: none; }
-        .nb-mob-links li a:hover { color: var(--color-black, #0d1117); }
-
-        .nb-mob-ctas {
-          display: flex; flex-direction: column; gap: 10px;
-          padding: 16px 24px 28px;
-          border-top: 1px solid var(--color-beige-dark, #e8e0d0);
-        }
-        .nb-mob-cta-primary {
-          display: flex; align-items: center; justify-content: center; gap: 8px;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 14px; font-weight: 600;
-          background: var(--color-black, #0d1117);
-          color: var(--color-beige, #f5f0e8);
-          padding: 14px; border-radius: var(--radius-md, 10px);
-          text-decoration: none;
-          transition: opacity 0.2s;
-        }
-        .nb-mob-cta-primary:hover { opacity: 0.85; }
-        .nb-mob-cta-secondary {
-          display: flex; align-items: center; justify-content: center; gap: 8px;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          font-size: 14px; font-weight: 600;
-          background: white;
-          color: var(--color-black, #0d1117);
-          padding: 14px; border-radius: var(--radius-md, 10px);
-          text-decoration: none;
-          border: 1.5px solid var(--color-beige-dark, #e8e0d0);
-          transition: background 0.18s;
-        }
-        .nb-mob-cta-secondary:hover { background: var(--color-beige-dark, #e8e0d0); }
-      `}</style>
-
-      <nav className="nb-root">
-        <div className="nb-inner">
-          <Logo />
-
-          {/* Desktop nav links */}
-          <ul className="nb-links">
-            {navLinks.map(({ label, href }) => (
-              <li key={href}>
-                <a href={href}>{label}</a>
-              </li>
-            ))}
-          </ul>
-
-          {/* Desktop right */}
-          <div className="nb-right">
-            <a href="/login" className="nb-admin">
-              <LockIcon />
-              Admin
-            </a>
-
-            <div className="nb-cta-wrap" ref={dropRef}>
-              <button
-                className="nb-cta"
-                onClick={() => setDeviceOpen((o) => !o)}
-                aria-expanded={deviceOpen}
-              >
-                Get a Repair
-                <ChevronIcon open={deviceOpen} />
-              </button>
-
-              <div
-                className={`nb-drop ${deviceOpen ? "nb-drop--open" : "nb-drop--closed"}`}
-              >
-                {devices.map(({ href, label, sub, icon }) => (
-                  <a
-                    key={href}
-                    href={href}
-                    onClick={() => setDeviceOpen(false)}
-                  >
-                    <div className="nb-drop-icon">{icon}</div>
-                    <div className="nb-drop-txt">
-                      <span>{label}</span>
-                      <span>{sub}</span>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Hamburger */}
           <button
             className={`nb-ham ${menuOpen ? "nb-ham--open" : ""}`}
-            onClick={() => {
-              setMenuOpen((o) => !o);
-              setDeviceOpen(false);
-            }}
+            onClick={() => { setMenuOpen((o) => !o); setDropOpen(false); }}
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
           >
-            <span />
-            <span />
-            <span />
+            <span /><span /><span />
           </button>
-        </div>
 
-        {/* Mobile menu */}
-        <div className={`nb-mob ${menuOpen ? "nb-mob--open" : ""}`}>
-          <ul className="nb-mob-links">
-            {navLinks.map(({ label, href }) => (
-              <li key={href}>
-                <a href={href} onClick={() => setMenuOpen(false)}>
-                  {label}
-                </a>
-              </li>
-            ))}
-            <li>
-              <a href="/login" onClick={() => setMenuOpen(false)}>
-                <LockIcon />
-                Admin Login
-              </a>
-            </li>
-          </ul>
+          <div className={`nb-menu ${menuOpen ? "nb-menu--open" : ""}`}>
+            <div className="nb-links">
+              {LINKS_BEFORE.map(({ label, to }) => (
+                <Link key={to} to={to} className={isActive(to) ? "is-active" : ""}>{label}</Link>
+              ))}
 
-          <div className="nb-mob-ctas">
-            <a
-              href="/request/phone"
-              className="nb-mob-cta-primary"
-              onClick={() => setMenuOpen(false)}
-            >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="5" y="2" width="14" height="20" rx="2" />
-                <circle
-                  cx="12"
-                  cy="18"
-                  r="1"
-                  fill="currentColor"
-                  stroke="none"
-                />
-              </svg>
-              Fix My Phone
-            </a>
-            <a
-              href="/request/laptop"
-              className="nb-mob-cta-secondary"
-              onClick={() => setMenuOpen(false)}
-            >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="2" y="3" width="20" height="14" rx="2" />
-                <path d="M0 21h24" />
-              </svg>
-              Fix My Laptop
-            </a>
+              <div className="nb-rep" ref={dropRef}>
+                <button
+                  type="button"
+                  className={`nb-rep-btn ${repairsActive ? "is-active" : ""}`}
+                  onClick={() => setDropOpen((o) => !o)}
+                  aria-expanded={dropOpen}
+                  aria-haspopup="true"
+                >
+                  Repairs <Chevron open={dropOpen} />
+                </button>
+                <div className={`nb-drop ${dropOpen ? "nb-drop--open" : "nb-drop--closed"}`}>
+                  {REPAIRS.map(({ to, label, sub }) => (
+                    <Link key={to} to={to}>
+                      <span className="nb-drop-txt">{label}<small>{sub}</small></span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {LINKS_AFTER.map(({ label, to }) => (
+                <Link key={to} to={to} className={isActive(to) ? "is-active" : ""}>{label}</Link>
+              ))}
+            </div>
           </div>
         </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 }

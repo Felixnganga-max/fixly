@@ -1,685 +1,249 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Wrench,
-  ShoppingBag,
-} from "lucide-react";
+import { Link } from "react-router-dom";
 
-// ─── Slide data ───────────────────────────────────────────────────────────────
-const SLIDES = [
+/**
+ * HERO ONLY (no navbar). Built from the "Online Store" reference.
+ * Self-contained (own palette + fonts). Put <Navbar /> above it.
+ *
+ * Reference card = 783 x 440. This hero is everything BELOW the 60u navbar
+ * band, i.e. 783 x 380, so Navbar + Hero stacked equal the reference exactly.
+ * 1u = 1/783 of the stage width (same grid as Navbar).
+ */
+
+// Centre image: null = built-in placeholder. Or the URL of a TRANSPARENT PNG
+// cutout (it breaks out of the circle top and bottom, like the model does).
+const HERO_IMG = null;
+
+const Ic = ({ children }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {children}
+  </svg>
+);
+
+// TODO: replace the "#" links with your real profile URLs
+const SOCIALS = [
   {
-    id: "laptop-sale",
-    type: "marketplace",
-    eyebrow: "Marketplace · Laptops",
-    headline: "Power your hustle.",
-    sub: "Verified refurbished & new laptops — Nairobi prices, zero compromise.",
-    cta: "Browse laptops",
-    ctaRoute: "/marketplace?tab=laptops",
-    accent: "#f97316",
-    accentMuted: "rgba(249,115,22,0.15)",
-    bg: "#0d1117",
-    patternColor: "rgba(249,115,22,0.06)",
-    img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=900&auto=format&fit=crop&q=80",
-    badge: "Buy",
-    badgeBg: "#f97316",
+    label: "Instagram",
+    href: "#",
+    icon: (
+      <Ic>
+        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17" cy="7" r=".6" fill="currentColor" />
+      </Ic>
+    ),
   },
   {
-    id: "phone-sale",
-    type: "marketplace",
-    eyebrow: "Marketplace · Phones",
-    headline: "Your next phone is here.",
-    sub: "Curated smartphones from trusted Nairobi sellers. Every listing verified.",
-    cta: "Shop phones",
-    ctaRoute: "/marketplace?tab=phones",
-    accent: "#06b6d4",
-    accentMuted: "rgba(6,182,212,0.15)",
-    bg: "#0a0f1e",
-    patternColor: "rgba(6,182,212,0.06)",
-    img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=900&auto=format&fit=crop&q=80",
-    badge: "Buy",
-    badgeBg: "#06b6d4",
+    label: "TikTok",
+    href: "#",
+    icon: (
+      <Ic>
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+      </Ic>
+    ),
   },
   {
-    id: "phone-repair",
-    type: "repair",
-    eyebrow: "Repairs · Phones",
-    headline: "Cracked screen? We fix fast.",
-    sub: "Same-day phone repairs by verified technicians. 90-day warranty on every job.",
-    cta: "Book phone repair",
-    ctaRoute: "/?device=phone",
-    accent: "#22c55e",
-    accentMuted: "rgba(34,197,94,0.15)",
-    bg: "#061409",
-    patternColor: "rgba(34,197,94,0.06)",
-    img: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=900&auto=format&fit=crop&q=80",
-    badge: "Repair",
-    badgeBg: "#22c55e",
+    label: "Facebook",
+    href: "#",
+    icon: (
+      <Ic>
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+      </Ic>
+    ),
   },
   {
-    id: "laptop-repair",
-    type: "repair",
-    eyebrow: "Repairs · Laptops",
-    headline: "Dead laptop? Back in hours.",
-    sub: "Expert diagnostics, same-day fixes, genuine parts. Starting from KSh 4,000.",
-    cta: "Book laptop repair",
-    ctaRoute: "/?device=laptop",
-    accent: "#a855f7",
-    accentMuted: "rgba(168,85,247,0.15)",
-    bg: "#0d0814",
-    patternColor: "rgba(168,85,247,0.06)",
-    img: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=900&auto=format&fit=crop&q=80",
-    badge: "Repair",
-    badgeBg: "#a855f7",
+    label: "WhatsApp",
+    href: "#",
+    icon: (
+      <Ic>
+        <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
+        <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+      </Ic>
+    ),
   },
 ];
 
-const TRUST_ITEMS = [
-  { val: "12,400+", label: "Customers served" },
-  { val: "90-day", label: "Repair warranty" },
-  { val: "2 hrs", label: "Avg screen repair" },
-  { val: "100%", label: "Verified sellers" },
-];
-
-// ─── Slide thumbnail nav ───────────────────────────────────────────────────────
-function SlidePip({ slide, active, onClick }) {
+// Stand-in for the model cutout: a phone that breaks out of the circle.
+function PlaceholderDevice() {
   return (
-    <button
-      onClick={onClick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "6px 10px",
-        borderRadius: 8,
-        border: `1.5px solid ${active ? slide.accent : "rgba(255,255,255,0.12)"}`,
-        background: active ? `${slide.accent}18` : "transparent",
-        cursor: "pointer",
-        transition: "all 0.25s ease",
-        flexShrink: 0,
-      }}
-    >
-      <span
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          background: active ? slide.accent : "rgba(255,255,255,0.3)",
-          flexShrink: 0,
-          transition: "background 0.25s ease",
-        }}
-      />
-      <span
-        style={{
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-          color: active ? slide.accent : "rgba(255,255,255,0.45)",
-          fontFamily: "var(--font-body, 'DM Sans', sans-serif)",
-          whiteSpace: "nowrap",
-          transition: "color 0.25s ease",
-        }}
-      >
-        {slide.badge}
-        {" · "}
-        {slide.id.includes("laptop") ? "Laptops" : "Phones"}
-      </span>
-    </button>
+    <svg viewBox="0 0 128 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="hh-screen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#f3a66a" />
+          <stop offset="1" stopColor="#d9793a" />
+        </linearGradient>
+      </defs>
+      <rect width="128" height="300" rx="22" fill="#050505" />
+      <rect x="5" y="5" width="118" height="290" rx="17" fill="url(#hh-screen)" />
+      <rect x="45" y="13" width="38" height="10" rx="5" fill="#050505" />
+      <rect x="16" y="62" width="96" height="8" rx="4" fill="#fff" opacity=".92" />
+      <rect x="16" y="77" width="64" height="8" rx="4" fill="#fff" opacity=".55" />
+      <rect x="16" y="120" width="96" height="76" rx="12" fill="#fff" opacity=".22" />
+      <rect x="16" y="208" width="45" height="48" rx="12" fill="#fff" opacity=".22" />
+      <rect x="67" y="208" width="45" height="48" rx="12" fill="#fff" opacity=".22" />
+    </svg>
   );
 }
 
-// ─── Main Hero ────────────────────────────────────────────────────────────────
+// u(n) = n reference-pixels, scaled to the card width
+const u = (n) => `calc(var(--u) * ${n})`;
+
+const CSS = `
+@import url("https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Montserrat:wght@300;500;700;800;900&display=swap");
+
+.hh-root {
+  /* palette sampled from the reference */
+  --hh-bg: #f7e6d9;
+  --hh-tint: #f0c09b;
+  --hh-accent: #e89454;
+  --hh-ink: #050505;
+  background: var(--hh-bg);
+  color: var(--hh-ink);
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+}
+.hh-stage { container-type: inline-size; max-width: 1240px; margin: 0 auto; }
+.hh-card  { --u: calc(100cqw / 783); position: relative; padding: 8px 20px 36px; }
+.hh-clip  { position: absolute; inset: 0; pointer-events: none; }
+.hh-blob  { position: absolute; right: -70px; top: 16px; width: 170px; aspect-ratio: 1; border-radius: 50%; background: var(--hh-tint); }
+
+.cap { display: block; }
+.cap > span { display: block; font-size: var(--fm); line-height: 1.02; transition: transform .25s cubic-bezier(.22,1,.36,1); }
+
+/* ───────── MOBILE (default) ───────── */
+.hh-h1 { margin: 24px 0 0; position: relative; z-index: 3; }
+.hh-thin { --fm: clamp(1.05rem, 5.2vw, 1.5rem); font-weight: 300; letter-spacing: .14em; text-transform: uppercase; }
+.hh-love, .hh-of { --fm: clamp(3.1rem, 17vw, 4.6rem); font-weight: 900; letter-spacing: -.01em; text-transform: uppercase; }
+.hh-love { margin-top: 6px; }
+.hh-of   { margin-top: 2px; }
+.hh-script {
+  display: block; width: max-content;
+  font-family: 'Kaushan Script', cursive; font-weight: 400;
+  font-size: clamp(2.6rem, 14vw, 3.8rem); line-height: 1;
+  color: var(--hh-accent);
+  margin: -.5em 0 0 .9em;
+  --rot: -8deg; transform: rotate(var(--rot)); transform-origin: left bottom;
+  position: relative; z-index: 2;
+  -webkit-text-stroke: 5px var(--hh-bg); paint-order: stroke fill;
+  animation: hh-in .7s .25s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes hh-in {
+  from { opacity: 0; transform: translateY(10px) rotate(var(--rot)); }
+  to   { opacity: 1; transform: translateY(0) rotate(var(--rot)); }
+}
+
+.hh-visual { position: relative; width: min(74vw, 290px); aspect-ratio: 1; margin: 56px auto 52px; }
+.hh-disc   { position: absolute; inset: 0; border-radius: 50%; background: #fff; }
+.hh-ground { position: absolute; left: 15%; bottom: -14%; width: 70%; height: 9%; background: radial-gradient(ellipse at center, rgba(5,5,5,.32), transparent 70%); filter: blur(3px); z-index: 1; }
+.hh-device { position: absolute; left: 50%; top: -12%; height: 117%; aspect-ratio: 128 / 300; transform: translateX(-50%); z-index: 2; }
+.hh-device svg, .hh-device img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+.hh-offer { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: flex-start; width: min(100%, 260px); text-decoration: none; color: inherit; }
+.hh-offer:focus-visible { outline: 2px solid var(--hh-accent); outline-offset: 10px; border-radius: 8px; }
+.hh-o-phones   { --fm: 2rem;   font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
+.hh-o-and      { --fm: .8rem;  font-weight: 500; letter-spacing: .2em;  text-transform: uppercase; margin-top: 8px; }
+.hh-o-laptops  { --fm: 1.5rem; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; margin-top: 8px; }
+.hh-rule       { display: block; align-self: stretch; height: 2px; background: var(--hh-ink); margin-top: 14px; }
+.hh-o-amazing  { --fm: 1.6rem; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; color: var(--hh-accent); margin-top: 14px; }
+.hh-o-deals    { --fm: 2.5rem; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; color: var(--hh-accent); margin-top: 6px; }
+.hh-o-deals + .hh-rule { margin-top: 14px; }
+
+.hh-social { display: flex; gap: 10px; list-style: none; margin: 32px 0 0; padding: 0; }
+.hh-social a { width: 36px; height: 36px; border-radius: 50%; background: var(--hh-accent); color: #fff; display: flex; align-items: center; justify-content: center; transition: transform .2s ease; }
+.hh-social a:hover { transform: translateY(-3px); }
+.hh-social a:focus-visible { outline: 2px solid var(--hh-ink); outline-offset: 3px; }
+.hh-social svg { width: 16px; height: 16px; }
+
+/* ───────── DESKTOP: the reference grid, scaled ───────── */
+@media (min-width: 880px) {
+  .hh-card { aspect-ratio: 783 / 380; padding: 0; }
+  .hh-blob { right: auto; left: ${u(688)}; top: ${u(16)}; width: ${u(136)}; }
+
+  .cap { position: relative; height: calc(var(--fd) * .7); }
+  .cap > span { position: absolute; left: 0; bottom: calc(var(--fd) * -.1415); font-size: var(--fd); line-height: 1; white-space: nowrap; }
+
+  .hh-h1 { position: absolute; left: ${u(45)}; top: ${u(70.5)}; margin: 0; }
+  .hh-thin { --fd: ${u(25)}; letter-spacing: .12em; }
+  .hh-love { --fd: ${u(72)}; margin-top: ${u(13)}; }
+  .hh-of   { --fd: ${u(72)}; margin-top: ${u(16)}; }
+  .hh-script { position: absolute; display: block; left: ${u(41)}; top: ${u(131)}; margin: 0; font-size: ${u(58)}; --rot: -9deg; -webkit-text-stroke: ${u(6)} var(--hh-bg); }
+
+  .hh-visual { display: contents; }
+  .hh-disc   { inset: auto; left: ${u(263)}; top: ${u(33)}; width: ${u(257)}; height: ${u(257)}; }
+  .hh-ground { left: ${u(296)}; top: ${u(302)}; bottom: auto; width: ${u(190)}; height: ${u(20)}; }
+  .hh-device { left: ${u(327.5)}; top: ${u(10)}; width: ${u(128)}; height: ${u(300)}; aspect-ratio: auto; transform: none; }
+
+  .hh-offer { position: absolute; right: ${u(76)}; top: ${u(161.5)}; transform: translateY(-50%); width: ${u(128)}; align-items: flex-end; }
+  .hh-offer .cap > span { left: auto; right: 0; }
+  .hh-o-phones  { --fd: ${u(30)}; }
+  .hh-o-and     { --fd: ${u(13)}; margin-top: ${u(9)}; }
+  .hh-o-laptops { --fd: ${u(22)}; margin-top: ${u(9)}; }
+  .hh-rule      { height: ${u(2)}; margin-top: ${u(16)}; }
+  .hh-o-amazing { --fd: ${u(25)}; margin-top: ${u(15)}; }
+  .hh-o-deals   { --fd: ${u(38)}; margin-top: ${u(10)}; }
+  .hh-o-deals + .hh-rule { margin-top: ${u(17)}; }
+  .hh-offer:hover .hh-o-deals > span { transform: translateX(-6px); }
+
+  .hh-social { position: absolute; right: ${u(24)}; top: ${u(318)}; margin: 0; gap: ${u(7)}; }
+  .hh-social a { width: ${u(18)}; height: ${u(18)}; }
+  .hh-social svg { width: ${u(9)}; height: ${u(9)}; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-script { animation: none; }
+  .cap > span, .hh-social a { transition: none; }
+}
+`;
+
 export default function Hero() {
-  const navigate = useNavigate();
-  const [cur, setCur] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState({});
-  const intervalRef = useRef(null);
-
-  const slide = SLIDES[cur];
-
-  const go = (next) => {
-    if (animating) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setCur((next + SLIDES.length) % SLIDES.length);
-      setAnimating(false);
-    }, 320);
-  };
-
-  const resetInterval = () => {
-    clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => go(cur + 1), 5000);
-  };
-
-  useEffect(() => {
-    intervalRef.current = setInterval(
-      () => setCur((c) => (c + 1) % SLIDES.length),
-      5000,
-    );
-    return () => clearInterval(intervalRef.current);
-  }, []);
-
-  const handleNav = (dir) => {
-    resetInterval();
-    go(cur + dir);
-  };
-
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
-
-        .fh-root {
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          overflow: hidden;
-        }
-
-        /* ── MAIN STAGE ── */
-        .fh-stage {
-          position: relative;
-          height: clamp(380px, 52vw, 560px);
-          overflow: hidden;
-        }
-
-        /* background slides */
-        .fh-bg {
-          position: absolute;
-          inset: 0;
-          transition: opacity 0.38s ease;
-        }
-        .fh-bg-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center;
-        }
-        .fh-bg-ov {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(100deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.2) 100%);
-        }
-        .fh-bg-pat {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-        }
-
-        /* orb glow */
-        .fh-orb {
-          position: absolute;
-          width: 420px;
-          height: 420px;
-          border-radius: 50%;
-          top: -100px;
-          right: -60px;
-          pointer-events: none;
-          transition: background 0.5s ease;
-          animation: fh-orb-pulse 8s ease-in-out infinite;
-        }
-        @keyframes fh-orb-pulse {
-          0%,100% { transform: scale(1) translate(0,0); }
-          50%      { transform: scale(1.1) translate(-20px, 20px); }
-        }
-
-        /* ── CONTENT ── */
-        .fh-content {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          padding: 0 clamp(24px, 5vw, 72px);
-          transition: opacity 0.32s ease, transform 0.32s ease;
-        }
-        .fh-content-inner {
-          max-width: 580px;
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-        .fh-eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.55);
-          font-family: var(--font-mono, monospace);
-        }
-        .fh-eyebrow-dot {
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-          animation: fh-blink 2s ease-in-out infinite;
-        }
-        @keyframes fh-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-        .fh-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          padding: 4px 12px;
-          border-radius: 100px;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: white;
-          width: fit-content;
-          font-family: var(--font-mono, monospace);
-        }
-
-        .fh-headline {
-          font-family: var(--font-display, 'Syne', sans-serif);
-          font-size: clamp(2rem, 5vw, 3.8rem);
-          font-weight: 800;
-          color: #ffffff;
-          line-height: 1.04;
-          letter-spacing: -0.03em;
-          margin: 0;
-        }
-        .fh-headline em {
-          font-style: normal;
-          transition: color 0.4s ease;
-        }
-
-        .fh-sub {
-          font-size: clamp(13px, 1.6vw, 15px);
-          color: rgba(255,255,255,0.6);
-          line-height: 1.65;
-          margin: 0;
-          max-width: 38ch;
-        }
-
-        .fh-cta {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 13px 26px;
-          border-radius: 10px;
-          font-size: 13px;
-          font-weight: 700;
-          color: white;
-          border: none;
-          cursor: pointer;
-          width: fit-content;
-          transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-        }
-        .fh-cta:hover {
-          transform: translateX(4px);
-          filter: brightness(1.12);
-        }
-        .fh-cta svg { transition: transform 0.22s ease; }
-        .fh-cta:hover svg { transform: translateX(3px); }
-
-        .fh-cta-ghost {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 22px;
-          border-radius: 10px;
-          font-size: 13px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.75);
-          border: 1.5px solid rgba(255,255,255,0.2);
-          background: rgba(255,255,255,0.07);
-          cursor: pointer;
-          backdrop-filter: blur(6px);
-          transition: all 0.22s ease;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-          text-decoration: none;
-        }
-        .fh-cta-ghost:hover {
-          background: rgba(255,255,255,0.14);
-          border-color: rgba(255,255,255,0.4);
-          color: white;
-        }
-        .fh-cta-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-
-        /* ── ARROWS ── */
-        .fh-arrow {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.1);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(255,255,255,0.18);
-          color: white;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: background 0.22s ease;
-          z-index: 10;
-        }
-        .fh-arrow:hover { background: rgba(255,255,255,0.22); }
-        .fh-arrow-l { left: 18px; }
-        .fh-arrow-r { right: 18px; }
-
-        /* ── SLIDE COUNTER ── */
-        .fh-counter {
-          position: absolute;
-          top: 20px;
-          right: 24px;
-          font-family: var(--font-mono, monospace);
-          font-size: 11px;
-          color: rgba(255,255,255,0.35);
-          z-index: 10;
-          letter-spacing: 0.08em;
-        }
-        .fh-counter strong { color: rgba(255,255,255,0.8); }
-
-        /* ── BOTTOM NAV BAR ── */
-        .fh-nav-bar {
-          background: #0d1117;
-          border-top: 1px solid rgba(255,255,255,0.06);
-          padding: 0 clamp(24px, 5vw, 72px);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          overflow-x: auto;
-          scrollbar-width: none;
-          height: 54px;
-          flex-shrink: 0;
-        }
-        .fh-nav-bar::-webkit-scrollbar { display: none; }
-
-        .fh-nav-pips {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          flex-shrink: 0;
-        }
-
-        .fh-progress-bar {
-          flex: 1;
-          height: 2px;
-          background: rgba(255,255,255,0.08);
-          border-radius: 2px;
-          overflow: hidden;
-          max-width: 120px;
-          flex-shrink: 0;
-        }
-        .fh-progress-fill {
-          height: 100%;
-          border-radius: 2px;
-          transition: width 0.1s linear, background 0.3s ease;
-          animation: fh-prog 5s linear infinite;
-        }
-        @keyframes fh-prog { from{width:0%} to{width:100%} }
-
-        /* ── TRUST BAR ── */
-        .fh-trust {
-          background: #f5f0e8;
-          border-top: 1px solid #e8e0d0;
-          display: flex;
-          align-items: stretch;
-          overflow: hidden;
-        }
-        .fh-trust-item {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-          gap: 3px;
-          padding: 14px 12px;
-          border-right: 1px solid #e8e0d0;
-          min-width: 0;
-        }
-        .fh-trust-item:last-child { border-right: none; }
-        .fh-trust-val {
-          font-family: var(--font-display, 'Syne', sans-serif);
-          font-size: 17px;
-          font-weight: 800;
-          color: #0d1117;
-          letter-spacing: -0.02em;
-          white-space: nowrap;
-        }
-        .fh-trust-label {
-          font-size: 10px;
-          color: #8a7f72;
-          font-weight: 500;
-          text-align: center;
-          white-space: nowrap;
-          font-family: var(--font-body, 'DM Sans', sans-serif);
-        }
-
-        /* ── TYPE TAG on content area ── */
-        .fh-type-tag {
-          position: absolute;
-          top: 20px;
-          left: clamp(24px, 5vw, 72px);
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          z-index: 10;
-        }
-
-        @media (max-width: 600px) {
-          .fh-headline { font-size: 1.8rem; }
-          .fh-stage { height: 340px; }
-          .fh-trust-val { font-size: 14px; }
-          .fh-trust-label { font-size: 9px; }
-          .fh-trust-item { padding: 12px 8px; }
-        }
-      `}</style>
-
-      <div className="fh-root">
-        {/* ── MAIN STAGE ── */}
-        <div className="fh-stage">
-          {/* Preload all images */}
-          {SLIDES.map((s, i) => (
-            <div
-              key={s.id}
-              className="fh-bg"
-              style={{ opacity: i === cur ? 1 : 0, zIndex: i === cur ? 1 : 0 }}
-            >
-              <img
-                src={s.img}
-                alt=""
-                className="fh-bg-img"
-                onLoad={() => setImgLoaded((p) => ({ ...p, [s.id]: true }))}
-              />
-              <div className="fh-bg-ov" />
-              {/* Grid pattern */}
-              <svg className="fh-bg-pat" width="100%" height="100%">
-                <defs>
-                  <pattern
-                    id={`grid-${s.id}`}
-                    width="40"
-                    height="40"
-                    patternUnits="userSpaceOnUse"
-                  >
-                    <path
-                      d="M 40 0 L 0 0 0 40"
-                      fill="none"
-                      stroke={s.patternColor}
-                      strokeWidth="1"
-                    />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill={`url(#grid-${s.id})`} />
-              </svg>
-              {/* Orb */}
-              <div
-                className="fh-orb"
-                style={{
-                  background: `radial-gradient(circle, ${s.accentMuted} 0%, transparent 70%)`,
-                }}
-              />
-            </div>
-          ))}
-
-          {/* Type tag top-left */}
-          <div className="fh-type-tag">
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 5,
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                color: "rgba(255,255,255,0.9)",
-                background: "rgba(0,0,0,0.35)",
-                backdropFilter: "blur(8px)",
-                border: `1px solid ${slide.accent}55`,
-                padding: "4px 12px",
-                borderRadius: 100,
-                fontFamily: "var(--font-mono, monospace)",
-              }}
-            >
-              {slide.type === "repair" ? (
-                <Wrench size={10} style={{ color: slide.accent }} />
-              ) : (
-                <ShoppingBag size={10} style={{ color: slide.accent }} />
-              )}
-              Fixly · {slide.type === "repair" ? "Repairs" : "Marketplace"}
-            </span>
+    <section className="hh-root">
+      <style>{CSS}</style>
+      <div className="hh-stage">
+        <div className="hh-card">
+          <div className="hh-clip" aria-hidden="true">
+            <div className="hh-blob" />
           </div>
 
-          {/* Slide counter */}
-          <div className="fh-counter">
-            <strong>{String(cur + 1).padStart(2, "0")}</strong> /{" "}
-            {String(SLIDES.length).padStart(2, "0")}
-          </div>
+          {/* Headline */}
+          <h1 className="hh-h1">
+            <span className="cap hh-thin"><span>For the</span></span>
+            <span className="cap hh-love"><span>Love</span></span>
+            <span className="cap hh-of"><span>of</span></span>
+            <span className="hh-script">honesty</span>
+          </h1>
 
-          {/* Content */}
-          <div
-            className="fh-content"
-            style={{
-              opacity: animating ? 0 : 1,
-              transform: animating ? "translateX(18px)" : "translateX(0)",
-              zIndex: 5,
-            }}
-          >
-            <div className="fh-content-inner">
-              {/* Badge */}
-              <div>
-                <span
-                  className="fh-badge"
-                  style={{
-                    background:
-                      slide.badge === "Repair"
-                        ? `${slide.accent}22`
-                        : `${slide.accent}22`,
-                    color: slide.accent,
-                    border: `1px solid ${slide.accent}44`,
-                  }}
-                >
-                  {slide.type === "repair" ? (
-                    <Wrench size={10} />
-                  ) : (
-                    <ShoppingBag size={10} />
-                  )}
-                  {slide.badge}
-                </span>
-              </div>
-
-              {/* Eyebrow */}
-              <div className="fh-eyebrow">
-                <span
-                  className="fh-eyebrow-dot"
-                  style={{ background: slide.accent }}
-                />
-                {slide.eyebrow}
-              </div>
-
-              {/* Headline */}
-              <h1 className="fh-headline">
-                <em style={{ color: slide.accent }}>
-                  {slide.headline.split(" ")[0]}{" "}
-                </em>
-                {slide.headline.slice(slide.headline.indexOf(" ") + 1)}
-              </h1>
-
-              {/* Sub */}
-              <p className="fh-sub">{slide.sub}</p>
-
-              {/* CTAs */}
-              <div className="fh-cta-row">
-                <button
-                  className="fh-cta"
-                  style={{ background: slide.accent }}
-                  onClick={() => navigate(slide.ctaRoute)}
-                >
-                  {slide.cta}
-                  <ArrowRight size={14} />
-                </button>
-                <button
-                  className="fh-cta-ghost"
-                  onClick={() =>
-                    navigate(slide.type === "repair" ? "/" : "/marketplace")
-                  }
-                >
-                  {slide.type === "repair"
-                    ? "View all repairs"
-                    : "All listings"}
-                </button>
-              </div>
+          {/* Centre visual */}
+          <div className="hh-visual">
+            <div className="hh-disc" />
+            <div className="hh-ground" aria-hidden="true" />
+            <div className="hh-device">
+              {HERO_IMG ? <img src={HERO_IMG} alt="" /> : <PlaceholderDevice />}
             </div>
           </div>
 
-          {/* Arrows */}
-          <button className="fh-arrow fh-arrow-l" onClick={() => handleNav(-1)}>
-            <ChevronLeft size={16} />
-          </button>
-          <button className="fh-arrow fh-arrow-r" onClick={() => handleNav(1)}>
-            <ChevronRight size={16} />
-          </button>
-        </div>
+          {/* Offer */}
+          <Link to="/marketplace" className="hh-offer" aria-label="Phones and laptops. Amazing deals.">
+            <span className="cap hh-o-phones"><span>Phones</span></span>
+            <span className="cap hh-o-and"><span>and</span></span>
+            <span className="cap hh-o-laptops"><span>Laptops</span></span>
+            <span className="hh-rule" />
+            <span className="cap hh-o-amazing"><span>Amazing</span></span>
+            <span className="cap hh-o-deals"><span>Deals</span></span>
+            <span className="hh-rule" />
+          </Link>
 
-        {/* ── BOTTOM NAV BAR ── */}
-        <div className="fh-nav-bar">
-          <div className="fh-nav-pips">
-            {SLIDES.map((s, i) => (
-              <SlidePip
-                key={s.id}
-                slide={s}
-                active={i === cur}
-                onClick={() => {
-                  resetInterval();
-                  go(i);
-                }}
-              />
+          {/* Socials */}
+          <ul className="hh-social">
+            {SOCIALS.map(({ label, href, icon }) => (
+              <li key={label}>
+                <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+                  {icon}
+                </a>
+              </li>
             ))}
-          </div>
-          <div className="fh-progress-bar">
-            <div
-              key={cur}
-              className="fh-progress-fill"
-              style={{ background: slide.accent }}
-            />
-          </div>
-        </div>
-
-        {/* ── TRUST BAR ── */}
-        <div className="fh-trust">
-          {TRUST_ITEMS.map(({ val, label }) => (
-            <div key={label} className="fh-trust-item">
-              <span className="fh-trust-val">{val}</span>
-              <span className="fh-trust-label">{label}</span>
-            </div>
-          ))}
+          </ul>
         </div>
       </div>
-    </>
+    </section>
   );
 }

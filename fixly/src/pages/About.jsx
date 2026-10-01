@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  MapPin,
   Phone,
   MessageCircle,
   Mail,
@@ -19,14 +18,24 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-// ─── Data ──────────────────────────────────────────────────────
-const STATS = [
-  { value: "1,200+", label: "Repairs completed", sub: "and counting" },
-  { value: "48hr", label: "Average turnaround", sub: "across all counties" },
-  { value: "100%", label: "Verified technicians", sub: "no exceptions" },
-  { value: "47", label: "Counties covered", sub: "all of Kenya" },
-];
+/*
+ * PALETTE (from Navbar.jsx) — defined once in the <style> block at the bottom
+ * on .ab-root and used everywhere as var(--ab-*):
+ *   --ab-bg          #f7e6d9  page background (navbar bg)
+ *   --ab-tint        #f0c09b  section dividers, input borders (navbar tint)
+ *   --ab-accent      #e89454  buttons, accents (navbar accent)
+ *   --ab-accent-dark #d4793a  accent hover
+ *   --ab-accent-ink  #a8531a  accent used as TEXT/ICON colour on light surfaces
+ *   --ab-ink         #050505  headings, dark blocks (navbar ink)
+ *   --ab-ink-soft    #2b1d14  body text
+ *   --ab-muted       #7a5a46  secondary text
+ *   --ab-card        #fffaf6  card surface
+ *   --ab-line        #f3d2ba  hairline borders on cards
+ *   --ab-wash        #fbeee3  soft icon / hover backgrounds
+ *   --ab-wash2       #f7dcc5  faint fills
+ */
 
+// ─── Data ──────────────────────────────────────────────────────
 const COUNTIES = [
   "Nairobi",
   "Mombasa",
@@ -129,27 +138,6 @@ const BRANDS = [
   "OnePlus",
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "Amina K.",
-    city: "Mombasa",
-    rating: 5,
-    text: "My screen was fixed same day. The technician was exactly as described — professional and honest about the cost.",
-  },
-  {
-    name: "Brian O.",
-    city: "Kisumu",
-    rating: 5,
-    text: "Bought a verified Samsung from the marketplace. Arrived in perfect condition. Zero stress.",
-  },
-  {
-    name: "Faith W.",
-    city: "Nakuru",
-    rating: 5,
-    text: "They matched me to a laptop specialist within hours. I didn't even have to leave my office to get it arranged.",
-  },
-];
-
 // ─── useInView ────────────────────────────────────────────────
 function useInView(threshold = 0.12) {
   const ref = useRef(null);
@@ -194,7 +182,7 @@ function Reveal({ children, delay = 0, className = "", up = 32 }) {
 function Marquee({ items }) {
   const doubled = [...items, ...items];
   return (
-    <div className="overflow-hidden border-y border-beige-dark bg-white py-3 select-none">
+    <div className="overflow-hidden border-y border-[var(--ab-tint)] bg-[var(--ab-card)] py-3 select-none">
       <div
         style={{
           animation: "marquee 32s linear infinite",
@@ -212,7 +200,7 @@ function Marquee({ items }) {
               padding: "0 20px",
               fontSize: 11,
               fontWeight: 700,
-              color: "#9ca3af",
+              color: "var(--ab-muted)",
               textTransform: "uppercase",
               letterSpacing: "0.1em",
             }}
@@ -223,7 +211,7 @@ function Marquee({ items }) {
                 width: 4,
                 height: 4,
                 borderRadius: "50%",
-                background: "#22c55e",
+                background: "var(--ab-accent)",
                 display: "inline-block",
               }}
             />
@@ -238,7 +226,7 @@ function Marquee({ items }) {
 // ─── Tag pill ─────────────────────────────────────────────────
 function Tag({ children }) {
   return (
-    <span className="inline-block bg-white border border-beige-dark text-gray-400 text-[10px] font-bold px-4 py-1.5 rounded-full tracking-[0.12em] uppercase">
+    <span className="inline-block bg-[var(--ab-card)] border border-[var(--ab-tint)] text-[var(--ab-muted)] text-[10px] font-bold px-4 py-1.5 rounded-full tracking-[0.12em] uppercase">
       {children}
     </span>
   );
@@ -255,7 +243,7 @@ function Stars({ count = 5, size = 12 }) {
           className={
             i <= count
               ? "fill-amber-400 text-amber-400"
-              : "fill-gray-200 text-gray-200"
+              : "fill-[var(--ab-tint)] text-[var(--ab-tint)]"
           }
         />
       ))}
@@ -303,11 +291,11 @@ export default function About() {
 
   const inputCls = (err) =>
     [
-      "w-full bg-beige border rounded-xl px-4 py-3.5 text-sm text-black placeholder:text-gray-400",
-      "outline-none transition-all duration-200 focus:bg-white",
+      "w-full bg-[var(--ab-bg)] border rounded-xl px-4 py-3.5 text-sm text-[var(--ab-ink)] placeholder:text-[var(--ab-muted)]",
+      "outline-none transition-all duration-200 focus:bg-[var(--ab-card)]",
       err
         ? "border-red-400 focus:border-red-500"
-        : "border-beige-dark hover:border-gray-300 focus:border-green",
+        : "border-[var(--ab-tint)] hover:border-[var(--ab-accent)] focus:border-[var(--ab-accent)]",
     ].join(" ");
 
   // ── hero animation helpers
@@ -318,18 +306,18 @@ export default function About() {
   });
 
   return (
-    <div className="min-h-screen bg-beige overflow-x-hidden">
+    <div className="ab-root min-h-screen bg-[var(--ab-bg)] overflow-x-hidden">
       {/* ════════════════════════════════════════════
           HERO
       ════════════════════════════════════════════ */}
-      <section className="relative w-full border-b border-beige-dark">
+      <section className="relative w-full border-b border-[var(--ab-tint)]">
         {/* eyebrow */}
         <div
           className="flex items-center justify-between px-6 sm:px-12 pt-8"
           style={show(0)}
         >
           <Tag>About Fixly</Tag>
-          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-400">
+          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-[var(--ab-muted)]">
             <Globe size={12} strokeWidth={2} />
             Serving all 47 counties · Kenya
           </div>
@@ -338,8 +326,8 @@ export default function About() {
         {/* headline */}
         <div className="px-6 sm:px-12 pt-14 pb-12 max-w-7xl mx-auto">
           <div style={show(80)} className="flex items-center gap-3 mb-8">
-            <span className="w-8 h-px bg-green" />
-            <span className="text-green text-xs font-bold tracking-widest uppercase">
+            <span className="w-8 h-px bg-[var(--ab-accent)]" />
+            <span className="text-[var(--ab-accent-ink)] text-xs font-bold tracking-widest uppercase">
               Kenya's device care platform
             </span>
           </div>
@@ -349,18 +337,18 @@ export default function About() {
             style={{
               ...show(160),
               fontSize: "clamp(2.8rem, 7.5vw, 6rem)",
-              color: "#0D1117",
+              color: "var(--ab-ink)",
             }}
           >
             Every broken device
             <br />
             in Kenya deserves
             <br />
-            <span className="text-green">a real fix.</span>
+            <span className="text-[var(--ab-accent-ink)]">a real fix.</span>
           </h1>
 
           <p
-            className="text-gray-500 text-lg sm:text-xl leading-relaxed max-w-2xl mb-12"
+            className="text-[var(--ab-ink-soft)] text-lg sm:text-xl leading-relaxed max-w-2xl mb-12"
             style={show(280)}
           >
             Whether your screen is shattered in Mombasa, your laptop won't boot
@@ -372,7 +360,7 @@ export default function About() {
           <div className="flex flex-wrap gap-4" style={show(380)}>
             <a
               href="/request/phone"
-              className="group inline-flex items-center gap-2.5 bg-black hover:bg-green text-white hover:text-black font-bold text-sm px-7 py-4 rounded-xl transition-all duration-300"
+              className="group inline-flex items-center gap-2.5 bg-[var(--ab-ink)] hover:bg-[var(--ab-accent)] text-white hover:text-[var(--ab-ink)] font-bold text-sm px-7 py-4 rounded-xl transition-all duration-300"
             >
               Get a repair
               <ArrowRight
@@ -383,13 +371,13 @@ export default function About() {
             </a>
             <a
               href="/marketplace"
-              className="group inline-flex items-center gap-2.5 bg-white border border-beige-dark hover:border-black text-black font-bold text-sm px-7 py-4 rounded-xl transition-all duration-300"
+              className="group inline-flex items-center gap-2.5 bg-[var(--ab-card)] border border-[var(--ab-tint)] hover:border-[var(--ab-ink)] text-[var(--ab-ink)] font-bold text-sm px-7 py-4 rounded-xl transition-all duration-300"
             >
               Browse marketplace
               <ChevronRight
                 size={15}
                 strokeWidth={2.5}
-                className="text-gray-400 group-hover:text-black group-hover:translate-x-0.5 transition-all"
+                className="text-[var(--ab-muted)] group-hover:text-[var(--ab-ink)] group-hover:translate-x-0.5 transition-all"
               />
             </a>
           </div>
@@ -403,37 +391,41 @@ export default function About() {
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.9)" }}
           />
-          {/* gradients */}
+          {/* gradients (navbar peach) */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to right, rgba(249,247,242,0.55) 0%, transparent 50%)",
+                "linear-gradient(to right, rgba(247,230,217,0.55) 0%, transparent 50%)",
             }}
           />
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, rgba(249,247,242,0.5) 0%, transparent 50%)",
+                "linear-gradient(to top, rgba(247,230,217,0.5) 0%, transparent 50%)",
             }}
           />
 
           {/* floating: verified badge */}
-          <div className="absolute top-5 right-5 sm:right-12 bg-white rounded-2xl px-5 py-3.5 border border-beige-dark shadow-sm">
+          <div className="absolute top-5 right-5 sm:right-12 bg-[var(--ab-card)] rounded-2xl px-5 py-3.5 border border-[var(--ab-tint)] shadow-sm">
             <div className="flex items-center gap-1.5 mb-1">
-              <BadgeCheck size={12} className="text-green" strokeWidth={2.5} />
-              <span className="text-green text-[10px] font-bold tracking-wide uppercase">
+              <BadgeCheck
+                size={12}
+                className="text-[var(--ab-accent-ink)]"
+                strokeWidth={2.5}
+              />
+              <span className="text-[var(--ab-accent-ink)] text-[10px] font-bold tracking-wide uppercase">
                 Live match
               </span>
             </div>
             <p
-              className="text-black text-sm font-semibold"
-              style={{ color: "#0D1117" }}
+              className="text-sm font-semibold"
+              style={{ color: "var(--ab-ink)" }}
             >
               James M. · Mombasa CBD
             </p>
-            <p className="text-gray-400 text-xs mt-0.5">
+            <p className="text-[var(--ab-muted)] text-xs mt-0.5">
               Screen specialist · Est. 45min · KES 2,800
             </p>
           </div>
@@ -442,14 +434,14 @@ export default function About() {
           <div
             className="absolute bottom-5 left-5 sm:left-12 rounded-2xl px-5 py-3.5"
             style={{
-              background: "rgba(13,17,23,0.80)",
+              background: "rgba(5,5,5,0.80)",
               backdropFilter: "blur(8px)",
             }}
           >
             <p className="text-white text-xs font-semibold mb-0.5">
               🇰🇪 Operating across Kenya
             </p>
-            <p className="text-gray-400 text-[10px]">
+            <p className="text-[var(--ab-wash2)] text-[10px]">
               Nairobi · Mombasa · Kisumu · Nakuru · +43 more
             </p>
           </div>
@@ -459,40 +451,11 @@ export default function About() {
       {/* ════════════════════════════════════════════
           COUNTY MARQUEE
       ════════════════════════════════════════════ */}
-      <Marquee items={COUNTIES} />
-
-      {/* ════════════════════════════════════════════
-          STATS
-      ════════════════════════════════════════════ */}
-      <section className="w-full px-6 sm:px-12 py-24 border-b border-beige-dark">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-0 lg:divide-x divide-beige-dark">
-            {STATS.map(({ value, label, sub }, i) => (
-              <Reveal
-                key={label}
-                delay={i * 90}
-                className="lg:px-12 first:pl-0 last:pr-0"
-              >
-                <p
-                  className="font-display font-extrabold text-5xl sm:text-6xl leading-none tracking-tight"
-                  style={{ color: "#0D1117" }}
-                >
-                  {value}
-                </p>
-                <p className="text-sm font-semibold text-gray-700 mt-2">
-                  {label}
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ════════════════════════════════════════════
           OUR STORY
       ════════════════════════════════════════════ */}
-      <section className="w-full px-6 sm:px-12 py-24 border-b border-beige-dark">
+      <section className="w-full px-6 sm:px-12 py-24 border-b border-[var(--ab-tint)]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           {/* label */}
           <Reveal className="lg:col-span-2 pt-2">
@@ -508,29 +471,29 @@ export default function About() {
                 className="w-full h-full object-cover"
               />
               {/* floating card */}
-              <div className="absolute bottom-5 left-5 right-5 bg-white rounded-xl px-4 py-4 border border-beige-dark">
+              <div className="absolute bottom-5 left-5 right-5 bg-[var(--ab-card)] rounded-xl px-4 py-4 border border-[var(--ab-tint)]">
                 <div className="flex items-center gap-2 mb-1.5">
                   <CheckCircle2
                     size={12}
-                    className="text-green"
+                    className="text-[var(--ab-accent-ink)]"
                     strokeWidth={2.5}
                   />
-                  <span className="text-green text-[10px] font-bold uppercase tracking-wide">
+                  <span className="text-[var(--ab-accent-ink)] text-[10px] font-bold uppercase tracking-wide">
                     Verified technician
                   </span>
                 </div>
                 <p
-                  className="text-black text-sm font-semibold"
-                  style={{ color: "#0D1117" }}
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--ab-ink)" }}
                 >
                   Faith Njoroge
                 </p>
-                <p className="text-gray-400 text-xs">
+                <p className="text-[var(--ab-muted)] text-xs">
                   Laptop Specialist · Nakuru Town
                 </p>
                 <div className="flex items-center gap-1.5 mt-2">
                   <Stars count={5} size={10} />
-                  <span className="text-gray-400 text-[10px] ml-0.5">
+                  <span className="text-[var(--ab-muted)] text-[10px] ml-0.5">
                     4.9 · 84 jobs
                   </span>
                 </div>
@@ -543,11 +506,13 @@ export default function About() {
             <Reveal>
               <h2
                 className="font-display font-extrabold text-4xl sm:text-5xl leading-tight"
-                style={{ color: "#0D1117" }}
+                style={{ color: "var(--ab-ink)" }}
               >
                 Built out of frustration.
                 <br />
-                <span className="text-green">Driven by trust.</span>
+                <span className="text-[var(--ab-accent-ink)]">
+                  Driven by trust.
+                </span>
               </h2>
             </Reveal>
             {[
@@ -556,13 +521,15 @@ export default function About() {
               "Fixly is that system — nationwide. We connect the right specialist to the right problem, give you a clear plan upfront, and stand behind every job we facilitate. Then we went further, because people don't just need repairs. They need a trusted place to buy their next device too.",
             ].map((t, i) => (
               <Reveal key={i} delay={(i + 1) * 80}>
-                <p className="text-gray-500 text-base leading-relaxed">{t}</p>
+                <p className="text-[var(--ab-ink-soft)] text-base leading-relaxed">
+                  {t}
+                </p>
               </Reveal>
             ))}
             <Reveal delay={350}>
               <div className="flex items-center gap-3 pt-2">
-                <span className="w-8 h-px bg-green" />
-                <span className="text-green text-xs font-bold tracking-widest uppercase">
+                <span className="w-8 h-px bg-[var(--ab-accent)]" />
+                <span className="text-[var(--ab-accent-ink)] text-xs font-bold tracking-widest uppercase">
                   All 47 counties. One platform.
                 </span>
               </div>
@@ -574,14 +541,14 @@ export default function About() {
       {/* ════════════════════════════════════════════
           SERVICES
       ════════════════════════════════════════════ */}
-      <section className="w-full px-6 sm:px-12 py-24 border-b border-beige-dark">
+      <section className="w-full px-6 sm:px-12 py-24 border-b border-[var(--ab-tint)]">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-14">
             <Reveal>
               <Tag>What we do</Tag>
               <h2
                 className="font-display font-extrabold text-4xl sm:text-5xl leading-tight mt-5"
-                style={{ color: "#0D1117" }}
+                style={{ color: "var(--ab-ink)" }}
               >
                 One platform.
                 <br />
@@ -589,7 +556,7 @@ export default function About() {
               </h2>
             </Reveal>
             <Reveal delay={120}>
-              <p className="text-gray-500 text-base leading-relaxed max-w-xs sm:text-right">
+              <p className="text-[var(--ab-ink-soft)] text-base leading-relaxed max-w-xs sm:text-right">
                 People need their devices working. They need to trust where they
                 get help.
               </p>
@@ -602,7 +569,7 @@ export default function About() {
                 <Reveal key={title} delay={idx * 120}>
                   <a
                     href={href}
-                    className="group block bg-white border border-beige-dark rounded-2xl overflow-hidden hover:border-green hover:shadow-xl transition-all duration-400 h-full"
+                    className="group block bg-[var(--ab-card)] border border-[var(--ab-line)] rounded-2xl overflow-hidden hover:border-[var(--ab-accent)] hover:shadow-xl transition-all duration-400 h-full"
                   >
                     <div className="w-full h-60 overflow-hidden relative">
                       <img
@@ -612,29 +579,29 @@ export default function About() {
                       />
                       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors duration-300" />
                       <div className="absolute top-5 left-5">
-                        <span className="bg-white/90 text-gray-500 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">
+                        <span className="bg-[var(--ab-card)] text-[var(--ab-muted)] text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">
                           {tag}
                         </span>
                       </div>
                     </div>
                     <div className="p-8 flex flex-col gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-beige border border-beige-dark flex items-center justify-center group-hover:bg-green-light group-hover:border-green transition-all duration-300">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--ab-bg)] border border-[var(--ab-tint)] flex items-center justify-center group-hover:bg-[var(--ab-wash)] group-hover:border-[var(--ab-accent)] transition-all duration-300">
                         <Icon
                           size={16}
-                          className="text-gray-500 group-hover:text-green transition-colors duration-300"
+                          className="text-[var(--ab-muted)] group-hover:text-[var(--ab-accent-ink)] transition-colors duration-300"
                           strokeWidth={1.75}
                         />
                       </div>
                       <h3
                         className="font-display font-extrabold text-2xl"
-                        style={{ color: "#0D1117" }}
+                        style={{ color: "var(--ab-ink)" }}
                       >
                         {title}
                       </h3>
-                      <p className="text-gray-500 text-sm leading-relaxed">
+                      <p className="text-[var(--ab-ink-soft)] text-sm leading-relaxed">
                         {desc}
                       </p>
-                      <div className="flex items-center gap-2 text-green font-bold text-sm mt-1 group-hover:gap-3 transition-all duration-200">
+                      <div className="flex items-center gap-2 text-[var(--ab-accent-ink)] font-bold text-sm mt-1 group-hover:gap-3 transition-all duration-200">
                         {cta} <ArrowUpRight size={14} strokeWidth={2.5} />
                       </div>
                     </div>
@@ -649,14 +616,14 @@ export default function About() {
       {/* ════════════════════════════════════════════
           VALUES
       ════════════════════════════════════════════ */}
-      <section className="w-full px-6 sm:px-12 py-24 border-b border-beige-dark">
+      <section className="w-full px-6 sm:px-12 py-24 border-b border-[var(--ab-tint)]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16">
           <div className="lg:col-span-4">
             <Reveal>
               <Tag>How we work</Tag>
               <h2
                 className="font-display font-extrabold text-4xl sm:text-5xl leading-tight mt-6"
-                style={{ color: "#0D1117" }}
+                style={{ color: "var(--ab-ink)" }}
               >
                 The repair
                 <br />
@@ -664,42 +631,42 @@ export default function About() {
                 <br />
                 broken.
                 <br />
-                <span className="text-green">We fixed it.</span>
+                <span className="text-[var(--ab-accent-ink)]">We fixed it.</span>
               </h2>
-              <p className="text-gray-500 text-base leading-relaxed mt-6">
+              <p className="text-[var(--ab-ink-soft)] text-base leading-relaxed mt-6">
                 Four principles governing every job on Fixly — from a screen
                 replacement in Kisumu to a motherboard repair in Nairobi.
               </p>
             </Reveal>
           </div>
 
-          <div className="lg:col-span-8 flex flex-col divide-y divide-beige-dark">
+          <div className="lg:col-span-8 flex flex-col divide-y divide-[var(--ab-tint)]">
             {VALUES.map(({ icon: Icon, number, title, desc }, idx) => (
               <Reveal key={title} delay={idx * 70}>
                 <div className="group flex gap-8 py-8 hover:pl-2 transition-all duration-300 cursor-default">
                   <span
-                    className="font-mono text-4xl font-bold flex-shrink-0 group-hover:text-green transition-colors duration-300 leading-none mt-1"
-                    style={{ color: "#e5e3dc" }}
+                    className="font-mono text-4xl font-bold flex-shrink-0 group-hover:text-[var(--ab-accent)] transition-colors duration-300 leading-none mt-1"
+                    style={{ color: "var(--ab-tint)" }}
                   >
                     {number}
                   </span>
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-beige border border-beige-dark flex items-center justify-center group-hover:bg-green-light group-hover:border-green transition-all duration-300">
+                      <div className="w-8 h-8 rounded-lg bg-[var(--ab-card)] border border-[var(--ab-tint)] flex items-center justify-center group-hover:bg-[var(--ab-wash)] group-hover:border-[var(--ab-accent)] transition-all duration-300">
                         <Icon
                           size={13}
-                          className="text-gray-400 group-hover:text-green transition-colors duration-300"
+                          className="text-[var(--ab-muted)] group-hover:text-[var(--ab-accent-ink)] transition-colors duration-300"
                           strokeWidth={2}
                         />
                       </div>
                       <h3
                         className="font-display font-bold text-xl"
-                        style={{ color: "#0D1117" }}
+                        style={{ color: "var(--ab-ink)" }}
                       >
                         {title}
                       </h3>
                     </div>
-                    <p className="text-gray-500 text-sm leading-relaxed">
+                    <p className="text-[var(--ab-ink-soft)] text-sm leading-relaxed">
                       {desc}
                     </p>
                   </div>
@@ -713,29 +680,31 @@ export default function About() {
       {/* ════════════════════════════════════════════
           PROMISE BANNER
       ════════════════════════════════════════════ */}
-      <section className="w-full px-6 sm:px-12 py-24 border-b border-beige-dark">
+      <section className="w-full px-6 sm:px-12 py-24 border-b border-[var(--ab-tint)]">
         <div className="max-w-7xl mx-auto">
           <Reveal>
-            <div className="relative bg-black rounded-2xl overflow-hidden">
+            <div className="relative bg-[var(--ab-ink)] rounded-2xl overflow-hidden">
               <img
                 src="https://images.unsplash.com/photo-1563770660941-20978e870e26?w=1600&auto=format&fit=crop&q=80"
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover opacity-[0.14]"
               />
-              {/* green left accent bar */}
-              <div className="absolute top-0 left-0 w-1 h-full bg-green" />
+              {/* accent left bar */}
+              <div className="absolute top-0 left-0 w-1 h-full bg-[var(--ab-accent)]" />
 
               <div className="relative px-10 sm:px-16 py-16 grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
                 <div>
-                  <span className="inline-block border border-white/20 text-white/40 text-[10px] font-bold px-4 py-1.5 rounded-full tracking-[0.12em] uppercase mb-7">
+                  <span className="inline-block border border-white/20 text-white/60 text-[10px] font-bold px-4 py-1.5 rounded-full tracking-[0.12em] uppercase mb-7">
                     Our promise
                   </span>
                   <h2 className="font-display font-extrabold text-4xl sm:text-5xl text-white leading-tight mb-6">
                     We are not a directory.
                     <br />
-                    <span className="text-green">We are the system.</span>
+                    <span className="text-[var(--ab-accent)]">
+                      We are the system.
+                    </span>
                   </h2>
-                  <p className="text-white/50 text-base leading-relaxed">
+                  <p className="text-white/60 text-base leading-relaxed">
                     Anyone can build a list of technicians. We built the
                     infrastructure around them — verification, matching,
                     communication, oversight, accountability. From Nairobi to
@@ -749,17 +718,17 @@ export default function About() {
                       <div
                         className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                         style={{
-                          background: "rgba(34,197,94,0.12)",
-                          border: "1px solid rgba(34,197,94,0.3)",
+                          background: "rgba(232,148,84,0.15)",
+                          border: "1px solid rgba(232,148,84,0.4)",
                         }}
                       >
                         <CheckCircle2
                           size={11}
-                          className="text-green"
+                          className="text-[var(--ab-accent)]"
                           strokeWidth={2.5}
                         />
                       </div>
-                      <span className="text-white/65 text-sm font-medium">
+                      <span className="text-white/75 text-sm font-medium">
                         {item}
                       </span>
                     </div>
@@ -774,18 +743,20 @@ export default function About() {
       {/* ════════════════════════════════════════════
           MARKETPLACE
       ════════════════════════════════════════════ */}
-      <section className="w-full px-6 sm:px-12 py-24 border-b border-beige-dark">
+      <section className="w-full px-6 sm:px-12 py-24 border-b border-[var(--ab-tint)]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="flex flex-col gap-7">
             <Reveal>
               <Tag>Fixly Marketplace</Tag>
               <h2
                 className="font-display font-extrabold text-4xl sm:text-5xl leading-tight mt-6"
-                style={{ color: "#0D1117" }}
+                style={{ color: "var(--ab-ink)" }}
               >
                 Your next device.
                 <br />
-                <span className="text-green">Sourced with confidence.</span>
+                <span className="text-[var(--ab-accent-ink)]">
+                  Sourced with confidence.
+                </span>
               </h2>
             </Reveal>
             {[
@@ -793,7 +764,9 @@ export default function About() {
               "Phones and laptops only. Brands you know. Prices you can trust. Delivery across Kenya via G4S. And if anything goes wrong after purchase, you already know where to find us.",
             ].map((t, i) => (
               <Reveal key={i} delay={(i + 1) * 80}>
-                <p className="text-gray-500 text-base leading-relaxed">{t}</p>
+                <p className="text-[var(--ab-ink-soft)] text-base leading-relaxed">
+                  {t}
+                </p>
               </Reveal>
             ))}
             <Reveal delay={200}>
@@ -801,7 +774,7 @@ export default function About() {
                 {BRANDS.map((b) => (
                   <span
                     key={b}
-                    className="bg-white border border-beige-dark text-gray-500 text-xs font-semibold px-4 py-2 rounded-full hover:border-green hover:text-green transition-all duration-200 cursor-default"
+                    className="bg-[var(--ab-card)] border border-[var(--ab-tint)] text-[var(--ab-muted)] text-xs font-semibold px-4 py-2 rounded-full hover:border-[var(--ab-accent)] hover:text-[var(--ab-accent-ink)] transition-all duration-200 cursor-default"
                   >
                     {b}
                   </span>
@@ -811,7 +784,7 @@ export default function About() {
             <Reveal delay={280}>
               <a
                 href="/marketplace"
-                className="group inline-flex items-center gap-2.5 bg-green hover:bg-green-dark text-black font-bold text-sm px-7 py-4 rounded-xl transition-all duration-200 w-fit"
+                className="group inline-flex items-center gap-2.5 bg-[var(--ab-accent)] hover:bg-[var(--ab-accent-dark)] text-[var(--ab-ink)] font-bold text-sm px-7 py-4 rounded-xl transition-all duration-200 w-fit"
               >
                 Browse Marketplace
                 <ArrowRight
@@ -863,65 +836,6 @@ export default function About() {
       </section>
 
       {/* ════════════════════════════════════════════
-          TESTIMONIALS
-      ════════════════════════════════════════════ */}
-      <section className="w-full px-6 sm:px-12 py-24 border-b border-beige-dark">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-14">
-            <Reveal>
-              <Tag>What people say</Tag>
-              <h2
-                className="font-display font-extrabold text-4xl sm:text-5xl leading-tight mt-5"
-                style={{ color: "#0D1117" }}
-              >
-                From Mombasa
-                <br />
-                to Nakuru.
-              </h2>
-            </Reveal>
-            <Reveal delay={100}>
-              <div className="flex items-center gap-2">
-                <Stars count={5} size={15} />
-                <span className="text-gray-400 text-sm ml-1">
-                  4.9 average · 300+ reviews
-                </span>
-              </div>
-            </Reveal>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            {TESTIMONIALS.map(({ name, city, text, rating }, idx) => (
-              <Reveal key={name} delay={idx * 90}>
-                <div className="bg-white border border-beige-dark rounded-2xl p-7 flex flex-col gap-5 h-full hover:border-green hover:shadow-md transition-all duration-300">
-                  <Stars count={rating} size={12} />
-                  <p className="text-gray-600 text-sm leading-relaxed flex-1">
-                    "{text}"
-                  </p>
-                  <div className="flex items-center gap-3 pt-2 border-t border-beige-dark">
-                    <div className="w-8 h-8 rounded-full bg-green-light border border-green-dark/20 flex items-center justify-center text-green text-xs font-bold flex-shrink-0">
-                      {name[0]}
-                    </div>
-                    <div>
-                      <p
-                        className="text-sm font-semibold"
-                        style={{ color: "#0D1117" }}
-                      >
-                        {name}
-                      </p>
-                      <p className="text-gray-400 text-xs flex items-center gap-1">
-                        <MapPin size={9} strokeWidth={2} />
-                        {city}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════════════════════════════════════════
           CONTACT
       ════════════════════════════════════════════ */}
       <section id="contact" className="w-full px-6 sm:px-12 py-24">
@@ -932,13 +846,13 @@ export default function About() {
               <Tag>Contact</Tag>
               <h2
                 className="font-display font-extrabold text-4xl sm:text-5xl leading-tight mt-6"
-                style={{ color: "#0D1117" }}
+                style={{ color: "var(--ab-ink)" }}
               >
                 We're real people.
                 <br />
-                <span className="text-green">Talk to us.</span>
+                <span className="text-[var(--ab-accent-ink)]">Talk to us.</span>
               </h2>
-              <p className="text-gray-500 text-base mt-5 leading-relaxed">
+              <p className="text-[var(--ab-ink-soft)] text-base mt-5 leading-relaxed">
                 Repair question, device listing, technician application, or just
                 a hello — we read every message, from every county.
               </p>
@@ -971,48 +885,48 @@ export default function About() {
                     href={href}
                     target={href.startsWith("http") ? "_blank" : undefined}
                     rel="noreferrer"
-                    className="group flex items-center gap-4 bg-white border border-beige-dark rounded-2xl px-6 py-5 hover:border-green transition-all duration-200"
+                    className="group flex items-center gap-4 bg-[var(--ab-card)] border border-[var(--ab-line)] rounded-2xl px-6 py-5 hover:border-[var(--ab-accent)] transition-all duration-200"
                   >
-                    <div className="w-11 h-11 rounded-xl bg-beige border border-beige-dark flex items-center justify-center flex-shrink-0 group-hover:bg-green-light group-hover:border-green transition-all duration-300">
+                    <div className="w-11 h-11 rounded-xl bg-[var(--ab-bg)] border border-[var(--ab-tint)] flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--ab-wash)] group-hover:border-[var(--ab-accent)] transition-all duration-300">
                       <Icon
                         size={17}
-                        className="text-gray-500 group-hover:text-green transition-colors duration-300"
+                        className="text-[var(--ab-muted)] group-hover:text-[var(--ab-accent-ink)] transition-colors duration-300"
                         strokeWidth={1.75}
                       />
                     </div>
                     <div>
-                      <p className="text-gray-400 text-xs font-medium mb-0.5">
+                      <p className="text-[var(--ab-muted)] text-xs font-medium mb-0.5">
                         {label}
                       </p>
                       <p
-                        className="text-black font-semibold text-sm"
-                        style={{ color: "#0D1117" }}
+                        className="font-semibold text-sm"
+                        style={{ color: "var(--ab-ink)" }}
                       >
                         {value}
                       </p>
                     </div>
                     <ArrowRight
                       size={14}
-                      className="text-gray-300 ml-auto group-hover:text-green group-hover:translate-x-0.5 transition-all duration-200"
+                      className="text-[var(--ab-tint)] ml-auto group-hover:text-[var(--ab-accent-ink)] group-hover:translate-x-0.5 transition-all duration-200"
                     />
                   </a>
                 ))}
 
-                <div className="flex items-center gap-4 bg-white border border-beige-dark rounded-2xl px-6 py-5">
-                  <div className="w-11 h-11 rounded-xl bg-beige border border-beige-dark flex items-center justify-center flex-shrink-0">
+                <div className="flex items-center gap-4 bg-[var(--ab-card)] border border-[var(--ab-line)] rounded-2xl px-6 py-5">
+                  <div className="w-11 h-11 rounded-xl bg-[var(--ab-bg)] border border-[var(--ab-tint)] flex items-center justify-center flex-shrink-0">
                     <Globe
                       size={17}
-                      className="text-gray-500"
+                      className="text-[var(--ab-muted)]"
                       strokeWidth={1.75}
                     />
                   </div>
                   <div>
-                    <p className="text-gray-400 text-xs font-medium mb-0.5">
+                    <p className="text-[var(--ab-muted)] text-xs font-medium mb-0.5">
                       Serving
                     </p>
                     <p
-                      className="text-black font-semibold text-sm"
-                      style={{ color: "#0D1117" }}
+                      className="font-semibold text-sm"
+                      style={{ color: "var(--ab-ink)" }}
                     >
                       All 47 counties · Kenya 🇰🇪
                     </p>
@@ -1024,24 +938,24 @@ export default function About() {
 
           {/* Form */}
           <Reveal delay={140}>
-            <div className="bg-white border border-beige-dark rounded-2xl p-8 flex flex-col gap-6">
+            <div className="bg-[var(--ab-card)] border border-[var(--ab-line)] rounded-2xl p-8 flex flex-col gap-6">
               {sent ? (
                 <div className="flex flex-col items-center justify-center gap-5 py-12 text-center">
-                  <div className="w-16 h-16 rounded-full bg-green-light border border-green-dark/20 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-[var(--ab-wash)] border border-[var(--ab-tint)] flex items-center justify-center">
                     <CheckCircle2
                       size={28}
-                      className="text-green"
+                      className="text-[var(--ab-accent-ink)]"
                       strokeWidth={2}
                     />
                   </div>
                   <div>
                     <h3
                       className="font-display font-extrabold text-2xl"
-                      style={{ color: "#0D1117" }}
+                      style={{ color: "var(--ab-ink)" }}
                     >
                       Message sent!
                     </h3>
-                    <p className="text-gray-500 text-sm leading-relaxed max-w-xs mt-2">
+                    <p className="text-[var(--ab-ink-soft)] text-sm leading-relaxed max-w-xs mt-2">
                       Thanks for reaching out. We'll get back to you on WhatsApp
                       or email within 24 hours.
                     </p>
@@ -1051,7 +965,7 @@ export default function About() {
                       setSent(false);
                       setForm({ name: "", phone: "", message: "" });
                     }}
-                    className="text-green text-sm font-bold hover:text-green-dark transition-colors"
+                    className="text-[var(--ab-accent-ink)] text-sm font-bold hover:text-[var(--ab-ink)] transition-colors"
                   >
                     Send another message
                   </button>
@@ -1061,11 +975,11 @@ export default function About() {
                   <div>
                     <h3
                       className="font-display font-bold text-2xl"
-                      style={{ color: "#0D1117" }}
+                      style={{ color: "var(--ab-ink)" }}
                     >
                       Send us a message
                     </h3>
-                    <p className="text-gray-400 text-sm mt-1.5">
+                    <p className="text-[var(--ab-muted)] text-sm mt-1.5">
                       We respond within 24 hours, anywhere in Kenya.
                     </p>
                   </div>
@@ -1085,7 +999,7 @@ export default function About() {
                     },
                   ].map(({ key, label, type, placeholder }) => (
                     <div key={key} className="flex flex-col gap-1.5">
-                      <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+                      <label className="text-[var(--ab-muted)] text-[10px] font-bold uppercase tracking-widest">
                         {label}
                       </label>
                       <input
@@ -1102,7 +1016,7 @@ export default function About() {
                   ))}
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+                    <label className="text-[var(--ab-muted)] text-[10px] font-bold uppercase tracking-widest">
                       Message
                     </label>
                     <textarea
@@ -1120,7 +1034,7 @@ export default function About() {
                   <button
                     onClick={handleSubmit}
                     disabled={sending}
-                    className="group w-full flex items-center justify-center gap-2.5 bg-green hover:bg-green-dark disabled:opacity-60 text-black font-bold text-sm py-4 rounded-xl transition-all duration-200"
+                    className="group w-full flex items-center justify-center gap-2.5 bg-[var(--ab-accent)] hover:bg-[var(--ab-accent-dark)] disabled:opacity-60 text-[var(--ab-ink)] font-bold text-sm py-4 rounded-xl transition-all duration-200"
                   >
                     {sending ? (
                       <>
@@ -1144,6 +1058,28 @@ export default function About() {
           </Reveal>
         </div>
       </section>
+
+      {/* Palette tokens (from Navbar) */}
+      <style>{`
+        .ab-root {
+          --ab-bg: #f7e6d9;
+          --ab-tint: #f0c09b;
+          --ab-accent: #e89454;
+          --ab-accent-dark: #d4793a;
+          --ab-accent-ink: #a8531a;
+          --ab-ink: #050505;
+          --ab-ink-soft: #2b1d14;
+          --ab-muted: #7a5a46;
+          --ab-card: #fffaf6;
+          --ab-line: #f3d2ba;
+          --ab-wash: #fbeee3;
+          --ab-wash2: #f7dcc5;
+          font-family: var(--font-body, "DM Sans", sans-serif);
+        }
+        /* Fonts come from the global CSS tokens, not the Tailwind config */
+        .ab-root .font-display { font-family: var(--font-hero, "Montserrat", sans-serif); }
+        .ab-root .font-mono    { font-family: var(--font-mono, "JetBrains Mono", monospace); }
+      `}</style>
     </div>
   );
 }

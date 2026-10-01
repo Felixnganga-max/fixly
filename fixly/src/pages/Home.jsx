@@ -12,9 +12,10 @@ import HomeShowcase from "../components/HomeShowcase";
 const Home = () => {
   return (
     <div>
+      <Hero />
       <HomeShowcase />
       <HowItWorks />
-      <Testimonials />
+    
     </div>
   );
 };

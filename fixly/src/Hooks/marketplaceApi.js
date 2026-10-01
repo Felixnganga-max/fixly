@@ -223,3 +223,32 @@ export async function deletePurchaseRequest(id) {
   if (!res.ok) throw new Error(json.message || "Failed to delete request");
   return json;
 }
+
+
+// Append to Hooks/marketplaceApi.js
+
+// ── AI Listing ────────────────────────────────────────────────
+
+/** One device per call (keeps each request under serverless time limits). */
+export async function aiGenerateDevice({ category, brand, name }) {
+  const res = await fetch(`${BASE_URL}/ai/generate`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ category, brand, name }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "AI generation failed");
+  return json.data;
+}
+
+/** Saves reviewed drafts as hidden listings (price 0, no images). */
+export async function aiSaveDrafts({ category, brand, items }) {
+  const res = await fetch(`${BASE_URL}/ai/drafts`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ category, brand, items }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to save drafts");
+  return json; // { created, skipped }
+}

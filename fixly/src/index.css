@@ -1,3 +1,9 @@
+/* Google Fonts — @import must stay first.
+   Syne / DM Sans / JetBrains Mono = existing tokens.
+   Montserrat + Kaushan Script = hero (matches the reference: geometric
+   black/thin sans + brush script). */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Kaushan+Script&family=Montserrat:wght@300;500;800;900&family=Syne:wght@700;800&display=swap");
+
 /* Tailwind base */
 @tailwind base;
 @tailwind components;
@@ -8,6 +14,8 @@
   --font-display: "Syne", sans-serif;
   --font-body: "DM Sans", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+  --font-hero: "Montserrat", sans-serif; /* NEW */
+  --font-script: "Kaushan Script", cursive; /* NEW */
 
   --color-green: #005f02;
   --color-green-dark: #005f02;

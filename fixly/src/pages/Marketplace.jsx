@@ -44,6 +44,23 @@ import { useWishlist } from "../Hooks/useWishlist";
 import { useCompare } from "../Hooks/useCompare";
 import { useRecentlyViewed } from "../Hooks/useRecentlyViewed";
 
+/*
+ * PALETTE (from Navbar.jsx) — defined once in the <style> block at the bottom
+ * on .mp-root and used everywhere as var(--mp-*):
+ *   --mp-bg          #f7e6d9  page background (navbar bg)
+ *   --mp-tint        #f0c09b  active tabs, borders (navbar tint)
+ *   --mp-accent      #e89454  buttons, badges, progress (navbar accent)
+ *   --mp-accent-dark #d4793a  accent hover
+ *   --mp-accent-ink  #a8531a  accent used as TEXT/ICON colour (readable on cream)
+ *   --mp-ink         #050505  headings, dark blocks (navbar ink)
+ *   --mp-ink-soft    #2b1d14  body text
+ *   --mp-muted       #7a5a46  secondary text
+ *   --mp-card        #fffaf6  card / modal surface
+ *   --mp-line        #f3d2ba  hairline borders
+ *   --mp-wash        #fbeee3  soft hover / image placeholder
+ *   --mp-wash2       #f7dcc5  skeletons, thumbnails
+ */
+
 // ─── CONSTANTS ────────────────────────────────────────────────
 const CONDITIONS = ["All", "New", "Used", "Refurbished"];
 const PRICE_RANGES = [
@@ -72,6 +89,7 @@ const SIDEBAR_CATEGORIES = [
   { key: "laptop", label: "Laptops", icon: Laptop },
 ];
 
+// Condition colours stay semantic (green / amber / blue) so they read as status
 const CONDITION_CONFIG = {
   New: { cls: "bg-emerald-500 text-white", dot: "#10b981" },
   Used: {
@@ -85,6 +103,7 @@ const CONDITION_CONFIG = {
 };
 
 // ─── HERO SLIDES (banners only — no fake products) ────────────
+// All slides use the navbar peach family; text is ink for contrast.
 const HERO_SLIDES = [
   {
     eyebrow: "Phones · New arrivals",
@@ -92,8 +111,7 @@ const HERO_SLIDES = [
     sub: "Verified. Tested. Ready to go — find your next phone at Fixly.",
     cta: "Shop phones",
     ctaTab: "phones",
-    accent: "#f97316",
-    bg: "from-orange-950 to-orange-900",
+    bg: "from-[#f0c09b] to-[#e89454]",
     img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=700&auto=format&fit=crop&q=80",
   },
   {
@@ -102,8 +120,7 @@ const HERO_SLIDES = [
     sub: "Refurbished & new laptops at unbeatable Nairobi prices.",
     cta: "Shop laptops",
     ctaTab: "laptops",
-    accent: "#06b6d4",
-    bg: "from-slate-900 to-cyan-950",
+    bg: "from-[#f7e6d9] to-[#f0c09b]",
     img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=700&auto=format&fit=crop&q=80",
   },
   {
@@ -112,8 +129,7 @@ const HERO_SLIDES = [
     sub: "Every listing on Fixly is reviewed and verified before going live.",
     cta: "Browse all",
     ctaTab: "phones",
-    accent: "#10b981",
-    bg: "from-emerald-950 to-teal-900",
+    bg: "from-[#e89454] to-[#d4793a]",
     img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=700&auto=format&fit=crop&q=80",
   },
 ];
@@ -157,13 +173,13 @@ function useCountdown(hours = 12, mins = 0, secs = 0) {
 // ─── SKELETON ─────────────────────────────────────────────────
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-xl overflow-hidden animate-pulse border border-gray-100">
-      <div className="w-full h-48 bg-gray-100" />
+    <div className="bg-[var(--mp-card)] rounded-xl overflow-hidden animate-pulse border border-[var(--mp-line)]">
+      <div className="w-full h-48 bg-[var(--mp-wash2)]" />
       <div className="p-3 space-y-2">
-        <div className="h-2 bg-gray-100 rounded w-1/4" />
-        <div className="h-3 bg-gray-100 rounded w-3/4" />
-        <div className="h-5 bg-gray-100 rounded w-2/5 mt-2" />
-        <div className="h-8 bg-gray-100 rounded-lg" />
+        <div className="h-2 bg-[var(--mp-wash2)] rounded w-1/4" />
+        <div className="h-3 bg-[var(--mp-wash2)] rounded w-3/4" />
+        <div className="h-5 bg-[var(--mp-wash2)] rounded w-2/5 mt-2" />
+        <div className="h-8 bg-[var(--mp-wash2)] rounded-lg" />
       </div>
     </div>
   );
@@ -183,9 +199,9 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
     : product.discount;
 
   return (
-    <div className="group bg-white border border-gray-100 rounded-xl overflow-hidden hover:border-orange-200 hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
+    <div className="group bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl overflow-hidden hover:border-[var(--mp-tint)] hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
       {/* Image */}
-      <div className="relative w-full h-48 bg-gray-50 overflow-hidden flex-shrink-0">
+      <div className="relative w-full h-48 bg-[var(--mp-wash)] overflow-hidden flex-shrink-0">
         <img
           src={product.images?.[0] || product.image || FALLBACK_IMG}
           alt={product.name}
@@ -196,12 +212,12 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
           }}
         />
         {discount && (
-          <span className="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+          <span className="absolute top-2 left-2 bg-[var(--mp-accent)] text-[var(--mp-ink)] text-[10px] font-black px-2 py-0.5 rounded-full">
             -{discount}%
           </span>
         )}
         {product.verified && (
-          <span className="absolute top-2 right-2 flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-900/90 text-emerald-400">
+          <span className="absolute top-2 right-2 flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--mp-ink)] text-emerald-400">
             <ShieldCheck size={8} strokeWidth={2.5} /> OK
           </span>
         )}
@@ -217,7 +233,7 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
               e.stopPropagation();
               onQuickView(product);
             }}
-            className="bg-white text-gray-800 text-[10px] font-bold px-3 py-1.5 rounded-full shadow-md hover:bg-orange-500 hover:text-white transition-all"
+            className="bg-[var(--mp-card)] text-[var(--mp-ink)] text-[10px] font-bold px-3 py-1.5 rounded-full shadow-md hover:bg-[var(--mp-accent)] transition-all"
           >
             Quick view
           </button>
@@ -227,7 +243,7 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
               toggleCompare(product);
             }}
             disabled={!comparing && compareCount >= 4}
-            className={`p-1.5 rounded-full shadow-md transition-all ${comparing ? "bg-violet-500 text-white" : "bg-white text-gray-500 hover:text-violet-500"} disabled:opacity-30`}
+            className={`p-1.5 rounded-full shadow-md transition-all ${comparing ? "bg-[var(--mp-ink)] text-white" : "bg-[var(--mp-card)] text-[var(--mp-muted)] hover:text-[var(--mp-ink)]"} disabled:opacity-30`}
           >
             <GitCompare size={12} />
           </button>
@@ -236,10 +252,10 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
 
       {/* Body */}
       <div className="flex flex-col gap-1.5 p-3 flex-1">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--mp-muted)]">
           {product.brand}
         </p>
-        <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
+        <h3 className="font-semibold text-[var(--mp-ink)] text-sm leading-snug line-clamp-2">
           {product.name}
         </h3>
 
@@ -252,27 +268,27 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
                 className={
                   i <= Math.round(product.rating)
                     ? "text-amber-400 fill-amber-400"
-                    : "text-gray-200 fill-gray-200"
+                    : "text-[var(--mp-tint)] fill-[var(--mp-tint)]"
                 }
               />
             ))}
-            <span className="text-gray-400 text-[10px] ml-0.5">
+            <span className="text-[var(--mp-muted)] text-[10px] ml-0.5">
               {product.rating.toFixed(1)}
             </span>
           </div>
         )}
 
-        <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-auto">
+        <div className="flex items-center gap-1 text-[10px] text-[var(--mp-muted)] mt-auto">
           <Eye size={9} />
           <span>{product.views || 0} views</span>
         </div>
 
         <div className="flex items-baseline gap-2">
-          <p className="font-mono font-black text-base text-gray-900">
+          <p className="font-mono font-black text-base text-[var(--mp-ink)]">
             KES {product.price.toLocaleString()}
           </p>
           {product.oldPrice && (
-            <p className="font-mono text-xs text-gray-400 line-through">
+            <p className="font-mono text-xs text-[var(--mp-muted)] line-through">
               KES {product.oldPrice.toLocaleString()}
             </p>
           )}
@@ -284,13 +300,13 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
               e.stopPropagation();
               toggleWishlist(pid);
             }}
-            className={`p-2 rounded-lg border transition-all flex-shrink-0 ${wishlisted ? "bg-red-50 border-red-200 text-red-500" : "border-gray-200 text-gray-400 hover:text-red-400 hover:border-red-200"}`}
+            className={`p-2 rounded-lg border transition-all flex-shrink-0 ${wishlisted ? "bg-red-50 border-red-200 text-red-500" : "border-[var(--mp-tint)] text-[var(--mp-muted)] hover:text-red-400 hover:border-red-200"}`}
           >
             <Heart size={12} fill={wishlisted ? "currentColor" : "none"} />
           </button>
           <button
             onClick={() => navigate(`/product/${pid}`)}
-            className="flex-1 flex items-center justify-center gap-1 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs py-2 rounded-lg transition-all duration-200"
+            className="flex-1 flex items-center justify-center gap-1 bg-[var(--mp-accent)] hover:bg-[var(--mp-accent-dark)] text-[var(--mp-ink)] font-bold text-xs py-2 rounded-lg transition-all duration-200"
           >
             Add to cart <ShoppingCart size={11} />
           </button>
@@ -316,9 +332,9 @@ function DailyDealCard({ product, onQuickView }) {
   const sold = Math.min(Math.floor((product.views || 5) * 0.6), available - 1);
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
+    <div className="bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
       <div
-        className="relative h-52 bg-gray-50 overflow-hidden group cursor-pointer"
+        className="relative h-52 bg-[var(--mp-wash)] overflow-hidden group cursor-pointer"
         onClick={() => onQuickView(product)}
       >
         <img
@@ -330,7 +346,7 @@ function DailyDealCard({ product, onQuickView }) {
           }}
         />
         {discount && (
-          <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center">
+          <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-[var(--mp-accent)] text-[var(--mp-ink)] flex items-center justify-center">
             <span className="text-[10px] font-black leading-tight text-center">
               {discount}%<br />
               OFF
@@ -339,41 +355,43 @@ function DailyDealCard({ product, onQuickView }) {
         )}
       </div>
       <div className="p-4 flex flex-col gap-2 flex-1">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--mp-muted)]">
           {product.brand}
         </p>
-        <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
+        <h3 className="font-semibold text-[var(--mp-ink)] text-sm leading-snug line-clamp-2">
           {product.name}
         </h3>
         {product.shortDescription && (
-          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-[var(--mp-muted)] line-clamp-2 leading-relaxed">
             {product.shortDescription}
           </p>
         )}
 
         {/* Stock progress */}
-        <div className="flex items-center justify-between text-[10px] text-gray-500 mt-1">
+        <div className="flex items-center justify-between text-[10px] text-[var(--mp-muted)] mt-1">
           <span>
             Available:{" "}
-            <strong className="text-gray-800">{available - sold}</strong>
+            <strong className="text-[var(--mp-ink-soft)]">
+              {available - sold}
+            </strong>
           </span>
           <span>
-            Sold: <strong className="text-gray-800">{sold}</strong>
+            Sold: <strong className="text-[var(--mp-ink-soft)]">{sold}</strong>
           </span>
         </div>
-        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-[var(--mp-wash2)] rounded-full overflow-hidden">
           <div
-            className="h-full bg-orange-500 rounded-full transition-all"
+            className="h-full bg-[var(--mp-accent)] rounded-full transition-all"
             style={{ width: `${(sold / available) * 100}%` }}
           />
         </div>
 
         <div className="flex items-baseline gap-2">
-          <p className="font-mono font-black text-lg text-orange-600">
+          <p className="font-mono font-black text-lg text-[var(--mp-accent-ink)]">
             KES {product.price.toLocaleString()}
           </p>
           {product.oldPrice && (
-            <p className="font-mono text-xs text-gray-400 line-through">
+            <p className="font-mono text-xs text-[var(--mp-muted)] line-through">
               KES {product.oldPrice.toLocaleString()}
             </p>
           )}
@@ -381,7 +399,7 @@ function DailyDealCard({ product, onQuickView }) {
 
         {/* Countdown */}
         <div className="flex flex-col gap-1">
-          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+          <p className="text-[10px] font-bold text-[var(--mp-muted)] uppercase tracking-wider">
             Hurry Up! Offers end in:
           </p>
           <div className="flex items-center gap-1">
@@ -393,15 +411,15 @@ function DailyDealCard({ product, onQuickView }) {
             ].map(({ v, l }, i) => (
               <div key={l} className="flex items-center gap-1">
                 <div className="flex flex-col items-center">
-                  <span className="bg-gray-900 text-white text-xs font-black px-2 py-1 rounded-md tabular-nums min-w-[32px] text-center">
+                  <span className="bg-[var(--mp-ink)] text-white text-xs font-black px-2 py-1 rounded-md tabular-nums min-w-[32px] text-center">
                     {v}
                   </span>
-                  <span className="text-[8px] text-gray-400 font-bold mt-0.5">
+                  <span className="text-[8px] text-[var(--mp-muted)] font-bold mt-0.5">
                     {l}
                   </span>
                 </div>
                 {i < 3 && (
-                  <span className="text-gray-400 font-black text-sm mb-3">
+                  <span className="text-[var(--mp-muted)] font-black text-sm mb-3">
                     :
                   </span>
                 )}
@@ -412,7 +430,7 @@ function DailyDealCard({ product, onQuickView }) {
 
         <button
           onClick={() => navigate(`/product/${pid}`)}
-          className="mt-auto w-full bg-gray-900 hover:bg-orange-500 text-white font-bold text-xs py-2.5 rounded-lg transition-all duration-200"
+          className="mt-auto w-full bg-[var(--mp-ink)] hover:bg-[var(--mp-accent)] text-white hover:text-[var(--mp-ink)] font-bold text-xs py-2.5 rounded-lg transition-all duration-200"
         >
           View deal →
         </button>
@@ -425,15 +443,12 @@ function DailyDealCard({ product, onQuickView }) {
 function SidebarProduct({ product }) {
   const navigate = useNavigate();
   const pid = product._id || product.id;
-  const discount = product.oldPrice
-    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
-    : product.discount;
   return (
     <button
       onClick={() => navigate(`/product/${pid}`)}
       className="flex items-center gap-2.5 group w-full text-left"
     >
-      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+      <div className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--mp-wash2)] flex-shrink-0">
         <img
           src={product.images?.[0] || FALLBACK_IMG}
           alt={product.name}
@@ -444,15 +459,15 @@ function SidebarProduct({ product }) {
         />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold text-gray-800 line-clamp-1 group-hover:text-orange-500 transition-colors">
+        <p className="text-xs font-semibold text-[var(--mp-ink-soft)] line-clamp-1 group-hover:text-[var(--mp-accent-ink)] transition-colors">
           {product.name}
         </p>
         <div className="flex items-center gap-1.5 mt-0.5">
-          <p className="text-xs font-black text-orange-600 font-mono">
+          <p className="text-xs font-black text-[var(--mp-accent-ink)] font-mono">
             KES {product.price.toLocaleString()}
           </p>
           {product.oldPrice && (
-            <p className="text-[10px] text-gray-400 line-through font-mono">
+            <p className="text-[10px] text-[var(--mp-muted)] line-through font-mono">
               KES {product.oldPrice.toLocaleString()}
             </p>
           )}
@@ -461,7 +476,7 @@ function SidebarProduct({ product }) {
           <Star
             key={i}
             size={8}
-            className={`inline ${i <= 3 ? "text-amber-400 fill-amber-400" : "text-gray-200 fill-gray-200"}`}
+            className={`inline ${i <= 3 ? "text-amber-400 fill-amber-400" : "text-[var(--mp-tint)] fill-[var(--mp-tint)]"}`}
           />
         ))}
       </div>
@@ -473,7 +488,6 @@ function SidebarProduct({ product }) {
 function HeroSlider({ onTabChange }) {
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const id = setInterval(() => slide(1), 5000);
@@ -500,7 +514,7 @@ function HeroSlider({ onTabChange }) {
         <img
           src={s.img}
           alt=""
-          className={`w-full h-full object-cover opacity-20 transition-opacity duration-500 ${animating ? "opacity-0" : "opacity-20"}`}
+          className={`w-full h-full object-cover mix-blend-multiply transition-opacity duration-500 ${animating ? "opacity-0" : "opacity-20"}`}
         />
       </div>
 
@@ -508,22 +522,18 @@ function HeroSlider({ onTabChange }) {
       <div
         className={`relative z-10 px-8 py-8 flex-1 transition-all duration-300 ${animating ? "opacity-0 translate-x-4" : "opacity-100 translate-x-0"}`}
       >
-        <span
-          className="inline-block text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-3"
-          style={{ background: s.accent + "33", color: s.accent }}
-        >
+        <span className="inline-block text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-3 bg-black/10 text-[var(--mp-ink)]">
           {s.eyebrow}
         </span>
-        <h2 className="text-3xl font-black text-white leading-tight whitespace-pre-line">
+        <h2 className="text-3xl font-black text-[var(--mp-ink)] leading-tight whitespace-pre-line">
           {s.headline}
         </h2>
-        <p className="text-white/60 text-sm mt-2 max-w-xs leading-relaxed">
+        <p className="text-[var(--mp-ink-soft)] text-sm mt-2 max-w-xs leading-relaxed">
           {s.sub}
         </p>
         <button
           onClick={() => onTabChange(s.ctaTab)}
-          className="mt-5 inline-flex items-center gap-2 font-black text-sm px-5 py-2.5 rounded-lg transition-all duration-200"
-          style={{ background: s.accent, color: "#fff" }}
+          className="mt-5 inline-flex items-center gap-2 font-black text-sm px-5 py-2.5 rounded-lg transition-all duration-200 bg-[var(--mp-ink)] text-[var(--mp-bg)] hover:bg-[var(--mp-ink-soft)]"
         >
           {s.cta} <ArrowRight size={14} />
         </button>
@@ -532,13 +542,13 @@ function HeroSlider({ onTabChange }) {
       {/* Arrows */}
       <button
         onClick={() => slide(-1)}
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all"
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 text-[var(--mp-ink)] flex items-center justify-center transition-all"
       >
         <ChevronLeft size={16} />
       </button>
       <button
         onClick={() => slide(1)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all"
+        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 text-[var(--mp-ink)] flex items-center justify-center transition-all"
       >
         <ChevronRight size={16} />
       </button>
@@ -549,7 +559,7 @@ function HeroSlider({ onTabChange }) {
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? "w-5 bg-white" : "w-1.5 bg-white/40"}`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? "w-5 bg-[var(--mp-ink)]" : "w-1.5 bg-black/30"}`}
           />
         ))}
       </div>
@@ -557,29 +567,7 @@ function HeroSlider({ onTabChange }) {
   );
 }
 
-// ─── GIFT SPECIAL TICKER ──────────────────────────────────────
-function GiftTicker() {
-  return (
-    <div className="bg-white border border-orange-100 rounded-xl flex items-center gap-3 px-4 py-3 overflow-hidden">
-      <div className="flex items-center gap-2 flex-shrink-0 bg-orange-500 text-white text-xs font-black px-3 py-1.5 rounded-lg">
-        <Tag size={12} />
-        Gift Special
-      </div>
-      <div className="overflow-hidden flex-1">
-        <div className="animate-marquee whitespace-nowrap text-sm text-gray-600">
-          🎁 New offers every weekend — verified deals, verified sellers
-          &nbsp;&nbsp;&nbsp; 🔥 Use code{" "}
-          <strong className="text-orange-500">FIXLY10</strong> for 10% off your
-          first order &nbsp;&nbsp;&nbsp; ✅ All listings verified before going
-          live on Fixly &nbsp;&nbsp;&nbsp;
-        </div>
-      </div>
-      <button className="flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black px-4 py-2 rounded-lg transition-all">
-        Get coupon
-      </button>
-    </div>
-  );
-}
+
 
 // ─── QUICK VIEW MODAL ─────────────────────────────────────────
 function QuickViewModal({ product, onClose, wishlist }) {
@@ -614,30 +602,30 @@ function QuickViewModal({ product, onClose, wishlist }) {
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative bg-[var(--mp-card)] w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl z-10 max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--mp-line)]">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--mp-muted)]">
               {product.brand}
             </p>
-            <h2 className="font-bold text-gray-900 text-base leading-tight mt-0.5">
+            <h2 className="font-bold text-[var(--mp-ink)] text-base leading-tight mt-0.5">
               {product.name}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors"
+            className="p-2 rounded-xl hover:bg-[var(--mp-wash)] text-[var(--mp-muted)] transition-colors"
           >
             <X size={18} />
           </button>
         </div>
         <div className="overflow-y-auto flex-1">
           <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-64 flex-shrink-0 bg-gray-50">
+            <div className="sm:w-64 flex-shrink-0 bg-[var(--mp-wash)]">
               <div className="relative w-full h-64 overflow-hidden">
                 <img
                   src={images[imgIdx]}
@@ -655,13 +643,13 @@ function QuickViewModal({ product, onClose, wishlist }) {
                           (i) => (i - 1 + images.length) % images.length,
                         )
                       }
-                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-1.5 shadow text-gray-700 hover:bg-white transition-all"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-1.5 shadow text-[var(--mp-ink-soft)] hover:bg-white transition-all"
                     >
                       <ChevronLeft size={14} />
                     </button>
                     <button
                       onClick={() => setImgIdx((i) => (i + 1) % images.length)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-1.5 shadow text-gray-700 hover:bg-white transition-all"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-1.5 shadow text-[var(--mp-ink-soft)] hover:bg-white transition-all"
                     >
                       <ChevronRight size={14} />
                     </button>
@@ -670,7 +658,7 @@ function QuickViewModal({ product, onClose, wishlist }) {
                         <button
                           key={i}
                           onClick={() => setImgIdx(i)}
-                          className={`h-1 rounded-full transition-all ${i === imgIdx ? "w-4 bg-gray-900" : "w-1 bg-gray-400"}`}
+                          className={`h-1 rounded-full transition-all ${i === imgIdx ? "w-4 bg-[var(--mp-ink)]" : "w-1 bg-[var(--mp-muted)]"}`}
                         />
                       ))}
                     </div>
@@ -683,7 +671,7 @@ function QuickViewModal({ product, onClose, wishlist }) {
                     <button
                       key={i}
                       onClick={() => setImgIdx(i)}
-                      className={`flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${i === imgIdx ? "border-orange-500" : "border-transparent"}`}
+                      className={`flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${i === imgIdx ? "border-[var(--mp-accent)]" : "border-transparent"}`}
                     >
                       <img
                         src={img}
@@ -702,17 +690,17 @@ function QuickViewModal({ product, onClose, wishlist }) {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-baseline gap-2">
-                    <p className="font-mono font-black text-2xl text-orange-600">
+                    <p className="font-mono font-black text-2xl text-[var(--mp-accent-ink)]">
                       KES {product.price.toLocaleString()}
                     </p>
                     {product.oldPrice && (
-                      <p className="font-mono text-sm text-gray-400 line-through">
+                      <p className="font-mono text-sm text-[var(--mp-muted)] line-through">
                         KES {product.oldPrice.toLocaleString()}
                       </p>
                     )}
                   </div>
                   {discount && (
-                    <p className="text-xs text-orange-500 font-bold mt-0.5">
+                    <p className="text-xs text-[var(--mp-accent-ink)] font-bold mt-0.5">
                       You save {discount}%
                     </p>
                   )}
@@ -724,25 +712,28 @@ function QuickViewModal({ product, onClose, wishlist }) {
                     {product.condition}
                   </span>
                   {product.verified && (
-                    <span className="flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-900 text-emerald-400">
+                    <span className="flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--mp-ink)] text-emerald-400">
                       <ShieldCheck size={9} /> Verified
                     </span>
                   )}
                 </div>
               </div>
               {product.shortDescription && (
-                <p className="text-sm text-gray-500 leading-relaxed">
+                <p className="text-sm text-[var(--mp-muted)] leading-relaxed">
                   {product.shortDescription}
                 </p>
               )}
               {specEntries.length > 0 && (
                 <div className="grid grid-cols-2 gap-1.5">
                   {specEntries.map(([key, val]) => (
-                    <div key={key} className="bg-gray-50 rounded-xl px-3 py-2">
-                      <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">
+                    <div
+                      key={key}
+                      className="bg-[var(--mp-wash)] rounded-xl px-3 py-2"
+                    >
+                      <p className="text-[9px] uppercase tracking-widest text-[var(--mp-muted)] font-bold">
                         {key}
                       </p>
-                      <p className="text-xs font-semibold text-gray-800 mt-0.5 truncate">
+                      <p className="text-xs font-semibold text-[var(--mp-ink-soft)] mt-0.5 truncate">
                         {String(val)}
                       </p>
                     </div>
@@ -754,7 +745,7 @@ function QuickViewModal({ product, onClose, wishlist }) {
                   {product.features.slice(0, 6).map((f, i) => (
                     <span
                       key={i}
-                      className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-100"
+                      className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[var(--mp-wash)] text-[var(--mp-accent-ink)] border border-[var(--mp-line)]"
                     >
                       {f}
                     </span>
@@ -764,10 +755,10 @@ function QuickViewModal({ product, onClose, wishlist }) {
             </div>
           </div>
         </div>
-        <div className="px-5 py-4 border-t border-gray-100 flex gap-3">
+        <div className="px-5 py-4 border-t border-[var(--mp-line)] flex gap-3">
           <button
             onClick={() => toggle(pid)}
-            className={`p-3 rounded-xl border transition-all ${isWishlisted(pid) ? "bg-red-50 border-red-200 text-red-500" : "border-gray-200 text-gray-400 hover:text-red-400"}`}
+            className={`p-3 rounded-xl border transition-all ${isWishlisted(pid) ? "bg-red-50 border-red-200 text-red-500" : "border-[var(--mp-tint)] text-[var(--mp-muted)] hover:text-red-400"}`}
           >
             <Heart
               size={16}
@@ -776,7 +767,7 @@ function QuickViewModal({ product, onClose, wishlist }) {
           </button>
           <button
             onClick={() => navigate(`/product/${pid}`)}
-            className="flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm py-3 rounded-xl transition-all duration-200"
+            className="flex-1 flex items-center justify-center gap-2 bg-[var(--mp-accent)] hover:bg-[var(--mp-accent-dark)] text-[var(--mp-ink)] font-bold text-sm py-3 rounded-xl transition-all duration-200"
           >
             View Full Page <ChevronRight size={14} strokeWidth={2.5} />
           </button>
@@ -830,16 +821,16 @@ function CompareModal({ items, onClose, onRemove }) {
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative bg-white w-full sm:max-w-4xl sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative bg-[var(--mp-card)] w-full sm:max-w-4xl sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl z-10 max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 className="font-bold text-gray-900">Compare devices</h2>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--mp-line)]">
+          <h2 className="font-bold text-[var(--mp-ink)]">Compare devices</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors"
+            className="p-2 rounded-xl hover:bg-[var(--mp-wash)] text-[var(--mp-muted)] transition-colors"
           >
             <X size={18} />
           </button>
@@ -848,7 +839,7 @@ function CompareModal({ items, onClose, onRemove }) {
           <table className="w-full min-w-max">
             <thead>
               <tr>
-                <td className="p-4 w-32 text-xs font-bold uppercase tracking-widest text-gray-400 sticky left-0 bg-white z-10">
+                <td className="p-4 w-32 text-xs font-bold uppercase tracking-widest text-[var(--mp-muted)] sticky left-0 bg-[var(--mp-card)] z-10">
                   Spec
                 </td>
                 {items.map((p) => {
@@ -858,7 +849,7 @@ function CompareModal({ items, onClose, onRemove }) {
                       <div className="relative inline-block">
                         <button
                           onClick={() => onRemove(p)}
-                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gray-200 hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors z-10"
+                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--mp-wash2)] hover:bg-red-100 text-[var(--mp-muted)] hover:text-red-500 flex items-center justify-center transition-colors z-10"
                         >
                           <X size={10} />
                         </button>
@@ -871,15 +862,15 @@ function CompareModal({ items, onClose, onRemove }) {
                           }}
                         />
                       </div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--mp-muted)] mt-2">
                         {p.brand}
                       </p>
-                      <p className="text-sm font-semibold text-gray-900 leading-tight mt-0.5">
+                      <p className="text-sm font-semibold text-[var(--mp-ink)] leading-tight mt-0.5">
                         {p.name}
                       </p>
                       <button
                         onClick={() => navigate(`/product/${pid}`)}
-                        className="mt-2 text-xs font-bold px-3 py-1.5 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-all"
+                        className="mt-2 text-xs font-bold px-3 py-1.5 rounded-lg bg-[var(--mp-accent)] text-[var(--mp-ink)] hover:bg-[var(--mp-accent-dark)] transition-all"
                       >
                         View →
                       </button>
@@ -892,15 +883,17 @@ function CompareModal({ items, onClose, onRemove }) {
               {compareRows.map((row, idx) => (
                 <tr
                   key={row.label}
-                  className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                  className={
+                    idx % 2 === 0 ? "bg-[var(--mp-wash)]" : "bg-[var(--mp-card)]"
+                  }
                 >
-                  <td className="px-4 py-3 text-xs font-semibold text-gray-500 capitalize sticky left-0 bg-inherit z-10">
+                  <td className="px-4 py-3 text-xs font-semibold text-[var(--mp-muted)] capitalize sticky left-0 bg-inherit z-10">
                     {row.label}
                   </td>
                   {items.map((p) => (
                     <td
                       key={p._id || p.id}
-                      className="px-4 py-3 text-sm text-center font-mono text-gray-800"
+                      className="px-4 py-3 text-sm text-center font-mono text-[var(--mp-ink-soft)]"
                     >
                       {row.render(p)}
                     </td>
@@ -920,21 +913,21 @@ function CompareBar({ items, onOpen, onRemove, onClear }) {
   if (items.length < 1) return null;
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pb-5 px-4 pointer-events-none">
-      <div className="bg-gray-900 text-white rounded-2xl shadow-2xl px-5 py-3 flex items-center gap-4 pointer-events-auto border border-gray-700">
+      <div className="bg-[var(--mp-ink)] text-white rounded-2xl shadow-2xl px-5 py-3 flex items-center gap-4 pointer-events-auto border border-white/15">
         <div className="flex items-center gap-2">
           {items.map((p) => (
             <div key={p._id || p.id} className="relative">
               <img
                 src={p.images?.[0] || FALLBACK_IMG}
                 alt={p.name}
-                className="w-9 h-9 rounded-lg object-cover border-2 border-gray-700"
+                className="w-9 h-9 rounded-lg object-cover border-2 border-white/20"
                 onError={(e) => {
                   e.target.src = FALLBACK_IMG;
                 }}
               />
               <button
                 onClick={() => onRemove(p)}
-                className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gray-600 hover:bg-red-500 flex items-center justify-center text-white transition-colors"
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white/25 hover:bg-red-500 flex items-center justify-center text-white transition-colors"
               >
                 <X size={8} />
               </button>
@@ -943,24 +936,26 @@ function CompareBar({ items, onOpen, onRemove, onClear }) {
           {Array.from({ length: Math.max(0, 2 - items.length) }).map((_, i) => (
             <div
               key={i}
-              className="w-9 h-9 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center text-gray-500 text-xs"
+              className="w-9 h-9 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center text-white/50 text-xs"
             >
               +
             </div>
           ))}
         </div>
-        <div className="h-6 w-px bg-gray-700" />
-        <p className="text-sm text-gray-300">{items.length} selected</p>
+        <div className="h-6 w-px bg-white/20" />
+        <p className="text-sm text-[var(--mp-wash2)]">
+          {items.length} selected
+        </p>
         <button
           onClick={onOpen}
           disabled={items.length < 2}
-          className="bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="bg-[var(--mp-accent)] hover:bg-[var(--mp-tint)] text-[var(--mp-ink)] font-bold text-xs px-4 py-2 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Compare {items.length >= 2 ? "→" : `(need ${2 - items.length} more)`}
         </button>
         <button
           onClick={onClear}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-white/60 hover:text-white transition-colors"
         >
           <X size={15} />
         </button>
@@ -1132,9 +1127,10 @@ export default function Marketplace() {
 
   const pill =
     "px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer whitespace-nowrap";
-  const pillOn = "bg-orange-500 text-white border-orange-500";
+  const pillOn =
+    "bg-[var(--mp-accent)] text-[var(--mp-ink)] border-[var(--mp-accent)]";
   const pillOff =
-    "bg-white text-gray-500 border-gray-200 hover:border-orange-300 hover:text-orange-500";
+    "bg-[var(--mp-card)] text-[var(--mp-muted)] border-[var(--mp-tint)] hover:border-[var(--mp-accent)] hover:text-[var(--mp-accent-ink)]";
 
   // Active listing display
   const displayedListings = useMemo(() => {
@@ -1143,55 +1139,42 @@ export default function Marketplace() {
     return allListings;
   }, [tab, phones, laptops, allListings]);
 
+  const trendTabCls = (active) =>
+    `text-xs font-bold px-3 py-1 rounded-full transition-all ${
+      active
+        ? "bg-[var(--mp-accent)] text-[var(--mp-ink)]"
+        : "text-[var(--mp-muted)] hover:text-[var(--mp-accent-ink)]"
+    }`;
+
   return (
     <div
-      className="min-h-screen bg-gray-50"
+      className="mp-root min-h-screen bg-[var(--mp-bg)]"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-      {/* ── TOPBAR ─────────────────────────────────────────── */}
-      <div className="bg-gray-900 text-white text-[11px] py-1.5 px-4 flex items-center justify-between">
-        <span className="text-gray-400">
-          Welcome to Fixly! Verified phones & laptops — Nairobi's best
-          marketplace
-        </span>
-        <div className="flex items-center gap-4 text-gray-400">
-          <span className="flex items-center gap-1">
-            <User size={11} /> Login or Register
-          </span>
-          <span className="flex items-center gap-1 text-orange-400">
-            <ShieldCheck size={11} /> Track My Order
-          </span>
-        </div>
-      </div>
+    
 
       {/* ── NAV ────────────────────────────────────────────── */}
-      <nav className="bg-white border-b border-gray-100 sticky top-0 z-30">
+      <nav className="bg-[var(--mp-bg)] border-b border-[var(--mp-tint)] sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-          {/* Logo */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <div className="w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center">
-              <Zap size={14} className="text-white" fill="white" />
-            </div>
-            <span className="font-black text-lg text-gray-900">Fixly</span>
-          </div>
+
 
           {/* Search */}
           <div className="flex-1 max-w-xl relative">
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--mp-muted)] pointer-events-none"
             />
             <input
               type="text"
               placeholder="Search phones, laptops, brands…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl pl-9 pr-9 py-2.5 text-sm placeholder:text-gray-400 outline-none focus:border-orange-400 transition-colors text-gray-900"
+              className="w-full bg-[var(--mp-card)] border border-[var(--mp-tint)] rounded-xl pl-9 pr-9 py-2.5 text-sm placeholder:text-[var(--mp-muted)] outline-none focus:border-[var(--mp-accent)] transition-colors text-[var(--mp-ink)]"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--mp-muted)] hover:text-[var(--mp-ink)]"
               >
                 <X size={13} />
               </button>
@@ -1199,7 +1182,7 @@ export default function Marketplace() {
           </div>
 
           {/* Nav links */}
-          <div className="hidden md:flex items-center gap-1 text-sm font-semibold text-gray-600">
+          <div className="hidden md:flex items-center gap-1 text-sm font-semibold text-[var(--mp-ink-soft)]">
             {[
               ["all", "All"],
               ["phones", "Phones"],
@@ -1208,7 +1191,7 @@ export default function Marketplace() {
               <button
                 key={val}
                 onClick={() => setTab(val)}
-                className={`px-3 py-1.5 rounded-lg transition-colors ${tab === val ? "text-orange-500 bg-orange-50" : "hover:text-orange-500 hover:bg-orange-50"}`}
+                className={`px-3 py-1.5 rounded-lg transition-colors ${tab === val ? "text-[var(--mp-ink)] bg-[var(--mp-tint)]" : "hover:text-[var(--mp-accent-ink)] hover:bg-[var(--mp-wash)]"}`}
               >
                 {label}
               </button>
@@ -1219,7 +1202,7 @@ export default function Marketplace() {
           <div className="flex items-center gap-2 ml-auto flex-shrink-0">
             {wishlist.count > 0 && (
               <div className="relative">
-                <Heart size={20} className="text-gray-600" />
+                <Heart size={20} className="text-[var(--mp-ink-soft)]" />
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center">
                   {wishlist.count}
                 </span>
@@ -1227,8 +1210,8 @@ export default function Marketplace() {
             )}
             {compare.count > 0 && (
               <div className="relative">
-                <GitCompare size={20} className="text-gray-600" />
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-violet-500 text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                <GitCompare size={20} className="text-[var(--mp-ink-soft)]" />
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[var(--mp-ink)] text-white text-[10px] font-black rounded-full flex items-center justify-center">
                   {compare.count}
                 </span>
               </div>
@@ -1248,8 +1231,8 @@ export default function Marketplace() {
           {/* ── SIDEBAR ────────────────────────────────────── */}
           <aside className="hidden lg:flex flex-col gap-0 w-52 flex-shrink-0">
             {/* Categories */}
-            <div className="bg-white rounded-xl overflow-hidden border border-gray-100 mb-4">
-              <div className="bg-gray-900 text-white px-4 py-3 flex items-center gap-2">
+            <div className="bg-[var(--mp-card)] rounded-xl overflow-hidden border border-[var(--mp-line)] mb-4">
+              <div className="bg-[var(--mp-ink)] text-white px-4 py-3 flex items-center gap-2">
                 <div className="flex flex-col gap-0.5">
                   <span className="w-4 h-0.5 bg-white rounded" />
                   <span className="w-3 h-0.5 bg-white rounded" />
@@ -1277,20 +1260,20 @@ export default function Marketplace() {
                             : "all",
                       )
                     }
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors border-b border-gray-50 last:border-0 group ${
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors border-b border-[var(--mp-line)] last:border-0 group ${
                       tab === cat.key ||
                       (cat.key === "phone" && tab === "phones") ||
                       (cat.key === "laptop" && tab === "laptops") ||
                       (cat.key === "all" && tab === "all")
-                        ? "bg-orange-50 text-orange-600 font-bold"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-orange-500 font-medium"
+                        ? "bg-[var(--mp-tint)] text-[var(--mp-ink)] font-bold"
+                        : "text-[var(--mp-ink-soft)] hover:bg-[var(--mp-wash)] hover:text-[var(--mp-accent-ink)] font-medium"
                     }`}
                   >
                     <span className="flex items-center gap-2">
                       <Icon size={14} />
                       {cat.label}
                     </span>
-                    <span className="flex items-center gap-1 text-[10px] text-gray-400">
+                    <span className="flex items-center gap-1 text-[10px] text-[var(--mp-muted)]">
                       {count > 0 && <span>{count}</span>}
                       <ChevronRight size={11} />
                     </span>
@@ -1301,14 +1284,14 @@ export default function Marketplace() {
 
             {/* Latest Products */}
             {latestProducts.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mb-4">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                  <span className="text-xs font-black uppercase tracking-wider text-gray-800">
+              <div className="bg-[var(--mp-card)] rounded-xl border border-[var(--mp-line)] overflow-hidden mb-4">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--mp-line)]">
+                  <span className="text-xs font-black uppercase tracking-wider text-[var(--mp-ink)]">
                     Latest Products
                   </span>
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 rounded-full bg-orange-500" />
-                    <div className="w-2 h-2 rounded-full bg-gray-200" />
+                    <div className="w-2 h-2 rounded-full bg-[var(--mp-accent)]" />
+                    <div className="w-2 h-2 rounded-full bg-[var(--mp-wash2)]" />
                   </div>
                 </div>
                 <div className="p-3 flex flex-col gap-3">
@@ -1320,19 +1303,21 @@ export default function Marketplace() {
             )}
 
             {/* Trust badges */}
-            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+            <div className="bg-[var(--mp-card)] rounded-xl border border-[var(--mp-line)] overflow-hidden">
               {TRUST_ITEMS.map(({ icon: Icon, title, sub }) => (
                 <div
                   key={title}
-                  className="flex items-start gap-3 px-4 py-3 border-b border-gray-50 last:border-0"
+                  className="flex items-start gap-3 px-4 py-3 border-b border-[var(--mp-line)] last:border-0"
                 >
                   <Icon
                     size={20}
-                    className="text-orange-500 flex-shrink-0 mt-0.5"
+                    className="text-[var(--mp-accent-ink)] flex-shrink-0 mt-0.5"
                   />
                   <div>
-                    <p className="text-xs font-bold text-gray-800">{title}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">
+                    <p className="text-xs font-bold text-[var(--mp-ink-soft)]">
+                      {title}
+                    </p>
+                    <p className="text-[10px] text-[var(--mp-muted)] mt-0.5 leading-relaxed">
                       {sub}
                     </p>
                   </div>
@@ -1352,23 +1337,22 @@ export default function Marketplace() {
               />
             )}
 
-            {/* Gift ticker */}
-            {!search.trim() && <GiftTicker />}
+           
 
             {/* Daily deals (only show listings with discounts) */}
             {!search.trim() && deals.length > 0 && !loading && (
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="bg-gray-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider">
+                    <span className="bg-[var(--mp-ink)] text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider">
                       Daily Deals
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-orange-300 hover:text-orange-500 transition-all">
+                    <button className="w-7 h-7 rounded-full border border-[var(--mp-tint)] flex items-center justify-center text-[var(--mp-muted)] hover:border-[var(--mp-accent)] hover:text-[var(--mp-accent-ink)] transition-all">
                       <ChevronLeft size={14} />
                     </button>
-                    <button className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-orange-300 hover:text-orange-500 transition-all">
+                    <button className="w-7 h-7 rounded-full border border-[var(--mp-tint)] flex items-center justify-center text-[var(--mp-muted)] hover:border-[var(--mp-accent)] hover:text-[var(--mp-accent-ink)] transition-all">
                       <ChevronRight size={14} />
                     </button>
                   </div>
@@ -1389,25 +1373,23 @@ export default function Marketplace() {
             {!search.trim() && trending.length > 0 && !loading && (
               <div>
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                  <span className="bg-gray-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider flex items-center gap-1.5">
-                    <TrendingUp size={11} /> Trending Items
-                  </span>
+                 
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setTab("all")}
-                      className={`text-xs font-bold px-3 py-1 rounded-full transition-all ${tab === "all" ? "bg-orange-500 text-white" : "text-gray-500 hover:text-orange-500"}`}
+                      className={trendTabCls(tab === "all")}
                     >
                       All
                     </button>
                     <button
                       onClick={() => setTab("phones")}
-                      className={`text-xs font-bold px-3 py-1 rounded-full transition-all ${tab === "phones" ? "bg-orange-500 text-white" : "text-gray-500 hover:text-orange-500"}`}
+                      className={trendTabCls(tab === "phones")}
                     >
                       Phones
                     </button>
                     <button
                       onClick={() => setTab("laptops")}
-                      className={`text-xs font-bold px-3 py-1 rounded-full transition-all ${tab === "laptops" ? "bg-orange-500 text-white" : "text-gray-500 hover:text-orange-500"}`}
+                      className={trendTabCls(tab === "laptops")}
                     >
                       Laptops
                     </button>
@@ -1430,10 +1412,10 @@ export default function Marketplace() {
             {/* ── ALL LISTINGS SECTION ────────────────────── */}
             <div>
               {/* Toolbar */}
-              <div className="flex items-center justify-between gap-3 mb-4 flex-wrap bg-white border border-gray-100 rounded-xl px-4 py-3">
+              <div className="flex items-center justify-between gap-3 mb-4 flex-wrap bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <Package size={14} className="text-gray-400" />
-                  <span className="text-sm font-bold text-gray-800">
+                  <Package size={14} className="text-[var(--mp-muted)]" />
+                  <span className="text-sm font-bold text-[var(--mp-ink)]">
                     {search.trim()
                       ? `Results for "${search}"`
                       : tab === "phones"
@@ -1443,7 +1425,7 @@ export default function Marketplace() {
                           : "All Listings"}
                   </span>
                   {!loading && (
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-[var(--mp-muted)]">
                       ({displayedListings.length})
                     </span>
                   )}
@@ -1451,12 +1433,12 @@ export default function Marketplace() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${showFilters || activeFilters > 0 ? "bg-orange-500 text-white border-orange-500" : "border-gray-200 text-gray-600 hover:border-orange-300"}`}
+                    className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${showFilters || activeFilters > 0 ? "bg-[var(--mp-accent)] text-[var(--mp-ink)] border-[var(--mp-accent)]" : "border-[var(--mp-tint)] text-[var(--mp-ink-soft)] hover:border-[var(--mp-accent)]"}`}
                   >
                     <SlidersHorizontal size={12} />
                     Filters
                     {activeFilters > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-white text-orange-500 text-[10px] font-black flex items-center justify-center">
+                      <span className="w-4 h-4 rounded-full bg-[var(--mp-ink)] text-white text-[10px] font-black flex items-center justify-center">
                         {activeFilters}
                       </span>
                     )}
@@ -1465,7 +1447,7 @@ export default function Marketplace() {
                     <select
                       value={sortIdx}
                       onChange={(e) => setSortIdx(Number(e.target.value))}
-                      className="appearance-none bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-bold text-gray-700 pr-7 outline-none hover:border-orange-300 transition-colors cursor-pointer"
+                      className="appearance-none bg-[var(--mp-card)] border border-[var(--mp-tint)] rounded-lg px-3 py-1.5 text-xs font-bold text-[var(--mp-ink-soft)] pr-7 outline-none hover:border-[var(--mp-accent)] transition-colors cursor-pointer"
                     >
                       {SORT_OPTIONS.map((o, i) => (
                         <option key={i} value={i}>
@@ -1475,7 +1457,7 @@ export default function Marketplace() {
                     </select>
                     <ArrowUpDown
                       size={10}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--mp-muted)] pointer-events-none"
                     />
                   </div>
                 </div>
@@ -1483,7 +1465,7 @@ export default function Marketplace() {
 
               {/* Filter panel */}
               {showFilters && (
-                <div className="bg-white border border-gray-100 rounded-xl p-4 mb-4 flex flex-col gap-4">
+                <div className="bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl p-4 mb-4 flex flex-col gap-4">
                   {[
                     {
                       title: "Brand",
@@ -1499,7 +1481,7 @@ export default function Marketplace() {
                     },
                   ].map(({ title, items, active, set }) => (
                     <div key={title}>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[var(--mp-muted)] mb-2">
                         {title}
                       </p>
                       <div className="flex gap-1.5 flex-wrap">
@@ -1516,7 +1498,7 @@ export default function Marketplace() {
                     </div>
                   ))}
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[var(--mp-muted)] mb-2">
                       Price range
                     </p>
                     <div className="flex gap-1.5 flex-wrap">
@@ -1534,7 +1516,7 @@ export default function Marketplace() {
                   {activeFilters > 0 && (
                     <button
                       onClick={clearFilters}
-                      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-800 transition-colors w-fit font-medium"
+                      className="flex items-center gap-1.5 text-xs text-[var(--mp-muted)] hover:text-[var(--mp-ink)] transition-colors w-fit font-medium"
                     >
                       <X size={12} /> Clear all
                     </button>
@@ -1550,18 +1532,21 @@ export default function Marketplace() {
                   ))}
                 </div>
               ) : displayedListings.length === 0 ? (
-                <div className="bg-white border border-gray-100 rounded-2xl px-6 py-16 text-center">
-                  <Package size={32} className="text-gray-300 mx-auto mb-3" />
-                  <p className="font-bold text-gray-900 text-lg mb-1">
+                <div className="bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-2xl px-6 py-16 text-center">
+                  <Package
+                    size={32}
+                    className="text-[var(--mp-tint)] mx-auto mb-3"
+                  />
+                  <p className="font-bold text-[var(--mp-ink)] text-lg mb-1">
                     No listings found
                   </p>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-[var(--mp-muted)] text-sm">
                     Try adjusting your filters or search term.
                   </p>
                   {activeFilters > 0 && (
                     <button
                       onClick={clearFilters}
-                      className="mt-4 text-sm font-bold text-orange-500 hover:text-orange-700 transition-colors"
+                      className="mt-4 text-sm font-bold text-[var(--mp-accent-ink)] hover:text-[var(--mp-ink)] transition-colors"
                     >
                       Clear filters
                     </button>
@@ -1589,7 +1574,7 @@ export default function Marketplace() {
                     </div>
                   )}
                   {!hasNext && displayedListings.length > 0 && (
-                    <p className="text-center text-xs text-gray-400 py-6 font-medium">
+                    <p className="text-center text-xs text-[var(--mp-muted)] py-6 font-medium">
                       All {displayedListings.length} listings loaded
                     </p>
                   )}
@@ -1622,8 +1607,22 @@ export default function Marketplace() {
         onClear={compare.clear}
       />
 
-      {/* Marquee animation */}
+      {/* Palette tokens (from Navbar) + marquee animation */}
       <style>{`
+        .mp-root {
+          --mp-bg: #f7e6d9;
+          --mp-tint: #f0c09b;
+          --mp-accent: #e89454;
+          --mp-accent-dark: #d4793a;
+          --mp-accent-ink: #a8531a;
+          --mp-ink: #050505;
+          --mp-ink-soft: #2b1d14;
+          --mp-muted: #7a5a46;
+          --mp-card: #fffaf6;
+          --mp-line: #f3d2ba;
+          --mp-wash: #fbeee3;
+          --mp-wash2: #f7dcc5;
+        }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .animate-marquee { display: inline-block; animation: marquee 20s linear infinite; }
         .animate-marquee:hover { animation-play-state: paused; }
