@@ -1,20 +1,22 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Admin = require("../models/admin");
+const ShopOwner = require("../models/shopOwners");
+const { JWT_SECRET } = require("../config/jwt");
 
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-const signToken = (id, role) =>
-  jwt.sign({ id, role }, "fixly_super_secret_jwt_key_2024", {
-    expiresIn: "7d",
-  });
+const signToken = (id, role) => jwt.sign({ id, role }, JWT_SECRET, { expiresIn: "7d" });
 
-// @desc   Admin sign in
-// @route  POST /api/auth/login
-// @access Public
+const invalid = (res) =>
+  res.status(401).json({ success: false, message: "Invalid credentials" });
+
+// @route POST /api/auth/login   @access Public
+// Same endpoint for admins and shop owners. Admin match wins.
 exports.login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const email = String(req.body.email || "").trim().toLowerCase();
+  const { password } = req.body;
 
   if (!email || !password) {
     return res
@@ -22,50 +24,62 @@ exports.login = asyncHandler(async (req, res) => {
       .json({ success: false, message: "Email and password are required" });
   }
 
-  const admin = await Admin.findOne({ email }).select("+password");
+  let account = await Admin.findOne({ email }).select("+password");
+  let role;
 
-  if (!admin || !admin.active) {
-    return res
-      .status(401)
-      .json({ success: false, message: "Invalid credentials" });
+  if (account) {
+    if (!account.active) return invalid(res);
+    role = account.role;
+  } else {
+    account = await ShopOwner.findOne({ email }).select("+password");
+    if (!account || !account.active || !account.password) return invalid(res);
+    role = "shop_owner";
   }
 
-  const isMatch = await bcrypt.compare(password, admin.password);
-  if (!isMatch) {
-    return res
-      .status(401)
-      .json({ success: false, message: "Invalid credentials" });
-  }
+  const isMatch = await bcrypt.compare(password, account.password);
+  if (!isMatch) return invalid(res);
 
-  const token = signToken(admin._id, admin.role);
-  admin.password = undefined;
+  const token = signToken(account._id, role);
+
+  if (role === "shop_owner") {
+    await ShopOwner.updateOne({ _id: account._id }, { lastLoginAt: new Date() });
+    return res.status(200).json({
+      success: true,
+      token,
+      data: {
+        id: account._id,
+        name: account.ownerName,
+        email: account.email,
+        role,
+        shopName: account.shopName,
+        slug: account.slug,
+        offers: account.offers,
+        category: account.category,
+        mustChangePassword: account.mustChangePassword,
+      },
+    });
+  }
 
   res.status(200).json({
     success: true,
     token,
-    data: {
-      id: admin._id,
-      name: admin.name,
-      email: admin.email,
-      role: admin.role,
-    },
+    data: { id: account._id, name: account.name, email: account.email, role },
   });
 });
 
-// @desc   Get current logged-in admin
-// @route  GET /api/auth/me
-// @access Private
+// @route GET /api/auth/me   @access Private
 exports.getMe = asyncHandler(async (req, res) => {
-  const admin = await Admin.findById(req.user.id);
-  if (!admin) {
-    return res.status(404).json({ success: false, message: "Admin not found" });
+  if (req.user.role === "shop_owner") {
+    const shop = await ShopOwner.findById(req.user.id);
+    if (!shop) return res.status(404).json({ success: false, message: "Shop not found" });
+    return res.status(200).json({ success: true, data: shop });
   }
+  const admin = await Admin.findById(req.user.id);
+  if (!admin) return res.status(404).json({ success: false, message: "Admin not found" });
   res.status(200).json({ success: true, data: admin });
 });
 
-// @desc   Change password
-// @route  PATCH /api/auth/change-password
-// @access Private
+// @route PATCH /api/auth/change-password   @access Private
 exports.changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
@@ -75,27 +89,31 @@ exports.changePassword = asyncHandler(async (req, res) => {
       message: "Both current and new password are required",
     });
   }
-
   if (newPassword.length < 8) {
-    return res.status(400).json({
-      success: false,
-      message: "New password must be at least 8 characters",
-    });
+    return res
+      .status(400)
+      .json({ success: false, message: "New password must be at least 8 characters" });
+  }
+  if (newPassword === currentPassword) {
+    return res
+      .status(400)
+      .json({ success: false, message: "New password must differ from the current one" });
   }
 
-  const admin = await Admin.findById(req.user.id).select("+password");
+  const isShop = req.user.role === "shop_owner";
+  const Model = isShop ? ShopOwner : Admin;
+  const account = await Model.findById(req.user.id).select("+password");
 
-  const isMatch = await bcrypt.compare(currentPassword, admin.password);
+  const isMatch = await bcrypt.compare(currentPassword, account.password);
   if (!isMatch) {
     return res
       .status(401)
       .json({ success: false, message: "Current password is incorrect" });
   }
 
-  admin.password = await bcrypt.hash(newPassword, 12);
-  await admin.save();
+  const update = { password: await bcrypt.hash(newPassword, 12) };
+  if (isShop) update.mustChangePassword = false;
+  await Model.updateOne({ _id: account._id }, { $set: update });
 
-  res
-    .status(200)
-    .json({ success: true, message: "Password updated successfully" });
+  res.status(200).json({ success: true, message: "Password updated successfully" });
 });

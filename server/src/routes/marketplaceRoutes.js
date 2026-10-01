@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getAllListings,
   getListingById,
+  getMyListings,
   createListing,
   updateListing,
   deleteImage,
@@ -13,28 +14,29 @@ const {
 const { createAlert, deleteAlert } = require("../controllers/priceAlerts");
 const { cacheMiddleware } = require("../utils/cache");
 const { uploadProductImages } = require("../utils/upload");
+const { protect, shopOnly, staffOnly } = require("../middleware/auth");
 
 // ── Public ────────────────────────────────────────────────────
-
-// Cached for 60s — busted on any write
 router.get("/", cacheMiddleware(60), getAllListings);
-
-// Stats cached for 5 minutes
 router.get("/stats", cacheMiddleware(300), getStats);
 
-// Single listing — NOT cached (view count must fire)
+// ── Shop owner (above "/:id") — not cached ────────────────────
+router.get("/mine", protect, shopOnly, getMyListings);
+
 router.get("/:id", getListingById);
 
-// ── Private (logged-in users) ─────────────────────────────────
-// Price alerts
+// ── Price alerts (unchanged) ──────────────────────────────────
+// NOTE: these have no auth today. Add customer auth or rate limiting later.
 router.post("/:id/alert", createAlert);
 router.delete("/:id/alert", deleteAlert);
 
-// ── Admin ──────────────────────────────────────────────────────
-router.post("/", uploadProductImages, createListing);
-router.put("/:id", uploadProductImages, updateListing);
-router.delete("/:id/image", deleteImage);
-router.patch("/:id/toggle-active", toggleActive);
-router.delete("/:id", deleteListing);
+// ── Writes: admin OR shop owner. protect runs BEFORE upload so
+// anonymous requests never reach Cloudinary. Ownership is enforced
+// inside the controller.
+router.post("/", protect, staffOnly, uploadProductImages, createListing);
+router.put("/:id", protect, staffOnly, uploadProductImages, updateListing);
+router.delete("/:id/image", protect, staffOnly, deleteImage);
+router.patch("/:id/toggle-active", protect, staffOnly, toggleActive);
+router.delete("/:id", protect, staffOnly, deleteListing);
 
 module.exports = router;
