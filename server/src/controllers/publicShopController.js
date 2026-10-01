@@ -1,31 +1,30 @@
 // controllers/publicShopController.js
-import mongoose from "mongoose";
-// ── ADJUST THESE 4 LINES to match your project ───────────────────────────────
-import ShopOwner from "../models/ShopOwner.js"; // your shop model
-import Listing from "../models/Listing.js"; //    your marketplace listing model
-const LISTING_SHOP_FIELD = "listedBy"; //          listing field holding the shop's _id
-const LIVE_FILTER = { hidden: { $ne: true } }; //  however "Live" vs "Hidden" is stored
-// ─────────────────────────────────────────────────────────────────────────────
+const mongoose = require("mongoose");
+const ShopOwner = require("../models/shopOwners");
+const MarketplaceListing = require("../models/Marketplacelisting");
 
-// GET /fixly/public/shops/:slug   (public — no auth middleware)
-export const getPublicShop = async (req, res) => {
+// GET /fixly/public/shops/:slug   (public, no auth)
+// :slug can also be the shop's _id
+exports.getPublicShop = async (req, res) => {
   try {
     const key = req.params.slug;
     const match = mongoose.isValidObjectId(key)
-      ? { $or: [{ slug: key }, { _id: key }] } // accepts slug OR shop id
-      : { slug: key };
+      ? { $or: [{ slug: key.toLowerCase() }, { _id: key }] }
+      : { slug: key.toLowerCase() };
 
     const shop = await ShopOwner.findOne({ ...match, active: true })
-      .select("shopName slug location phone whatsapp about offers category verified createdAt")
+      .select(
+        "shopName slug location phone whatsapp description logo banner offers category verified createdAt",
+      )
       .lean();
 
     if (!shop) {
       return res.status(404).json({ success: false, message: "Shop not found" });
     }
 
-    const listings = await Listing.find({
-      [LISTING_SHOP_FIELD]: shop._id,
-      ...LIVE_FILTER,
+    const listings = await MarketplaceListing.find({
+      listedBy: shop._id,
+      active: true,
     })
       .sort({ createdAt: -1 })
       .limit(200)
@@ -36,7 +35,3 @@ export const getPublicShop = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// In your router file, BEFORE any auth middleware:
-//   router.get("/public/shops/:slug", getPublicShop);
-// It must end up at /fixly/public/shops/:slug
