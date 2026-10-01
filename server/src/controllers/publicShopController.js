@@ -1,4 +1,5 @@
 // controllers/publicShopController.js
+import mongoose from "mongoose";
 // ── ADJUST THESE 4 LINES to match your project ───────────────────────────────
 import ShopOwner from "../models/ShopOwner.js"; // your shop model
 import Listing from "../models/Listing.js"; //    your marketplace listing model
@@ -9,10 +10,12 @@ const LIVE_FILTER = { hidden: { $ne: true } }; //  however "Live" vs "Hidden" is
 // GET /fixly/public/shops/:slug   (public — no auth middleware)
 export const getPublicShop = async (req, res) => {
   try {
-    const shop = await ShopOwner.findOne({
-      slug: req.params.slug,
-      active: true,
-    })
+    const key = req.params.slug;
+    const match = mongoose.isValidObjectId(key)
+      ? { $or: [{ slug: key }, { _id: key }] } // accepts slug OR shop id
+      : { slug: key };
+
+    const shop = await ShopOwner.findOne({ ...match, active: true })
       .select("shopName slug location phone whatsapp about offers category verified createdAt")
       .lean();
 
