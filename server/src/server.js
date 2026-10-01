@@ -75,6 +75,7 @@ app.use("/fixly/brands", require("./routes/brandsRoutes"));
 app.use("/fixly/alerts", require("./routes/alerts"));
 app.use("/fixly/commissions", require("./routes/commissionRoutes"));
 app.use("/fixly/purchase-requests", require("./routes/purchaseRoutes"));
+app.use("/fixly/public", require("./routes/publicRoutes")); // public shop pages (no auth)
 
 // ── 404 handler ───────────────────────────────────────────────
 app.use((req, res) => {
