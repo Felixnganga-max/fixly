@@ -72,6 +72,7 @@ export default function ShopPage() {
       url: canonical,
       ...(shop.description && { description: shop.description }),
       ...(shop.logo && { image: shop.logo }),
+      ...(shop.phone && { telephone: shop.phone }),
       ...(shop.location && {
         address: { "@type": "PostalAddress", addressLocality: shop.location, addressCountry: "KE" },
       }),
@@ -153,7 +154,7 @@ export default function ShopPage() {
               )}
             </div>
 
-            <div className="w-full md:w-72">
+            <div className="w-full md:w-[22rem]">
               <ContactSellerButton shop={shop} dark />
             </div>
           </div>
@@ -199,7 +200,7 @@ export default function ShopPage() {
             </p>
             <p className="text-stone-400 text-sm mt-1">
               {listings.length === 0
-                ? "Get the seller's number above to ask what they have in stock."
+                ? "Contact the seller above to ask what they have in stock."
                 : "Try a different brand or model name."}
             </p>
           </div>

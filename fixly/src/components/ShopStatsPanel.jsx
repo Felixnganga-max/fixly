@@ -24,7 +24,7 @@ export function RangePicker({ days, onChange }) {
 }
 
 export function Delta({ now, before }) {
-  if (before === undefined) return null;
+  if (before === undefined || before === null) return null;
   if (!before && !now) return null;
   if (!before) return <span className="text-xs font-semibold text-green-700">new</span>;
   const pct = Math.round(((now - before) / before) * 100);
@@ -45,7 +45,7 @@ export function Metric({ icon: Icon, label, value, children }) {
       </div>
       <div className="flex items-baseline gap-2">
         <span className="font-display font-extrabold text-2xl tabular-nums" style={{ color: "#0D1117" }}>
-          {Number(value).toLocaleString()}
+          {Number(value || 0).toLocaleString()}
         </span>
         {children}
       </div>
@@ -55,44 +55,53 @@ export function Metric({ icon: Icon, label, value, children }) {
 
 /**
  * One shop's numbers.
- *   <ShopStatsPanel shopId="…" />   admin drill-down
- *   <ShopStatsPanel mine />         shop owner's own dashboard
+ *   <ShopStatsPanel shopId="…" />                      admin drill-down
+ *   <ShopStatsPanel mine defaultDays={7} hideHeader /> shop owner's own dashboard
  */
-export default function ShopStatsPanel({ shopId, mine = false }) {
-  const [days, setDays] = useState(30);
+export default function ShopStatsPanel({ shopId, mine = false, defaultDays = 30, hideHeader = false }) {
+  const [days, setDays] = useState(defaultDays);
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!mine && !shopId) return;
+    let cancelled = false; // ignore stale responses when range/shop changes quickly
     setLoading(true);
     setError("");
+    setData(null);
     (mine ? getMyAnalytics(days) : getShopAnalytics(shopId, days))
-      .then(setData)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+      .then((d) => !cancelled && setData(d))
+      .catch((e) => !cancelled && setError(e.message || "Failed to load analytics"))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
   }, [shopId, mine, days]);
 
-  if (error) {
-    return (
-      <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">
-        <AlertTriangle size={15} /> {error}
-      </div>
-    );
-  }
-
   const t = data?.totals;
+  const prev = data?.prev || {};
+  const series = data?.series || [];
+  const topListings = data?.topListings || [];
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h3 className="font-display font-bold text-sm" style={{ color: "#0D1117" }}>
-          {mine ? "Your page performance" : data?.shop?.shopName || "Shop performance"}
-        </h3>
-        <RangePicker days={days} onChange={setDays} />
+        {!hideHeader && (
+          <h3 className="font-display font-bold text-sm" style={{ color: "#0D1117" }}>
+            {mine ? "Your page performance" : data?.shop?.shopName || "Shop performance"}
+          </h3>
+        )}
+        <div className={hideHeader ? "ml-auto" : ""}>
+          <RangePicker days={days} onChange={setDays} />
+        </div>
       </div>
 
-      {loading || !t ? (
+      {error ? (
+        <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">
+          <AlertTriangle size={15} /> {error}
+        </div>
+      ) : loading || !t ? (
         <div className="flex justify-center py-10">
           <div className="w-7 h-7 border-4 border-gray-200 border-t-black rounded-full animate-spin" />
         </div>
@@ -100,34 +109,34 @@ export default function ShopStatsPanel({ shopId, mine = false }) {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Metric icon={Eye} label="Page views" value={t.shopViews}>
-              <Delta now={t.shopViews} before={data.prev.shopViews} />
+              <Delta now={t.shopViews} before={prev.shopViews} />
             </Metric>
             <Metric icon={Users} label="Visitors" value={t.visitors} />
             <Metric icon={Tag} label="Listing views" value={t.listingViews} />
-            <Metric icon={MousePointerClick} label="Contact rate" value={`${t.rate}`}>
+            <Metric icon={MousePointerClick} label="Contact rate" value={t.rate}>
               <span className="text-xs text-gray-400">% of visitors</span>
             </Metric>
             <Metric icon={PhoneCall} label="Call taps" value={t.calls} />
             <Metric icon={MessageCircle} label="WhatsApp taps" value={t.whatsapp} />
             <Metric icon={MapPin} label="Directions taps" value={t.directions} />
             <Metric icon={MousePointerClick} label="All actions" value={t.actions}>
-              <Delta now={t.actions} before={data.prev.actions} />
+              <Delta now={t.actions} before={prev.actions} />
             </Metric>
           </div>
 
           <div className="bg-white border border-beige-dark rounded-2xl p-5">
-            <StatsChart series={data.series} />
+            <StatsChart series={series} />
           </div>
 
           <div className="bg-white border border-beige-dark rounded-2xl p-5">
             <h4 className="font-display font-bold text-sm mb-3" style={{ color: "#0D1117" }}>
               Top listings
             </h4>
-            {data.topListings.length === 0 ? (
+            {topListings.length === 0 ? (
               <p className="text-sm text-gray-400">No listing activity yet.</p>
             ) : (
               <ul className="flex flex-col divide-y divide-beige-dark">
-                {data.topListings.map((l) => (
+                {topListings.map((l) => (
                   <li key={l.id} className="flex items-center gap-3 py-2.5">
                     <div className="w-10 h-10 rounded-lg bg-beige border border-beige-dark overflow-hidden flex-shrink-0">
                       {l.image && <img src={l.image} alt="" className="w-full h-full object-cover" />}

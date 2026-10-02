@@ -1,68 +1,59 @@
-import { useEffect } from "react";
-import { getRole } from "./loginApi";
+import { getToken } from "./loginApi";
+import { getCustomerToken } from "./customerApi";
 
-const EVENT_URL = "https://fixly-wcao.vercel.app/fixly/analytics/event";
-const STAFF = ["admin", "superadmin", "shop_owner"];
+const TRACK_URL = "https://fixly-wcao.vercel.app/fixly/analytics/track";
 
-let memorySid = null;
-function sessionId() {
-  if (memorySid) return memorySid;
-  try {
-    let id = localStorage.getItem("fx_sid");
-    if (!id) {
-      id =
-        (crypto.randomUUID && crypto.randomUUID()) ||
-        `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      localStorage.setItem("fx_sid", id);
-    }
-    memorySid = id;
-  } catch {
-    memorySid = `anon-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+// Anonymous per-browser id (counts unique visitors; not personal data)
+function visitorId() {
+  let id = localStorage.getItem("fixly_vid");
+  if (!id) {
+    id = crypto.randomUUID?.() || `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+    localStorage.setItem("fixly_vid", id);
   }
-  return memorySid;
+  return id;
+}
+
+// Where this visit came from (google.com, direct, ...) - captured once per session
+function sessionSource() {
+  let r = sessionStorage.getItem("fixly_ref");
+  if (r === null) {
+    try {
+      const host = document.referrer ? new URL(document.referrer).hostname : "";
+      r = host && host !== window.location.hostname ? host : "direct";
+    } catch {
+      r = "direct";
+    }
+    sessionStorage.setItem("fixly_ref", r);
+  }
+  return r;
 }
 
 /**
- * Fire-and-forget. Never throws, never blocks a click.
- * types: shop_view | listing_view | call_click | whatsapp_click | email_click
- *        | directions_click | share_click | social_click
+ * track({ type, shop?, listingId? })
+ * type: page_view | product_view | whatsapp_click | call_click
+ * shop: shop _id or slug.  listingId: lets the server find the shop for product views.
+ * Fire-and-forget. Admin / shop-owner sessions are not counted.
  */
-export function track(type, { shopId, listingId } = {}) {
-  if (!shopId) return;
-  if (STAFF.includes(getRole())) return; // don't count admins / shop owners browsing
+export function track({ type, shop, listingId }) {
   try {
-    fetch(EVENT_URL, {
+    if (getToken()) return;
+    const body = JSON.stringify({
+      type,
+      shop,
+      listingId,
+      visitorId: visitorId(),
+      referrer: sessionSource(),
+      customerToken: getCustomerToken() || undefined,
+    });
+    // text/plain keeps this a "simple" request: no CORS preflight to fail silently.
+    // keepalive lets it finish even when the click leaves the page (tel: / wa.me).
+    fetch(TRACK_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      keepalive: true, // survives tel: / wa.me navigation
-      body: JSON.stringify({
-        type,
-        shopId,
-        listingId: listingId || undefined,
-        sessionId: sessionId(),
-        referrer: document.referrer ? new URL(document.referrer).hostname : "",
-      }),
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body,
+      keepalive: true,
     }).catch(() => {});
   } catch {
-    /* ignore */
+    /* never break the page */
   }
-}
-
-/** Once per tab session per target (guards React StrictMode double-effects and re-renders). */
-export function trackOnce(type, ids = {}) {
-  const key = `fx:${type}:${ids.shopId}:${ids.listingId || ""}`;
-  try {
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
-  } catch {
-    /* storage blocked — fall through */
-  }
-  track(type, ids);
-}
-
-/** useTrackView("shop_view", { shopId })  /  useTrackView("listing_view", { shopId, listingId }) */
-export function useTrackView(type, { shopId, listingId } = {}) {
-  useEffect(() => {
-    if (shopId) trackOnce(type, { shopId, listingId });
-  }, [type, shopId, listingId]);
 }

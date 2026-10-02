@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tag, TrendingUp, EyeOff, Eye, ShieldCheck, Clock, AlertTriangle, Plus } from "lucide-react";
 import StatCard from "./StatCard";
-import MyShopStats from "./MyShopStats";
+import ShopPerformance from "./ShopPerformance";
 import { getMyShop, getMyListings } from "../Hooks/shopApi";
 import { addListingPath } from "../Hooks/listingsBase";
 
@@ -42,6 +42,9 @@ export default function ShopOverview() {
   const views = listings.reduce((n, l) => n + (l.views || 0), 0);
   const canSell = shop.offers?.includes("sell");
   const profileIncomplete = !shop.description || !shop.whatsapp;
+
+  // Public page: /shop-name/shop-id (shops without a slug yet use the old /s/ link)
+  const pagePath = shop.slug ? `/${shop.slug}/${shop._id}` : `/s/${shop._id}`;
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
@@ -129,13 +132,19 @@ export default function ShopOverview() {
         </div>
       )}
 
-      <MyShopStats />
+      <ShopPerformance />
 
-      {shop.slug && (
-        <p className="text-xs text-gray-400">
-          Your public page: <span className="font-semibold text-gray-600">/s/{shop.slug}</span>
-        </p>
-      )}
+      <p className="text-xs text-gray-400">
+        Your public page:{" "}
+        <a
+          href={pagePath}
+          target="_blank"
+          rel="noreferrer"
+          className="font-semibold text-gray-600 underline break-all"
+        >
+          {pagePath}
+        </a>
+      </p>
     </div>
   );
 }

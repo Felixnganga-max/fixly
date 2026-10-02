@@ -28,3 +28,11 @@ export async function listPublicShops(params = {}) {
   if (!res.ok) throw new Error(json.message || "Could not load shops");
   return json.data;
 }
+
+/** GET /fixly/public/shops/:key/contact -> { shopName, phone, whatsapp } (no login needed) */
+export async function getPublicShopContact(key) {
+  const res = await fetch(`${BASE_URL}/${encodeURIComponent(key)}/contact`);
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message || "Contact not available");
+  return json.data;
+}
