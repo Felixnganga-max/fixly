@@ -1,5 +1,6 @@
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-
+import {assets} from "../assets/assets";
 /**
  * HERO ONLY (no navbar). Built from the "Online Store" reference.
  * Self-contained (own palette + fonts). Put <Navbar /> above it.
@@ -9,8 +10,13 @@ import { Link } from "react-router-dom";
  * 1u = 1/783 of the stage width (same grid as Navbar).
  */
 
-// Centre image: null = built-in placeholder. Or the URL of a TRANSPARENT PNG
-// cutout (it breaks out of the circle top and bottom, like the model does).
+// Carousel images from ../assets/assets (hero, hero2, hero3). Transparent PNG
+// cutouts work best: they break out of the circle top and bottom.
+// Missing ones are skipped; with none, the built-in placeholder phone shows.
+const SLIDES = [assets.hero, assets.hero2, assets.hero3].filter(Boolean);
+const SLIDE_MS = 4500;
+
+// Fallback centre image when there are no slides: null = placeholder phone.
 const HERO_IMG = null;
 
 const Ic = ({ children }) => (
@@ -131,11 +137,20 @@ const CSS = `
   to   { opacity: 1; transform: translateY(0) rotate(var(--rot)); }
 }
 
-.hh-visual { position: relative; width: min(74vw, 290px); aspect-ratio: 1; margin: 56px auto 52px; }
+.hh-visual { position: relative; width: min(74vw, 290px); aspect-ratio: 1; margin: 56px auto 68px; }
 .hh-disc   { position: absolute; inset: 0; border-radius: 50%; background: #fff; }
 .hh-ground { position: absolute; left: 15%; bottom: -14%; width: 70%; height: 9%; background: radial-gradient(ellipse at center, rgba(5,5,5,.32), transparent 70%); filter: blur(3px); z-index: 1; }
 .hh-device { position: absolute; left: 50%; top: -12%; height: 117%; aspect-ratio: 128 / 300; transform: translateX(-50%); z-index: 2; }
 .hh-device svg, .hh-device img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* carousel */
+.hh-slides { position: absolute; left: 0; top: -12%; width: 100%; height: 117%; z-index: 2; touch-action: pan-y; }
+.hh-slide  { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transform: scale(.96); transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1); user-select: none; -webkit-user-drag: none; }
+.hh-slide--on { opacity: 1; transform: none; }
+.hh-dots { position: absolute; left: 50%; bottom: -50px; transform: translateX(-50%); display: flex; gap: 8px; z-index: 3; }
+.hh-dot  { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 99px; background: var(--hh-tint); cursor: pointer; transition: width .3s cubic-bezier(.22,1,.36,1), background .3s; }
+.hh-dot--on { width: 22px; background: var(--hh-accent); }
+.hh-dot:focus-visible { outline: 2px solid var(--hh-ink); outline-offset: 3px; }
 
 .hh-offer { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: flex-start; width: min(100%, 260px); text-decoration: none; color: inherit; }
 .hh-offer:focus-visible { outline: 2px solid var(--hh-accent); outline-offset: 10px; border-radius: 8px; }
@@ -171,6 +186,8 @@ const CSS = `
   .hh-disc   { inset: auto; left: ${u(263)}; top: ${u(33)}; width: ${u(257)}; height: ${u(257)}; }
   .hh-ground { left: ${u(296)}; top: ${u(302)}; bottom: auto; width: ${u(190)}; height: ${u(20)}; }
   .hh-device { left: ${u(327.5)}; top: ${u(10)}; width: ${u(128)}; height: ${u(300)}; aspect-ratio: auto; transform: none; }
+  .hh-slides { left: ${u(263)}; top: ${u(10)}; width: ${u(257)}; height: ${u(300)}; }
+  .hh-dots   { left: ${u(391.5)}; top: ${u(334)}; bottom: auto; }
 
   .hh-offer { position: absolute; right: ${u(76)}; top: ${u(161.5)}; transform: translateY(-50%); width: ${u(128)}; align-items: flex-end; }
   .hh-offer .cap > span { left: auto; right: 0; }
@@ -190,11 +207,26 @@ const CSS = `
 
 @media (prefers-reduced-motion: reduce) {
   .hh-script { animation: none; }
-  .cap > span, .hh-social a { transition: none; }
+  .cap > span, .hh-social a, .hh-slide, .hh-dot { transition: none; }
 }
 `;
 
 export default function Hero() {
+  const n = SLIDES.length;
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchX = useRef(null);
+
+  const go = (k) => setI(((k % n) + n) % n);
+
+  // Auto-advance; restarts after every change (incl. manual), pauses on hover/touch
+  useEffect(() => {
+    if (n < 2 || paused) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setTimeout(() => setI((x) => (x + 1) % n), SLIDE_MS);
+    return () => clearTimeout(t);
+  }, [i, paused, n]);
+
   return (
     <section className="hh-root">
       <style>{CSS}</style>
@@ -212,13 +244,60 @@ export default function Hero() {
             <span className="hh-script">honesty</span>
           </h1>
 
-          {/* Centre visual */}
+          {/* Centre visual: carousel */}
           <div className="hh-visual">
             <div className="hh-disc" />
             <div className="hh-ground" aria-hidden="true" />
-            <div className="hh-device">
-              {HERO_IMG ? <img src={HERO_IMG} alt="" /> : <PlaceholderDevice />}
-            </div>
+
+            {n > 0 ? (
+              <>
+                <div
+                  className="hh-slides"
+                  onMouseEnter={() => setPaused(true)}
+                  onMouseLeave={() => setPaused(false)}
+                  onTouchStart={(e) => {
+                    touchX.current = e.touches[0].clientX;
+                    setPaused(true);
+                  }}
+                  onTouchEnd={(e) => {
+                    const dx = e.changedTouches[0].clientX - (touchX.current ?? 0);
+                    if (Math.abs(dx) > 40) go(dx < 0 ? i + 1 : i - 1);
+                    setPaused(false);
+                  }}
+                >
+                  {SLIDES.map((src, k) => (
+                    <img
+                      key={k}
+                      src={src}
+                      alt=""
+                      aria-hidden={k !== i}
+                      draggable={false}
+                      decoding="async"
+                      className={`hh-slide ${k === i ? "hh-slide--on" : ""}`}
+                    />
+                  ))}
+                </div>
+
+                {n > 1 && (
+                  <div className="hh-dots" role="group" aria-label="Hero slides">
+                    {SLIDES.map((_, k) => (
+                      <button
+                        key={k}
+                        type="button"
+                        className={`hh-dot ${k === i ? "hh-dot--on" : ""}`}
+                        onClick={() => go(k)}
+                        aria-label={`Show slide ${k + 1}`}
+                        aria-current={k === i}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="hh-device">
+                {HERO_IMG ? <img src={HERO_IMG} alt="" /> : <PlaceholderDevice />}
+              </div>
+            )}
           </div>
 
           {/* Offer */}

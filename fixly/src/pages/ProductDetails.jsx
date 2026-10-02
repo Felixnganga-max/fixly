@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ShieldCheck,
   Star,
   CheckCircle2,
   ArrowLeft,
-  Share2,
   Loader2,
   Grid2X2,
   X,
@@ -18,13 +17,10 @@ import {
   MapPin,
   CreditCard,
   Package,
-  Zap,
-  Clock,
   Users,
   TrendingUp,
   BadgeCheck,
   RefreshCw,
-  MessageSquare,
   ExternalLink,
   Copy,
   Check,
@@ -33,6 +29,8 @@ import { getListingById, getAllListings } from "../Hooks/marketplaceApi";
 import BuyNowModal from "../components/BuyNow";
 import { useWishlist } from "../Hooks/useWishlist";
 import { useCompare } from "../Hooks/useCompare";
+import ContactSellerButton from "../components/ContactSellerButton";
+import { track } from "../Hooks/analytics";
 // ── Constants ──────────────────────────────────────────────────
 const PHONE_SPEC_GROUPS = [
   {
@@ -383,7 +381,7 @@ function ImageHero({ images, productName, condition, verified, discount }) {
 }
 
 // ── Trust Badges ───────────────────────────────────────────────
-function TrustBadges({ verified, condition }) {
+function TrustBadges({ verified }) {
   return (
     <div className="flex flex-wrap gap-2 mt-3">
       {verified && (
@@ -404,36 +402,60 @@ function TrustBadges({ verified, condition }) {
   );
 }
 
-// ── Seller Card ────────────────────────────────────────────────
+// ── Seller Card (links to the shop's public page /s/:slug) ─────
 function SellerCard({ listedBy }) {
+  const navigate = useNavigate();
   if (!listedBy?.shopName) return null;
+
   const initials = listedBy.shopName.slice(0, 2).toUpperCase();
+  // slug preferred; falls back to the shop id (backend accepts either)
+  const shopKey = listedBy.slug || listedBy._id || listedBy.id;
+  const canOpen = Boolean(shopKey);
+
+  const open = () => {
+    if (!canOpen) return;
+    navigate(
+      listedBy.slug && listedBy._id ? `/${listedBy.slug}/${listedBy._id}` : `/s/${shopKey}`,
+    );
+  };
 
   return (
-    <div className="flex items-center gap-3 bg-white border border-stone-100 hover:border-stone-300 rounded-2xl px-4 py-3.5 transition-all duration-200 cursor-pointer group">
+    <div
+      role={canOpen ? "link" : undefined}
+      tabIndex={canOpen ? 0 : undefined}
+      onClick={open}
+      onKeyDown={(e) => e.key === "Enter" && open()}
+      className={`flex items-center gap-3 bg-white border border-stone-100 hover:border-stone-300 rounded-2xl px-4 py-3.5 transition-all duration-200 group ${
+        canOpen ? "cursor-pointer" : ""
+      }`}
+    >
       <div className="w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center text-emerald-400 font-semibold text-sm flex-shrink-0">
         {initials}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-stone-900 leading-tight">
+        <p className="text-sm font-semibold text-stone-900 leading-tight truncate">
           {listedBy.shopName}
         </p>
         {listedBy.location && (
-          <p className="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
-            <MapPin size={10} strokeWidth={2} />
+          <p className="text-xs text-stone-400 mt-0.5 flex items-center gap-1 truncate">
+            <MapPin size={10} strokeWidth={2} className="flex-shrink-0" />
             {listedBy.location}
           </p>
         )}
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <BadgeCheck size={10} strokeWidth={2.5} /> Top Seller
-        </span>
-        <ExternalLink
-          size={13}
-          className="text-stone-300 group-hover:text-stone-600 transition-colors"
-          strokeWidth={2}
-        />
+        {listedBy.verified && (
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <BadgeCheck size={10} strokeWidth={2.5} /> Verified
+          </span>
+        )}
+        {canOpen && (
+          <ExternalLink
+            size={13}
+            className="text-stone-300 group-hover:text-stone-600 transition-colors"
+            strokeWidth={2}
+          />
+        )}
       </div>
     </div>
   );
@@ -646,12 +668,11 @@ function BuyCard({
       </div>
 
       {/* Contact seller */}
-      <div className="p-6 pt-4">
-        <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-stone-200 hover:border-stone-400 text-stone-600 hover:text-stone-900 font-semibold text-sm transition-all duration-200">
-          <MessageSquare size={14} strokeWidth={2} />
-          Contact Seller
-        </button>
-      </div>
+      {product.listedBy && (
+        <div className="p-6 pt-4">
+          <ContactSellerButton shop={product.listedBy} listingId={product._id} />
+        </div>
+      )}
     </div>
   );
 }
@@ -703,6 +724,11 @@ export default function ProductDetail() {
       cancelled = true;
     };
   }, [id]);
+
+  // Product view for the shop analytics (server ignores repeats within 30 min)
+  useEffect(() => {
+    if (product?._id) track({ type: "product_view", listingId: product._id });
+  }, [product?._id]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -848,10 +874,7 @@ export default function ProductDetail() {
                   )}
                 </div>
               )}
-              <TrustBadges
-                verified={product.verified}
-                condition={product.condition}
-              />
+              <TrustBadges verified={product.verified} />
             </div>
 
             <div className="border-t border-stone-100" />

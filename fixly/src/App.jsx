@@ -1,10 +1,17 @@
 import React from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 // Public pages
 import Home from "./pages/Home";
 import Request from "./pages/Request";
 import ProductDetail from "./pages/ProductDetails";
+import Marketplace from "./pages/Marketplace";
+import ShopPage from "./pages/ShopPage";
+import ShopDirectory from "./pages/ShopDirectory";
+import About from "./pages/About";
+import Login from "./pages/Login";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 // Admin
 import AdminLayout from "./pages/AdminLayout";
@@ -14,34 +21,33 @@ import JobDetail from "./components/JobDetail";
 import Technicians from "./components/Technicians";
 import Commissions from "./components/Comissions";
 import Settings from "./components/Settings";
-import Marketplace from "./pages/Marketplace";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import About from "./pages/About";
-import Login from "./pages/Login";
 import DashboardMarketplace from "./pages/DashboardMarketplace";
 import AddListingPage from "./components/AddListingPage";
-import { getToken } from "./Hooks/loginApi"; // adjust path if needed
 import PurchaseAdmin from "./pages/PurchaseAdmin";
 import ShopOwners from "./components/ShopOwners";
+import Analytics from "./components/Analytics";
 
-// ── Auth guard ────────────────────────────────────────────────
-function RequireAuth({ children }) {
-  const token = getToken();
-  const location = useLocation();
+// Shop owner
+import RequireRole from "./components/RequireRole";
+import ShopLayout from "./pages/ShopLayout";
+import ShopOverview from "./components/ShopOverview";
+import ShopListings from "./components/ShopListings";
+import ShopProfile from "./components/ShopProfile";
+import ChangePassword from "./components/ChangePassword";
 
-  if (!token) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+const ADMIN = ["admin", "superadmin"];
+const SHOP = ["shop_owner"];
 
-  return children;
-}
-
-// ── Layout wrapper — hides Navbar/Footer on /dashboard/* ──────
+// Hides Navbar/Footer on dashboard areas
 function PublicLayout({ children }) {
   const { pathname } = useLocation();
   const isDashboard =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/") ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    pathname === "/shop" ||
+    pathname.startsWith("/shop/");
 
   return (
     <>
@@ -61,36 +67,28 @@ const App = () => {
         <Route path="/request/:device" element={<Request />} />
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/s/:slug" element={<ShopPage />} />
+        <Route path="/shops/:category" element={<ShopDirectory />} />
+        <Route path="/repair-shops/:category" element={<ShopDirectory />} />
+        {/* /shop-name/shop-id (static routes above always win) */}
+        <Route path="/:slug/:shopId" element={<ShopPage />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/login" element={<Login />} />
 
-        {/* ── Dashboard (auth-gated, no Navbar/Footer) ── */}
+        {/* ── Admin: listing form (full page) ── */}
         <Route
           path="/dashboard/marketplace/add"
-          element={
-            <RequireAuth>
-              <AddListingPage />
-            </RequireAuth>
-          }
+          element={<RequireRole allow={ADMIN}><AddListingPage /></RequireRole>}
         />
-
         <Route
           path="/dashboard/marketplace/edit/:id"
-          element={
-            <RequireAuth>
-              <AddListingPage />
-            </RequireAuth>
-          }
+          element={<RequireRole allow={ADMIN}><AddListingPage /></RequireRole>}
         />
 
-        {/* ── Admin (auth-gated, no Navbar/Footer) ── */}
+        {/* ── Admin ── */}
         <Route
           path="/admin"
-          element={
-            <RequireAuth>
-              <AdminLayout />
-            </RequireAuth>
-          }
+          element={<RequireRole allow={ADMIN}><AdminLayout /></RequireRole>}
         >
           <Route index element={<Dashboard />} />
           <Route path="jobs" element={<Jobs />} />
@@ -99,9 +97,34 @@ const App = () => {
           <Route path="marketplace" element={<DashboardMarketplace />} />
           <Route path="purchases" element={<PurchaseAdmin />} />
           <Route path="shop-owners" element={<ShopOwners />} />
-
+          <Route path="analytics" element={<Analytics />} />
           <Route path="commissions" element={<Commissions />} />
           <Route path="settings" element={<Settings />} />
+        </Route>
+
+        {/* ── Shop owner: full-page screens ── */}
+        <Route
+          path="/shop/change-password"
+          element={<RequireRole allow={SHOP}><ChangePassword /></RequireRole>}
+        />
+        <Route
+          path="/shop/listings/new"
+          element={<RequireRole allow={SHOP}><AddListingPage /></RequireRole>}
+        />
+        <Route
+          path="/shop/listings/edit/:id"
+          element={<RequireRole allow={SHOP}><AddListingPage /></RequireRole>}
+        />
+
+        {/* ── Shop owner dashboard ── */}
+        <Route
+          path="/shop"
+          element={<RequireRole allow={SHOP}><ShopLayout /></RequireRole>}
+        >
+          <Route index element={<ShopOverview />} />
+          <Route path="listings" element={<ShopListings />} />
+          <Route path="profile" element={<ShopProfile />} />
+          <Route path="settings" element={<ChangePassword />} />
         </Route>
       </Routes>
     </PublicLayout>

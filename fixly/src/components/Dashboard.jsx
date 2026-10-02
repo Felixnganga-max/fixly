@@ -15,11 +15,12 @@ import {
   XCircle,
   LayoutGrid,
   TrendingUp,
-  BadgeDollarSign,
 } from "lucide-react";
 import StatCard from "./StatCard";
 import JobsTable from "./JobsTable";
 import StatusBadge from "./StatusBadge";
+import ShopAnalytics from "./ShopAnalytics";
+import SafeSection from "./SafeSection";
 import { fetchDashboardData } from "../Hooks/dashboardApi";
 
 // ── Helpers ────────────────────────────────────────────────────
@@ -88,21 +89,28 @@ export default function Dashboard() {
     );
   }
 
-  if (error) {
+  // If the main dashboard call fails, still show shop analytics under the error
+  if (error || !data) {
     return (
-      <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-600 rounded-2xl px-6 py-4 text-sm">
-        <AlertTriangle size={16} /> {error}
+      <div className="flex flex-col gap-10 max-w-7xl">
+        <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-600 rounded-2xl px-6 py-4 text-sm">
+          <AlertTriangle size={16} /> {error || "Dashboard data unavailable"}
+        </div>
+        <SafeSection name="Shop Performance">
+          <ShopAnalytics />
+        </SafeSection>
       </div>
     );
   }
 
+  // Defaults so a missing field never crashes the page
   const {
-    repairStats,
-    commissionStats,
-    recentJobs,
-    techCount,
-    marketplaceStats,
-    purchaseStats,
+    repairStats = {},
+    commissionStats = {},
+    recentJobs = [],
+    techCount = 0,
+    marketplaceStats = {},
+    purchaseStats = {},
   } = data;
 
   const totalJobs = repairStats.total ?? 0;
@@ -331,7 +339,14 @@ export default function Dashboard() {
       </div>
 
       {/* ══════════════════════════════════════════════════
-          SECTION 2 — REPAIR JOBS
+          SECTION 2 — SHOP PERFORMANCE (views, visitors, taps per shop)
+      ══════════════════════════════════════════════════ */}
+      <SafeSection name="Shop Performance">
+        <ShopAnalytics />
+      </SafeSection>
+
+      {/* ══════════════════════════════════════════════════
+          SECTION 3 — REPAIR JOBS
       ══════════════════════════════════════════════════ */}
       <div>
         <SectionLabel icon={Wrench} label="Repair Jobs" />

@@ -2,7 +2,13 @@
  * HowItWorks.jsx — Fixly
  *
  * Refined, delicate, professional.
- * All tokens from project :root — no hardcoded colors or fonts.
+ *
+ * Colors: navbar palette, defined once as --hiw-* on .hiw-section
+ *   bg #f7e6d9 · tint #f0c09b · accent #e89454 · ink #050505
+ * Fonts (global CSS tokens):
+ *   headings → Montserrat (--font-hero)
+ *   body     → DM Sans (--font-body)
+ *   numbers  → JetBrains Mono (--font-mono)
  */
 
 import {
@@ -101,7 +107,7 @@ function StepCard({
       ref={cardRef}
       data-index={index}
       style={{
-        "--card-active-border": isActive ? "var(--color-green)" : undefined,
+        "--card-active-border": isActive ? "var(--hiw-accent)" : undefined,
       }}
       className={`
         hiw-card group snap-center flex-shrink-0
@@ -121,7 +127,7 @@ function StepCard({
         <Icon
           size={18}
           strokeWidth={1.6}
-          className={`transition-colors duration-300 ${isActive ? "text-green" : "text-beige-text group-hover:text-green"}`}
+          className={`hiw-card__icon ${isActive ? "hiw-card__icon--active" : ""}`}
         />
       </div>
 
@@ -135,7 +141,7 @@ function StepCard({
       <div className="hiw-card__detail">
         <CheckCircle2
           size={13}
-          className="text-green flex-shrink-0 mt-0.5"
+          className="hiw-card__check flex-shrink-0 mt-0.5"
           strokeWidth={2}
         />
         <p className="hiw-card__detail-text">{detail}</p>
@@ -202,12 +208,27 @@ export default function HowItWorks() {
 
   return (
     <>
-      {/* ── Scoped styles using project tokens only ── */}
+      {/* ── Scoped styles: navbar palette + global font tokens ── */}
       <style>{`
+        /* ── Palette (from Navbar) ── */
+        .hiw-section {
+          --hiw-bg: #f7e6d9;
+          --hiw-tint: #f0c09b;
+          --hiw-accent: #e89454;
+          --hiw-accent-dark: #d4793a;
+          --hiw-accent-ink: #a8531a;
+          --hiw-ink: #050505;
+          --hiw-muted: #7a5a46;
+          --hiw-card: #fffaf6;
+          --hiw-line: #f3d2ba;
+          --hiw-wash: #fbeee3;
+          --hiw-wash2: #f7dcc5;
+        }
+
         /* ── Section shell ── */
         .hiw-section {
           width: 100%;
-          background: var(--color-beige);
+          background: var(--hiw-bg);
           padding: 7rem 1.5rem;
         }
         .hiw-inner {
@@ -224,12 +245,12 @@ export default function HowItWorks() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-family: var(--font-mono);
+          font-family: var(--font-mono, "JetBrains Mono", monospace);
           font-size: 10px;
           font-weight: 500;
           letter-spacing: 0.18em;
           text-transform: uppercase;
-          color: var(--color-green);
+          color: var(--hiw-accent-ink);
           margin-bottom: 1.25rem;
         }
         .hiw-eyebrow::before {
@@ -237,25 +258,25 @@ export default function HowItWorks() {
           display: block;
           width: 18px;
           height: 1px;
-          background: var(--color-green);
+          background: var(--hiw-accent);
         }
         .hiw-heading {
-          font-family: var(--font-display);
+          font-family: var(--font-hero, "Montserrat", sans-serif);
           font-size: clamp(2.2rem, 4vw, 3rem);
-          font-weight: 700;
-          color: var(--color-black);
+          font-weight: 800;
+          color: var(--hiw-ink);
           line-height: 1.05;
           letter-spacing: -0.02em;
           margin: 0 0 1.25rem;
         }
         .hiw-heading em {
           font-style: italic;
-          color: var(--color-green);
+          color: var(--hiw-accent-ink);
         }
         .hiw-subhead {
-          font-family: var(--font-body);
+          font-family: var(--font-body, "DM Sans", sans-serif);
           font-size: 1rem;
-          color: var(--color-beige-text);
+          color: var(--hiw-muted);
           line-height: 1.7;
           margin: 0;
         }
@@ -263,8 +284,8 @@ export default function HowItWorks() {
         /* ── Step cards ── */
         .hiw-card {
           position: relative;
-          background: var(--color-white);
-          border: 1px solid var(--color-beige-dark);
+          background: var(--hiw-card);
+          border: 1px solid var(--hiw-line);
           border-radius: var(--radius-xl);
           padding: 2rem;
           display: flex;
@@ -273,27 +294,28 @@ export default function HowItWorks() {
           transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
         }
         .hiw-card:hover {
-          border-color: rgba(0,95,2,0.25);
-          box-shadow: 0 8px 32px -8px rgba(0,0,0,0.08);
+          border-color: var(--hiw-accent);
+          box-shadow: 0 8px 32px -8px rgba(120,70,30,0.18);
         }
         .hiw-card--active {
-          border-color: var(--color-green);
-          box-shadow: 0 12px 40px -10px rgba(0,95,2,0.12);
+          border-color: var(--hiw-accent);
+          box-shadow: 0 12px 40px -10px rgba(232,148,84,0.3);
         }
 
         /* Decorative step number */
         .hiw-card__number {
-          font-family: var(--font-mono);
+          font-family: var(--font-mono, "JetBrains Mono", monospace);
           font-size: 4.5rem;
           font-weight: 800;
           line-height: 1;
-          color: var(--color-beige-dark);
+          color: var(--hiw-tint);
           letter-spacing: -0.04em;
           user-select: none;
           transition: color 0.25s ease;
         }
-        .hiw-card--active .hiw-card__number {
-          color: rgba(0,95,2,0.15);
+        .hiw-card--active .hiw-card__number,
+        .hiw-card:hover .hiw-card__number {
+          color: var(--hiw-accent);
         }
 
         /* Icon wrapper */
@@ -301,8 +323,8 @@ export default function HowItWorks() {
           width: 42px;
           height: 42px;
           border-radius: var(--radius-md);
-          background: var(--color-beige);
-          border: 1px solid var(--color-beige-dark);
+          background: var(--hiw-bg);
+          border: 1px solid var(--hiw-tint);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -310,24 +332,33 @@ export default function HowItWorks() {
         }
         .hiw-card:hover .hiw-card__icon-wrap,
         .hiw-card__icon-wrap--active {
-          background: var(--color-green-light);
-          border-color: rgba(0,95,2,0.2);
+          background: var(--hiw-wash);
+          border-color: var(--hiw-accent);
         }
+        .hiw-card__icon {
+          color: var(--hiw-muted);
+          transition: color 0.3s ease;
+        }
+        .hiw-card:hover .hiw-card__icon,
+        .hiw-card__icon--active {
+          color: var(--hiw-accent-ink);
+        }
+        .hiw-card__check { color: var(--hiw-accent-ink); }
 
         .hiw-card__body { display: flex; flex-direction: column; gap: 0.5rem; }
         .hiw-card__title {
-          font-family: var(--font-display);
+          font-family: var(--font-hero, "Montserrat", sans-serif);
           font-size: 1.15rem;
-          font-weight: 700;
-          color: var(--color-black);
+          font-weight: 800;
+          color: var(--hiw-ink);
           line-height: 1.2;
           margin: 0;
           letter-spacing: -0.01em;
         }
         .hiw-card__desc {
-          font-family: var(--font-body);
+          font-family: var(--font-body, "DM Sans", sans-serif);
           font-size: 0.875rem;
-          color: var(--color-beige-text);
+          color: var(--hiw-muted);
           line-height: 1.65;
           margin: 0;
         }
@@ -337,15 +368,15 @@ export default function HowItWorks() {
           display: flex;
           align-items: flex-start;
           gap: 0.6rem;
-          background: var(--color-beige);
-          border: 1px solid var(--color-beige-dark);
+          background: var(--hiw-bg);
+          border: 1px solid var(--hiw-line);
           border-radius: var(--radius-lg);
           padding: 0.65rem 0.9rem;
         }
         .hiw-card__detail-text {
-          font-family: var(--font-body);
+          font-family: var(--font-body, "DM Sans", sans-serif);
           font-size: 0.8125rem;
-          color: var(--color-beige-text);
+          color: var(--hiw-muted);
           line-height: 1.6;
           margin: 0;
         }
@@ -374,7 +405,7 @@ export default function HowItWorks() {
           position: absolute;
           right: 0; top: 0; bottom: 1rem;
           width: 3rem;
-          background: linear-gradient(to left, var(--color-beige), transparent);
+          background: linear-gradient(to left, var(--hiw-bg), transparent);
           z-index: 1;
         }
 
@@ -389,13 +420,13 @@ export default function HowItWorks() {
           border-radius: 100px;
           border: none;
           padding: 0;
-          background: var(--color-beige-dark);
+          background: var(--hiw-tint);
           cursor: pointer;
           transition: width 0.3s ease, background 0.3s ease;
         }
         .hiw-dot--active {
           width: 1.5rem;
-          background: var(--color-green);
+          background: var(--hiw-accent);
         }
         .hiw-dot:not(.hiw-dot--active) { width: 0.375rem; }
 
@@ -418,12 +449,12 @@ export default function HowItWorks() {
           padding: 0 2rem;
         }
         @media(min-width:1024px) { .hiw-connector { display: flex; } }
-        .hiw-connector__line { flex: 1; height: 1px; background: var(--color-beige-dark); }
-        .hiw-connector__arrow { color: var(--color-beige-dark); flex-shrink: 0; }
+        .hiw-connector__line { flex: 1; height: 1px; background: var(--hiw-tint); }
+        .hiw-connector__arrow { color: var(--hiw-tint); flex-shrink: 0; }
 
         /* ── Guarantees strip ── */
         .hiw-guarantees {
-          background: var(--color-black);
+          background: var(--hiw-ink);
           border-radius: var(--radius-xl);
           padding: 2.5rem;
           margin-bottom: 0.875rem;
@@ -439,18 +470,18 @@ export default function HowItWorks() {
         .hiw-guarantees__lead { flex-shrink: 0; }
         @media(min-width:1024px) { .hiw-guarantees__lead { width: 16rem; } }
         .hiw-guarantees__heading {
-          font-family: var(--font-display);
+          font-family: var(--font-hero, "Montserrat", sans-serif);
           font-size: 1.3rem;
-          font-weight: 700;
-          color: var(--color-white);
+          font-weight: 800;
+          color: #fff;
           line-height: 1.3;
           margin: 0 0 0.5rem;
           letter-spacing: -0.01em;
         }
         .hiw-guarantees__sub {
-          font-family: var(--font-body);
+          font-family: var(--font-body, "DM Sans", sans-serif);
           font-size: 0.8125rem;
-          color: var(--color-white-muted);
+          color: rgba(255,255,255,0.6);
           line-height: 1.6;
           margin: 0;
         }
@@ -467,16 +498,16 @@ export default function HowItWorks() {
           gap: 0.6rem;
         }
         .hiw-guarantee-text {
-          font-family: var(--font-body);
+          font-family: var(--font-body, "DM Sans", sans-serif);
           font-size: 0.875rem;
-          color: var(--color-white-soft);
+          color: rgba(255,255,255,0.82);
           line-height: 1.55;
         }
 
         /* Divider line inside guarantees */
         .hiw-guarantees__divider {
           width: 1px;
-          background: var(--color-black-border);
+          background: rgba(255,255,255,0.15);
           align-self: stretch;
           flex-shrink: 0;
           display: none;
@@ -485,8 +516,8 @@ export default function HowItWorks() {
 
         /* ── Bottom CTA ── */
         .hiw-cta {
-          background: var(--color-white);
-          border: 1px solid var(--color-beige-dark);
+          background: var(--hiw-card);
+          border: 1px solid var(--hiw-line);
           border-radius: var(--radius-xl);
           padding: 2rem 2.5rem;
           display: flex;
@@ -502,18 +533,18 @@ export default function HowItWorks() {
           }
         }
         .hiw-cta__heading {
-          font-family: var(--font-display);
+          font-family: var(--font-hero, "Montserrat", sans-serif);
           font-size: 1.25rem;
-          font-weight: 700;
-          color: var(--color-black);
+          font-weight: 800;
+          color: var(--hiw-ink);
           line-height: 1.2;
           letter-spacing: -0.01em;
           margin: 0 0 0.25rem;
         }
         .hiw-cta__sub {
-          font-family: var(--font-body);
+          font-family: var(--font-body, "DM Sans", sans-serif);
           font-size: 0.8125rem;
-          color: var(--color-beige-text);
+          color: var(--hiw-muted);
           margin: 0;
         }
         .hiw-cta__actions {
@@ -527,7 +558,7 @@ export default function HowItWorks() {
           display: inline-flex;
           align-items: center;
           gap: 0.45rem;
-          font-family: var(--font-body);
+          font-family: var(--font-body, "DM Sans", sans-serif);
           font-size: 0.8125rem;
           font-weight: 700;
           padding: 0.6rem 1.25rem;
@@ -540,21 +571,21 @@ export default function HowItWorks() {
         .hiw-btn:active { transform: scale(0.98); }
 
         .hiw-btn--primary {
-          background: var(--color-green);
-          color: var(--color-white);
+          background: var(--hiw-accent);
+          color: var(--hiw-ink);
         }
         .hiw-btn--primary:hover {
-          background: var(--color-green-dark);
-          box-shadow: 0 4px 14px rgba(0,95,2,0.25);
+          background: var(--hiw-accent-dark);
+          box-shadow: 0 4px 14px rgba(232,148,84,0.4);
         }
 
         .hiw-btn--secondary {
-          background: var(--color-beige);
-          color: var(--color-black);
-          border: 1px solid var(--color-beige-dark);
+          background: var(--hiw-bg);
+          color: var(--hiw-ink);
+          border: 1px solid var(--hiw-tint);
         }
         .hiw-btn--secondary:hover {
-          background: var(--color-beige-dark);
+          background: var(--hiw-wash2);
         }
       `}</style>
 
@@ -677,8 +708,8 @@ export default function HowItWorks() {
                   <li key={g} className="hiw-guarantee-item">
                     <CheckCircle2
                       size={14}
-                      className="text-green flex-shrink-0"
-                      style={{ marginTop: "2px", color: "var(--color-green)" }}
+                      className="flex-shrink-0"
+                      style={{ marginTop: "2px", color: "var(--hiw-accent)" }}
                       strokeWidth={2}
                     />
                     <span className="hiw-guarantee-text">{g}</span>

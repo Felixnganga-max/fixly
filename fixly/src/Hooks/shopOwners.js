@@ -7,16 +7,18 @@ const authHeaders = () => ({
   Authorization: `Bearer ${getToken()}`,
 });
 
-// ── Admin ─────────────────────────────────────────────────────────────────────
+async function send(url, opts, fallback) {
+  const res = await fetch(url, { ...opts, headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || fallback);
+  return json;
+}
 
-/**
- * GET /api/shop-owners
- * Get all shop owners with optional filters
- * @param {{ category?, verified?, active?, search?, page?, limit? }} params
- */
+/** GET /api/shop-owners — { category?, offers?, verified?, active?, search?, page?, limit? } */
 export async function getAllShopOwners(params = {}) {
   const query = new URLSearchParams();
   if (params.category) query.set("category", params.category);
+  if (params.offers) query.set("offers", params.offers);
   if (params.verified !== undefined && params.verified !== "")
     query.set("verified", params.verified);
   if (params.active !== undefined && params.active !== "")
@@ -25,100 +27,54 @@ export async function getAllShopOwners(params = {}) {
   if (params.page) query.set("page", params.page);
   if (params.limit) query.set("limit", params.limit);
 
-  const res = await fetch(`${BASE_URL}?${query.toString()}`, {
-    headers: authHeaders(),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to fetch shop owners");
-  return json; // { success, count, total, data }
+  return send(`${BASE_URL}?${query.toString()}`, {}, "Failed to fetch shop owners");
 }
 
-/**
- * GET /api/shop-owners/:id
- * Get single shop owner + linked technicians
- * @param {string} id
- */
 export async function getShopOwnerById(id) {
-  const res = await fetch(`${BASE_URL}/${id}`, { headers: authHeaders() });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Shop not found");
-  return json.data; // { ...shop, technicians[] }
+  return (await send(`${BASE_URL}/${id}`, {}, "Shop not found")).data;
 }
 
 /**
- * POST /api/shop-owners
- * Register a new shop owner
- * @param {{ ownerName, shopName, phone, email?, location, category, description?, verified?, notes? }} payload
+ * POST /api/shop-owners — enrolls the shop and creates their login.
+ * Returns { shop, tempPassword }. tempPassword is shown ONCE; it is not stored in plain text.
  */
 export async function createShopOwner(payload) {
-  const res = await fetch(BASE_URL, {
-    method: "POST",
-    headers: authHeaders(),
-    body: JSON.stringify(payload),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to create shop owner");
-  return json.data;
+  const json = await send(
+    BASE_URL,
+    { method: "POST", body: JSON.stringify(payload) },
+    "Failed to create shop owner",
+  );
+  return { shop: json.data, tempPassword: json.tempPassword };
 }
 
-/**
- * PUT /api/shop-owners/:id
- * Update shop owner details
- * @param {string} id
- * @param {Partial<ShopOwner>} payload
- */
 export async function updateShopOwner(id, payload) {
-  const res = await fetch(`${BASE_URL}/${id}`, {
-    method: "PUT",
-    headers: authHeaders(),
-    body: JSON.stringify(payload),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to update shop owner");
-  return json.data;
+  return (
+    await send(
+      `${BASE_URL}/${id}`,
+      { method: "PUT", body: JSON.stringify(payload) },
+      "Failed to update shop owner",
+    )
+  ).data;
 }
 
-/**
- * PATCH /api/shop-owners/:id/verify
- * Toggle verified status
- * @param {string} id
- */
 export async function toggleVerified(id) {
-  const res = await fetch(`${BASE_URL}/${id}/verify`, {
-    method: "PATCH",
-    headers: authHeaders(),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to toggle verified");
-  return json.data;
+  return (await send(`${BASE_URL}/${id}/verify`, { method: "PATCH" }, "Failed to toggle verified")).data;
 }
 
-/**
- * PATCH /api/shop-owners/:id/active
- * Toggle active status
- * @param {string} id
- */
 export async function toggleActive(id) {
-  const res = await fetch(`${BASE_URL}/${id}/active`, {
-    method: "PATCH",
-    headers: authHeaders(),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to toggle active");
-  return json.data;
+  return (await send(`${BASE_URL}/${id}/active`, { method: "PATCH" }, "Failed to toggle active")).data;
 }
 
-/**
- * DELETE /api/shop-owners/:id
- * Delete a shop owner
- * @param {string} id
- */
+/** PATCH /api/shop-owners/:id/reset-password — returns { tempPassword } */
+export async function resetShopPassword(id) {
+  const json = await send(
+    `${BASE_URL}/${id}/reset-password`,
+    { method: "PATCH" },
+    "Failed to reset password",
+  );
+  return { tempPassword: json.tempPassword };
+}
+
 export async function deleteShopOwner(id) {
-  const res = await fetch(`${BASE_URL}/${id}`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to delete shop owner");
-  return json;
+  return send(`${BASE_URL}/${id}`, { method: "DELETE" }, "Failed to delete shop owner");
 }

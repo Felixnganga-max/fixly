@@ -1,3 +1,13 @@
+/**
+ * Footer.jsx — Fixly
+ *
+ * Colors: navbar palette, defined once as --ft-* on .footer-root
+ *   ink #050505 (background) · bg #f7e6d9 · tint #f0c09b · accent #e89454
+ * Fonts (global CSS tokens):
+ *   headings / wordmark → Montserrat (--font-hero)
+ *   body                → DM Sans (--font-body)
+ */
+
 const links = {
   Platform: [
     { label: "How it works", href: "#how-it-works" },
@@ -48,8 +58,20 @@ export default function Footer() {
   return (
     <>
       <style>{`
+        /* ── Palette (from Navbar) ── */
         .footer-root {
-          background: var(--color-black, #0d1117);
+          --ft-ink: #050505;
+          --ft-bg: #f7e6d9;
+          --ft-tint: #f0c09b;
+          --ft-accent: #e89454;
+          --ft-text: rgba(247,230,217,0.85);
+          --ft-muted: rgba(247,230,217,0.6);
+          --ft-border: rgba(240,192,155,0.22);
+          --ft-card: rgba(247,230,217,0.06);
+        }
+
+        .footer-root {
+          background: var(--ft-ink);
           padding: 64px 24px 0;
           position: relative;
           overflow: hidden;
@@ -57,7 +79,7 @@ export default function Footer() {
           width: 100%;
         }
 
-        /* diagonal green-tinted stripe texture */
+        /* diagonal accent-tinted stripe texture */
         .footer-root::before {
           content: '';
           position: absolute;
@@ -67,8 +89,8 @@ export default function Footer() {
             -55deg,
             transparent,
             transparent 18px,
-            rgba(0,95,2,0.07) 18px,
-            rgba(0,95,2,0.07) 19px
+            rgba(232,148,84,0.08) 18px,
+            rgba(232,148,84,0.08) 19px
           );
           border-radius: 50%;
           pointer-events: none;
@@ -82,7 +104,7 @@ export default function Footer() {
 
         /* ── Brand block ── */
         .footer-brand {
-          border-bottom: 1px solid var(--color-black-border, #30363d);
+          border-bottom: 1px solid var(--ft-border);
           padding-bottom: 40px;
           margin-bottom: 40px;
           display: grid;
@@ -95,10 +117,10 @@ export default function Footer() {
         }
 
         .footer-wordmark {
-          font-family: var(--font-display, 'Syne', sans-serif);
+          font-family: var(--font-hero, 'Montserrat', sans-serif);
           font-size: clamp(3.2rem, 8vw, 6rem);
           font-weight: 800;
-          color: var(--color-beige, #f5f0e8);
+          color: var(--ft-bg);
           letter-spacing: -0.04em;
           line-height: 0.95;
           display: block;
@@ -106,7 +128,7 @@ export default function Footer() {
           transition: opacity 0.2s;
         }
         .footer-wordmark:hover { opacity: 0.85; }
-        .footer-wordmark span { color: var(--color-green, #005f02); }
+        .footer-wordmark span { color: var(--ft-accent); }
 
         .footer-brand-right {
           display: flex;
@@ -121,7 +143,7 @@ export default function Footer() {
 
         .footer-tagline {
           font-size: 13px;
-          color: var(--color-white-muted, #8b949e);
+          color: var(--ft-muted);
           line-height: 1.6;
           max-width: 200px;
           text-align: right;
@@ -132,21 +154,21 @@ export default function Footer() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: var(--color-green, #005f02);
-          color: white;
+          background: var(--ft-accent);
+          color: var(--ft-ink);
           font-family: var(--font-body, 'DM Sans', sans-serif);
           font-size: 13px;
           font-weight: 600;
           padding: 10px 20px;
           border-radius: 100px;
           text-decoration: none;
-          border: 1.5px solid var(--color-green, #005f02);
+          border: 1.5px solid var(--ft-accent);
           transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
           white-space: nowrap;
         }
         .footer-wa:hover {
           background: transparent;
-          color: var(--color-green, #005f02);
+          color: var(--ft-accent);
         }
 
         /* ── Links ── */
@@ -161,12 +183,12 @@ export default function Footer() {
         }
 
         .footer-group h4 {
-          font-family: var(--font-display, 'Syne', sans-serif);
+          font-family: var(--font-hero, 'Montserrat', sans-serif);
           font-size: 10px;
-          font-weight: 700;
+          font-weight: 800;
           letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--color-white-muted, #8b949e);
+          color: var(--ft-tint);
           margin-bottom: 16px;
         }
 
@@ -175,7 +197,7 @@ export default function Footer() {
         .footer-group a {
           font-family: var(--font-body, 'DM Sans', sans-serif);
           font-size: 14px;
-          color: #c9d1d9;
+          color: var(--ft-text);
           text-decoration: none;
           display: inline-block;
           position: relative;
@@ -187,15 +209,15 @@ export default function Footer() {
           position: absolute;
           bottom: 0; left: 0;
           width: 0; height: 1.5px;
-          background: var(--color-green, #005f02);
+          background: var(--ft-accent);
           transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .footer-group a:hover { color: white; }
+        .footer-group a:hover { color: #fff; }
         .footer-group a:hover::after { width: 100%; }
 
         /* ── Bottom bar ── */
         .footer-bottom {
-          border-top: 1px solid var(--color-black-border, #30363d);
+          border-top: 1px solid var(--ft-border);
           padding: 20px 0 24px;
           display: flex;
           align-items: center;
@@ -207,7 +229,7 @@ export default function Footer() {
         .footer-bottom p {
           font-family: var(--font-body, 'DM Sans', sans-serif);
           font-size: 12px;
-          color: var(--color-white-muted, #8b949e);
+          color: var(--ft-muted);
         }
 
         .footer-flag-badge {
@@ -216,9 +238,9 @@ export default function Footer() {
           gap: 8px;
           font-family: var(--font-body, 'DM Sans', sans-serif);
           font-size: 12px;
-          color: var(--color-white-muted, #8b949e);
-          background: var(--color-black-card, #161b22);
-          border: 1px solid var(--color-black-border, #30363d);
+          color: var(--ft-muted);
+          background: var(--ft-card);
+          border: 1px solid var(--ft-border);
           padding: 5px 12px;
           border-radius: 100px;
         }

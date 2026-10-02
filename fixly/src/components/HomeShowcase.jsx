@@ -8,6 +8,11 @@
  *   4. Featured Deals with countdown + product cards
  *   5. Wide promo + 2 smaller cards
  *   6. Trending grid with filter tabs
+ *
+ * Fonts (from the global CSS tokens):
+ *   headings → Montserrat  (--font-hero)
+ *   body     → DM Sans     (--font-body)
+ *   numbers  → JetBrains Mono (--font-mono)
  */
 
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -339,7 +344,7 @@ function PromoRow() {
             </span>
             <h3
               style={{
-                fontFamily: "var(--font-display,'Syne',sans-serif)",
+                fontFamily: "var(--font-hero,'Montserrat',sans-serif)",
                 fontSize: 17,
                 fontWeight: 800,
                 color: "#111",
@@ -1062,7 +1067,7 @@ export default function HomeShowcase() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         @keyframes hs-fadein { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes hs-shim   { to{background-position:-200% 0} }
         .hs-deals-scroll { scrollbar-width: none; }
@@ -1145,7 +1150,7 @@ export default function HomeShowcase() {
                   </span>
                   <strong
                     style={{
-                      fontFamily: "var(--font-display,'Syne',sans-serif)",
+                      fontFamily: "var(--font-hero,'Montserrat',sans-serif)",
                       fontSize: 15,
                       fontWeight: 800,
                       color: "#111",
@@ -1245,7 +1250,7 @@ export default function HomeShowcase() {
                   </span>
                   <h3
                     style={{
-                      fontFamily: "var(--font-display,'Syne',sans-serif)",
+                      fontFamily: "var(--font-hero,'Montserrat',sans-serif)",
                       fontSize: 22,
                       fontWeight: 800,
                       color: "white",
@@ -1451,7 +1456,7 @@ export default function HomeShowcase() {
           >
             <h2
               style={{
-                fontFamily: "var(--font-display,'Syne',sans-serif)",
+                fontFamily: "var(--font-hero,'Montserrat',sans-serif)",
                 fontSize: 18,
                 fontWeight: 800,
                 color: "#111",
