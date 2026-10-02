@@ -6,6 +6,7 @@ const { recordView } = require("../utils/viewWorker");
 const { triggerPriceAlerts } = require("./priceAlerts");
 const { pick } = require("../utils/shopHelpers");
 
+
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
@@ -379,3 +380,6 @@ exports.getStats = asyncHandler(async (req, res) => {
     },
   });
 });
+
+
+
