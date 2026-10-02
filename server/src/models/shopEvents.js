@@ -6,7 +6,7 @@ const shopEventSchema = new mongoose.Schema(
     shop: { type: mongoose.Schema.Types.ObjectId, ref: "ShopOwner", required: true },
     type: {
       type: String,
-      enum: ["page_view", "product_view", "whatsapp_click", "call_click", "contact_reveal"],
+      enum: ["page_view", "product_view", "whatsapp_click", "call_click", "directions_click", "contact_reveal"],
       required: true,
     },
     listing: { type: mongoose.Schema.Types.ObjectId, ref: "MarketplaceListing", default: null },
