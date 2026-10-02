@@ -1,12 +1,13 @@
 // controllers/publicShopController.js
-// Phone/WhatsApp are deliberately NOT returned here. They come only from the
-// logged-in endpoint in customerController.shopContact.
+// A shop's phone/WhatsApp are public on its own page (no login). Directory
+// listings stay number-free; the number comes with the shop page itself.
 const mongoose = require("mongoose");
 const ShopOwner = require("../models/shopOwners");
 const MarketplaceListing = require("../models/Marketplacelisting");
 
 const PUBLIC_FIELDS =
   "shopName slug location description logo banner offers category verified createdAt updatedAt";
+const DETAIL_FIELDS = `${PUBLIC_FIELDS} phone whatsapp`;
 
 // GET /fixly/public/shops?offers=sell|repair&category=phone|laptop
 exports.listPublicShops = async (req, res) => {
@@ -37,7 +38,7 @@ exports.getPublicShop = async (req, res) => {
       : { slug: key.toLowerCase() };
 
     const shop = await ShopOwner.findOne({ ...match, active: true })
-      .select(PUBLIC_FIELDS)
+      .select(DETAIL_FIELDS)
       .lean();
     if (!shop) return res.status(404).json({ success: false, message: "Shop not found" });
 
@@ -77,5 +78,27 @@ exports.sitemap = async (req, res) => {
       .send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`);
   } catch (err) {
     res.status(500).send("error");
+  }
+};
+
+// GET /fixly/public/shops/:slug/contact   (slug or shop _id; used by product pages)
+exports.getPublicShopContact = async (req, res) => {
+  try {
+    const key = req.params.slug;
+    const match = mongoose.isValidObjectId(key)
+      ? { $or: [{ slug: key.toLowerCase() }, { _id: key }] }
+      : { slug: key.toLowerCase() };
+
+    const shop = await ShopOwner.findOne({ ...match, active: true })
+      .select("shopName phone whatsapp")
+      .lean();
+    if (!shop) return res.status(404).json({ success: false, message: "Shop not found" });
+
+    res.json({
+      success: true,
+      data: { shopName: shop.shopName, phone: shop.phone, whatsapp: shop.whatsapp || shop.phone },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
