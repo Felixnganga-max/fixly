@@ -6,14 +6,17 @@ const ShopOwner = require("../models/shopOwners");
 const MarketplaceListing = require("../models/Marketplacelisting");
 require("../models/customers"); // registers "Customer" for populate
 
-const PUBLIC_TYPES = ["page_view", "product_view", "whatsapp_click", "call_click"];
+const PUBLIC_TYPES = ["page_view", "product_view", "whatsapp_click", "call_click", "directions_click"];
 const ALL_TYPES = [...PUBLIC_TYPES, "contact_reveal"];
+// Events that count as a visitor "taking action"
+const ACTION_TYPES = ["whatsapp_click", "call_click", "directions_click"];
 // Same visitor repeating the same action inside this window counts once
 const WINDOW_MS = {
   page_view: 30 * 60e3,
   product_view: 30 * 60e3,
   whatsapp_click: 60e3,
   call_click: 60e3,
+  directions_click: 60e3,
 };
 const BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|headless|lighthouse|monitor/i;
 
@@ -299,7 +302,7 @@ async function computeTopListings(shopId, since) {
   });
 }
 
-async function shopReport(shopId, shopName, { days, since, prevSince }) {
+async function buildShopReport(shopId, shopName, { days, since, prevSince }) {
   const base = { shop: oid(shopId) };
   const [totals, prev, series, topListings] = await Promise.all([
     computeTotals({ ...base, createdAt: { $gte: since } }),
@@ -313,8 +316,7 @@ async function shopReport(shopId, shopName, { days, since, prevSince }) {
 // ── ADMIN: GET /fixly/analytics/overview?days=30 ──────────────
 exports.overview = async (req, res) => {
   try {
-    const range = getRange(req);
-    const { days, since, prevSince } = range;
+    const { days, since, prevSince } = getRange(req);
     const [shops, perShop, totals, prev, series] = await Promise.all([
       ShopOwner.find({}).select("shopName slug active verified").lean(),
       computePerShop(since),
@@ -349,7 +351,7 @@ exports.shopReport = async (req, res) => {
     }
     const shop = await ShopOwner.findById(id).select("shopName").lean();
     if (!shop) return res.status(404).json({ success: false, message: "Shop not found" });
-    res.json({ success: true, data: await shopReport(id, shop.shopName, getRange(req)) });
+    res.json({ success: true, data: await buildShopReport(id, shop.shopName, getRange(req)) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -358,11 +360,11 @@ exports.shopReport = async (req, res) => {
 // ── SHOP OWNER: GET /fixly/analytics/me?days=30 ───────────────
 exports.myReport = async (req, res) => {
   try {
-    const id = req.user?.id || req.user?._id; // adjust to what your auth middleware sets
+    const id = req.user?.id || req.user?._id; // set by shopOwnerOnly in analyticsRoutes.js
     if (!id) return res.status(401).json({ success: false, message: "Not authenticated" });
     const shop = await ShopOwner.findById(id).select("shopName").lean();
     if (!shop) return res.status(404).json({ success: false, message: "Shop not found" });
-    res.json({ success: true, data: await shopReport(id, shop.shopName, getRange(req)) });
+    res.json({ success: true, data: await buildShopReport(id, shop.shopName, getRange(req)) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
