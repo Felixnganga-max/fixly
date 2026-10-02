@@ -24,14 +24,20 @@ const matchKey = (key) =>
     : { slug: String(key).toLowerCase() };
 
 // ── PUBLIC: POST /fixly/analytics/track ───────────────────────
-// Always answers 204 so tracking can never break a page.
+// Answers 204 so tracking can never break a page. Add ?debug=1 to get JSON
+// with the reason an event was saved or skipped (for testing from the console).
 exports.track = async (req, res) => {
+  const done = (reason) =>
+    req.query.debug
+      ? res.status(200).json({ ok: reason === "saved", reason })
+      : res.status(204).end();
+
   try {
     const { type, shop: shopKey, listingId, visitorId, referrer } = req.body || {};
     if (!PUBLIC_TYPES.includes(type) || !visitorId || String(visitorId).length > 64) {
-      return res.status(204).end();
+      return done("bad type or visitorId");
     }
-    if (BOT.test(req.headers["user-agent"] || "")) return res.status(204).end();
+    if (BOT.test(req.headers["user-agent"] || "")) return done("bot user-agent");
 
     let listing = null;
     let shopId = null;
@@ -39,19 +45,21 @@ exports.track = async (req, res) => {
       listing = await MarketplaceListing.findById(listingId).select("listedBy").lean();
       shopId = listing?.listedBy || null;
     }
-    if (type === "product_view" && !listing) return res.status(204).end();
+    if (type === "product_view" && !listing) return done("listing not found");
     if (!shopId && shopKey) {
       const s = await ShopOwner.findOne(matchKey(shopKey)).select("_id").lean();
       shopId = s?._id || null;
     }
-    if (!shopId) return res.status(204).end();
+    if (!shopId) return done("shop not found");
 
     // Attach the customer when a valid customer token came with the request
+    // (sent in the body, because tracking is a simple request with no custom headers)
     let customer = null;
     const h = req.headers.authorization || "";
-    if (h.startsWith("Bearer ") && process.env.JWT_SECRET) {
+    const tokenStr = req.body?.customerToken || (h.startsWith("Bearer ") ? h.slice(7) : "");
+    if (tokenStr && process.env.JWT_SECRET) {
       try {
-        const d = jwt.verify(h.slice(7), process.env.JWT_SECRET);
+        const d = jwt.verify(tokenStr, process.env.JWT_SECRET);
         if (d.role === "customer") customer = d.id;
       } catch {
         /* anonymous */
@@ -65,7 +73,7 @@ exports.track = async (req, res) => {
       createdAt: { $gte: new Date(Date.now() - WINDOW_MS[type]) },
     };
     if (type === "product_view") dup.listing = listing._id;
-    if (await ShopEvent.exists(dup)) return res.status(204).end();
+    if (await ShopEvent.exists(dup)) return done("duplicate within window");
 
     await ShopEvent.create({
       shop: shopId,
@@ -75,9 +83,9 @@ exports.track = async (req, res) => {
       visitorId,
       referrer: String(referrer || "").slice(0, 100),
     });
-    res.status(204).end();
-  } catch {
-    res.status(204).end();
+    return done("saved");
+  } catch (err) {
+    return done(`error: ${err.message}`);
   }
 };
 

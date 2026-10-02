@@ -41,7 +41,23 @@ function shopOwnerOnly(req, res, next) {
   }
 }
 
-router.post("/track", a.track); // public
+// The browser sends tracking as text/plain: a "simple" request, so there is no CORS
+// preflight that could silently block it. Parse that body as JSON here.
+const parseTrack = [
+  express.text({ type: "text/plain", limit: "4kb" }),
+  (req, res, next) => {
+    if (typeof req.body === "string") {
+      try {
+        req.body = JSON.parse(req.body);
+      } catch {
+        req.body = {};
+      }
+    }
+    next();
+  },
+];
+
+router.post("/track", ...parseTrack, a.track); // public
 router.get("/me", shopOwnerOnly, a.myPerformance);
 router.get("/summary", adminOnly, a.summary);
 router.get("/shops/:id/events", adminOnly, a.shopEvents);
