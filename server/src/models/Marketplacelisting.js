@@ -39,6 +39,13 @@ const marketplaceListingSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Device library entry this listing was made from (or created)
+    libraryDevice: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LibraryDevice",
+      default: null,
+    },
+
     // views: incremented asynchronously via Redis queue (not on every request)
     views: { type: Number, default: 0 },
   },
@@ -65,6 +72,7 @@ marketplaceListingSchema.index({ active: 1, verified: 1 });
 marketplaceListingSchema.index({ price: 1 });
 marketplaceListingSchema.index({ createdAt: -1 });
 marketplaceListingSchema.index({ views: -1 });
+marketplaceListingSchema.index({ libraryDevice: 1 });
 // Cursor pagination support (_id descending)
 marketplaceListingSchema.index({ _id: -1 });
 // Full-text search
