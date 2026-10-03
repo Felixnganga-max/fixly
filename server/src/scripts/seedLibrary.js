@@ -1,26 +1,11 @@
 // scripts/seedLibrary.js
-// Loads researched devices into the library.   Run:  node scripts/seedLibrary.js [file.json]
-// Default file: scripts/data/phones.json  (an array of devices, see below)
+// Loads devices into the library.
+//   node scripts/seedLibrary.js                              -> scripts/data/phones.json
+//   node scripts/seedLibrary.js scripts/data/infinix.js      -> a .js file that does module.exports = [ ... ]
+//   node scripts/seedLibrary.js scripts/data/infinix.json    -> a .json array
 //
-// Re-running is safe: devices are matched by their key (brand + name), so an entry is
-// updated, never duplicated. Seeded entries are marked Verified and replace any
-// community entry a shop created for the same device.
-//
-// One device:
-// {
-//   "brand": "Samsung", "series": "Galaxy S", "name": "Galaxy S24", "category": "phone",
-//   "releaseYear": 2024,
-//   "specs": {
-//     "screenSize": "6.2", "resolution": "1080 x 2340", "displayType": "Dynamic AMOLED 2X",
-//     "refreshRate": "120", "processor": "...", "ram": "8GB", "storage": "128GB",
-//     "os": "Android 14", "mainCamera": "...", "frontCamera": "...", "cameraFeatures": "...",
-//     "battery": "4000", "charging": "...", "connectivity": "...", "sim": "..."
-//   },
-//   "features": ["..."],
-//   "variants": [{ "ram": "8GB", "storage": "128GB" }, { "ram": "8GB", "storage": "256GB" }],
-//   "colors": ["..."],
-//   "sourceUrl": "https://..."
-// }
+// Re-running is safe: devices are matched by key (brand + name), so an entry is
+// updated, never duplicated. Seeded entries are marked Verified.
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
@@ -28,11 +13,20 @@ const connectDB = require("../config/db");
 const LibraryDevice = require("../models/deviceLibrary");
 const { libraryKey } = require("../utils/libraryHelpers");
 
-const FILE = process.argv[2] || path.join(__dirname, "data", "phones.json");
+const FILE = path.resolve(process.argv[2] || path.join(__dirname, "data", "phones.json"));
+
+function load(file) {
+  if (!fs.existsSync(file)) throw new Error(`File not found: ${file}`);
+  const data = file.endsWith(".js") ? require(file) : JSON.parse(fs.readFileSync(file, "utf8"));
+  const list = Array.isArray(data) ? data : data.devices || data.phones || data.default;
+  if (!Array.isArray(list)) throw new Error("The file must be an array of devices (module.exports = [ ... ])");
+  return list;
+}
 
 (async () => {
+  const items = load(FILE);
   await connectDB();
-  const items = JSON.parse(fs.readFileSync(FILE, "utf8"));
+  console.log(`Seeding ${items.length} devices from ${FILE}\n`);
 
   let added = 0;
   let updated = 0;
@@ -71,6 +65,6 @@ const FILE = process.argv[2] || path.join(__dirname, "data", "phones.json");
   console.log(`\nDone. ${added} added, ${updated} updated, ${skipped} skipped.`);
   process.exit(0);
 })().catch((err) => {
-  console.error(err);
+  console.error(err.message || err);
   process.exit(1);
 });
