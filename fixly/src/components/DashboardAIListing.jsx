@@ -11,12 +11,14 @@ import {
   Save,
   ArrowLeft,
   ExternalLink,
+  BookOpen,
 } from "lucide-react";
 import {
   getBrandNames,
   aiGenerateDevice,
   aiSaveDrafts,
 } from "../Hooks/marketplaceApi";
+import { createLibraryDevice } from "../Hooks/libraryApi";
 
 const MAX_DEVICES = 30;
 
@@ -42,7 +44,9 @@ export default function DashboardAIListing() {
   const [rows, setRows] = useState([]);
   const [running, setRunning] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [savingLib, setSavingLib] = useState(false);
   const [saved, setSaved] = useState(null);
+  const [libSaved, setLibSaved] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -74,6 +78,7 @@ export default function DashboardAIListing() {
     }));
     setRows(list);
     setSaved(null);
+    setLibSaved(null);
     setError("");
     setRunning(true);
 
@@ -101,6 +106,36 @@ export default function DashboardAIListing() {
   };
 
   const ready = rows.filter((r) => r.status === "done" && r.keep);
+
+  // Save the specs into the shared device library (specs only, no price or images)
+  const saveToLibrary = async () => {
+    setSavingLib(true);
+    setError("");
+    const result = { created: 0, skipped: 0, failed: 0 };
+    for (const r of ready) {
+      try {
+        await createLibraryDevice({
+          category,
+          brand,
+          name: r.data.name,
+          shortDescription: r.data.shortDescription,
+          features: r.data.features,
+          specs: r.data.specs,
+          sourceUrl: r.data.sources?.[0] || "",
+          // generated, so it stays "Unreviewed" until you check it in the library
+          verified: false,
+          source: "ai",
+        });
+        result.created++;
+        patch(r.id, { keep: false });
+      } catch (e) {
+        if (e.status === 409) result.skipped++; // already in the library
+        else result.failed++;
+      }
+    }
+    setLibSaved(result);
+    setSavingLib(false);
+  };
 
   const save = async () => {
     setSaving(true);
@@ -138,7 +173,7 @@ export default function DashboardAIListing() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <button
-          onClick={() => navigate("/dashboard/marketplace")}
+          onClick={() => navigate("/admin/marketplace")}
           className="w-10 h-10 rounded-xl bg-white border border-beige-dark flex items-center justify-center hover:border-gray-400 transition-colors"
         >
           <ArrowLeft size={16} className="text-gray-500" />
@@ -152,7 +187,8 @@ export default function DashboardAIListing() {
           </h1>
           <p className="text-gray-400 text-sm mt-0.5">
             Enter device names. Specs, features and description are filled in
-            for you. Saved as hidden drafts.
+            for you. Save them to the device library for every shop to use, or
+            as hidden drafts.
           </p>
         </div>
       </div>
@@ -232,6 +268,24 @@ export default function DashboardAIListing() {
         </div>
       )}
 
+      {libSaved && (
+        <div className="bg-green-light border border-green-dark/30 rounded-xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
+          <p className="text-sm font-semibold text-black">
+            {libSaved.created} added to the library
+            {libSaved.skipped > 0 &&
+              ` · ${libSaved.skipped} already there`}
+            {libSaved.failed > 0 && ` · ${libSaved.failed} failed, try again`}.
+            They show as Unreviewed until you verify them.
+          </p>
+          <button
+            onClick={() => navigate("/admin/library")}
+            className="flex items-center gap-1.5 text-sm font-semibold text-black underline"
+          >
+            Open library <ExternalLink size={13} />
+          </button>
+        </div>
+      )}
+
       {saved && (
         <div className="bg-green-light border border-green-dark/30 rounded-xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-sm font-semibold text-black">
@@ -240,7 +294,7 @@ export default function DashboardAIListing() {
             . Set price and images to take them live.
           </p>
           <button
-            onClick={() => navigate("/dashboard/marketplace")}
+            onClick={() => navigate("/admin/marketplace")}
             className="flex items-center gap-1.5 text-sm font-semibold text-black underline"
           >
             Open marketplace <ExternalLink size={13} />
@@ -349,11 +403,11 @@ export default function DashboardAIListing() {
             </div>
           ))}
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-3 flex-wrap">
             <button
               onClick={save}
-              disabled={!ready.length || running || saving}
-              className="flex items-center gap-2 bg-black text-white font-semibold text-sm px-6 py-3 rounded-xl disabled:opacity-40 transition-opacity"
+              disabled={!ready.length || running || saving || savingLib}
+              className="flex items-center gap-2 bg-white border border-beige-dark hover:border-gray-400 text-gray-600 font-semibold text-sm px-5 py-3 rounded-xl disabled:opacity-40 transition-colors"
             >
               {saving ? (
                 <Loader2 size={15} className="animate-spin" />
@@ -361,6 +415,18 @@ export default function DashboardAIListing() {
                 <Save size={15} />
               )}
               Save {ready.length} as drafts
+            </button>
+            <button
+              onClick={saveToLibrary}
+              disabled={!ready.length || running || saving || savingLib}
+              className="flex items-center gap-2 bg-black text-white font-semibold text-sm px-6 py-3 rounded-xl disabled:opacity-40 transition-opacity"
+            >
+              {savingLib ? (
+                <Loader2 size={15} className="animate-spin" />
+              ) : (
+                <BookOpen size={15} />
+              )}
+              Save {ready.length} to library
             </button>
           </div>
         </div>

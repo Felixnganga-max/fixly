@@ -26,6 +26,7 @@ import AddListingPage from "./components/AddListingPage";
 import PurchaseAdmin from "./pages/PurchaseAdmin";
 import ShopOwners from "./components/ShopOwners";
 import Analytics from "./components/Analytics";
+import DeviceLibrary from "./components/DeviceLibrary";
 
 // Shop owner
 import RequireRole from "./components/RequireRole";
@@ -98,6 +99,7 @@ const App = () => {
           <Route path="purchases" element={<PurchaseAdmin />} />
           <Route path="shop-owners" element={<ShopOwners />} />
           <Route path="analytics" element={<Analytics />} />
+          <Route path="library" element={<DeviceLibrary />} />
           <Route path="commissions" element={<Commissions />} />
           <Route path="settings" element={<Settings />} />
         </Route>
@@ -124,6 +126,7 @@ const App = () => {
           <Route index element={<ShopOverview />} />
           <Route path="listings" element={<ShopListings />} />
           <Route path="profile" element={<ShopProfile />} />
+          <Route path="library" element={<DeviceLibrary />} />
           <Route path="settings" element={<ChangePassword />} />
         </Route>
       </Routes>

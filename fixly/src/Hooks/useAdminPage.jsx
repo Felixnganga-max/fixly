@@ -1,34 +1,14 @@
 import { useLocation } from "react-router-dom";
 
 const pageMeta = {
-  "/admin": {
-    title: "Dashboard",
-    // subtitle: "Overview of all platform activity",
-  },
-  "/admin/jobs": {
-    title: "Jobs",
-    // subtitle: "Manage and assign repair requests",
-  },
-  "/admin/technicians": {
-    title: "Technicians",
-    // subtitle: "Manage verified specialists",
-  },
-  "/admin/marketplace": {
-    title: "Marketplace",
-    // subtitle: "Manage device listings — phones & laptops",
-  },
-  "/admin/shop-owners": {
-    title: "Shop Owners",
-    // subtitle: "Manage device listings — phones & laptops",
-  },
-  "/admin/purchases": {
-    title: "Purchases",
-    // subtitle: "Manage device listings — phones & laptops",
-  },
-  "/admin/commissions": {
-    title: "Commissions",
-    // subtitle: "Track and record platform earnings",
-  },
+  "/admin": { title: "Dashboard" },
+  "/admin/jobs": { title: "Jobs" },
+  "/admin/technicians": { title: "Technicians" },
+  "/admin/marketplace": { title: "Marketplace" },
+  "/admin/library": { title: "Device Library" },
+  "/admin/shop-owners": { title: "Shop Owners" },
+  "/admin/purchases": { title: "Purchases" },
+  "/admin/commissions": { title: "Commissions" },
   "/admin/settings": { title: "Settings", subtitle: "Platform configuration" },
 };
 

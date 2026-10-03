@@ -13,6 +13,7 @@ import {
   Store,
   Globe,
   UserCircle,
+  BookMarked,
 } from "lucide-react";
 import { getUser, getRole, logout } from "../Hooks/loginApi";
 
@@ -21,6 +22,7 @@ const adminNav = [
   { label: "Jobs", href: "/admin/jobs", icon: ClipboardList },
   { label: "Technicians", href: "/admin/technicians", icon: Wrench },
   { label: "Marketplace", href: "/admin/marketplace", icon: ShoppingBag },
+  { label: "Library", href: "/admin/library", icon: BookMarked },
   { label: "Sales", href: "/admin/purchases", icon: BadgeDollarSign },
   { label: "Shop Owners", href: "/admin/shop-owners", icon: Store },
   { label: "Commissions", href: "/admin/commissions", icon: BadgeDollarSign },
@@ -32,6 +34,7 @@ function shopNav(user) {
   // Services (repair shops) lands in step 5
   if (user?.offers?.includes("sell") ?? true) {
     items.push({ label: "Listings", href: "/shop/listings", icon: ShoppingBag });
+    items.push({ label: "Library", href: "/shop/library", icon: BookMarked });
   }
   items.push(
     { label: "My Shop", href: "/shop/profile", icon: UserCircle },
