@@ -4,8 +4,8 @@ const { cloudinary } = require("../config/cloudinary");
 const { invalidateCache } = require("../utils/cache");
 const { recordView } = require("../utils/viewWorker");
 const { triggerPriceAlerts } = require("./priceAlerts");
-const { pick } = require("../utils/shopHelpers");
-
+const { pick, escapeRegex } = require("../utils/shopHelpers");
+const { attachLibrary } = require("../utils/libraryHelpers");
 
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -15,9 +15,6 @@ const LISTING_CACHE_PATTERNS = [
   "cache:/api/marketplace/stats*",
 ];
 
-// FIX: was declared inside getAllListings AFTER the cursor block used it
-// (temporal dead zone → ReferenceError → swallowed by catch → cursor ignored,
-// every "next page" returned page 1).
 const ALLOWED_SORT_FIELDS = { createdAt: true, price: true, views: true, rating: true };
 
 // Field whitelists — req.body is never spread into the DB.
@@ -49,6 +46,15 @@ const parseJson = (val, fallback) => {
   } catch {
     return fallback;
   }
+};
+
+// "Apple iPhone 15" with brand "Apple" -> "iPhone 15". Brand is stored separately,
+// so keeping it in the name caused "Apple Apple iPhone 15" on screen and bad library keys.
+const stripBrand = (name, brand) => {
+  const n = String(name ?? "").trim();
+  const b = String(brand ?? "").trim();
+  if (!n || !b) return n;
+  return n.replace(new RegExp(`^${escapeRegex(b)}\\s+`, "i"), "").trim() || n;
 };
 
 // ── Cloudinary helpers ────────────────────────────────────────
@@ -107,7 +113,7 @@ exports.getAllListings = asyncHandler(async (req, res) => {
   if (cursor) {
     try {
       const decoded = JSON.parse(Buffer.from(cursor, "base64url").toString());
-      // FIX: cursor values come back as strings. Mongo compares by type, so
+      // Cursor values come back as strings. Mongo compares by type, so
       // dates and ObjectIds must be rehydrated or the comparison matches nothing.
       const sortVal =
         safeSortBy === "createdAt" ? new Date(decoded.sortVal) : decoded.sortVal;
@@ -162,10 +168,11 @@ exports.getMyListings = asyncHandler(async (req, res) => {
   if (active !== undefined) filter.active = active === "true";
   if (search) filter.$text = { $search: search };
 
-  const skip = (parseInt(page) - 1) * parseInt(limit);
+  const lim = Math.min(parseInt(limit) || 50, 100);
+  const skip = (Math.max(parseInt(page) || 1, 1) - 1) * lim;
 
   const [listings, total] = await Promise.all([
-    MarketplaceListing.find(filter).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)),
+    MarketplaceListing.find(filter).sort({ createdAt: -1 }).skip(skip).limit(lim),
     MarketplaceListing.countDocuments(filter),
   ]);
 
@@ -177,6 +184,8 @@ exports.getMyListings = asyncHandler(async (req, res) => {
 // @route GET /api/marketplace/:id   @access Public
 // ─────────────────────────────────────────────────────────────
 exports.getListingById = asyncHandler(async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return notFound(res);
+
   const listing = await MarketplaceListing.findById(req.params.id).populate(
     "listedBy",
     "shopName slug location phone whatsapp logo verified",
@@ -189,6 +198,7 @@ exports.getListingById = asyncHandler(async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────
 // CREATE   @route POST /api/marketplace   @access Admin | Shop owner
+// Body may include `libraryDevice` (library entry id) when listing from the library.
 // ─────────────────────────────────────────────────────────────
 exports.createListing = asyncHandler(async (req, res) => {
   const cleanup = async () => {
@@ -212,6 +222,7 @@ exports.createListing = asyncHandler(async (req, res) => {
   }
 
   const data = pick(req.body, isShop(req) ? SHOP_FIELDS : ADMIN_FIELDS);
+  data.name = stripBrand(data.name, data.brand);
 
   let specs = parseJson(req.body.specs, {});
   if (!specs || typeof specs !== "object") specs = {};
@@ -224,7 +235,24 @@ exports.createListing = asyncHandler(async (req, res) => {
   // Shop listings are always tagged to the shop. Admin may assign one or leave Fixly-owned.
   data.listedBy = isShop(req) ? req.user.id : data.listedBy || null;
 
-  const listing = await MarketplaceListing.create(data);
+  // Link to (or create) the shared library entry. Must never block the listing itself.
+  try {
+    await attachLibrary(data, {
+      shopId: isShop(req) ? req.user.id : null,
+      fromId: req.body.libraryDevice,
+    });
+  } catch (err) {
+    console.error("[createListing] attachLibrary failed:", err.message);
+  }
+
+  let listing;
+  try {
+    listing = await MarketplaceListing.create(data);
+  } catch (err) {
+    await cleanup(); // don't leave orphaned Cloudinary images on a failed save
+    throw err;
+  }
+
   await invalidateCache(LISTING_CACHE_PATTERNS);
 
   res.status(201).json({ success: true, message: "Listing created", data: listing });
@@ -237,6 +265,11 @@ exports.updateListing = asyncHandler(async (req, res) => {
   const cleanup = async () => {
     if (req.files?.length) await destroyCloudinaryImages(req.files.map((f) => f.path));
   };
+
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    await cleanup();
+    return notFound(res);
+  }
 
   // 404 (not 403) for other shops' listings — don't leak existence
   const listing = await MarketplaceListing.findOne({
@@ -256,6 +289,10 @@ exports.updateListing = asyncHandler(async (req, res) => {
     return res.status(403).json({ success: false, message: capErr });
   }
 
+  if (updates.name !== undefined || updates.brand !== undefined) {
+    updates.name = stripBrand(updates.name ?? listing.name, updates.brand ?? listing.brand);
+  }
+
   const oldPrice = listing.price;
 
   if (req.body.specs !== undefined) {
@@ -268,16 +305,25 @@ exports.updateListing = asyncHandler(async (req, res) => {
   }
   if (updates.listedBy === "") updates.listedBy = null; // admin un-assigning
 
+  const oldImages = listing.images;
   if (req.files?.length) {
-    await destroyCloudinaryImages(listing.images);
     updates.images = req.files.map((f) => f.path);
   }
 
-  const updated = await MarketplaceListing.findByIdAndUpdate(
-    req.params.id,
-    { $set: updates },
-    { new: true, runValidators: true },
-  );
+  let updated;
+  try {
+    updated = await MarketplaceListing.findByIdAndUpdate(
+      req.params.id,
+      { $set: updates },
+      { new: true, runValidators: true },
+    );
+  } catch (err) {
+    await cleanup();
+    throw err;
+  }
+
+  // Only remove the old photos once the new ones are safely saved
+  if (req.files?.length) await destroyCloudinaryImages(oldImages);
 
   triggerPriceAlerts(updated, oldPrice).catch((err) =>
     console.error("[updateListing] triggerPriceAlerts error:", err.message),
@@ -296,6 +342,7 @@ exports.deleteImage = asyncHandler(async (req, res) => {
   if (!imageUrl) {
     return res.status(400).json({ success: false, message: "imageUrl is required" });
   }
+  if (!mongoose.isValidObjectId(req.params.id)) return notFound(res);
 
   const listing = await MarketplaceListing.findOne({
     _id: req.params.id,
@@ -322,6 +369,8 @@ exports.deleteImage = asyncHandler(async (req, res) => {
 // TOGGLE ACTIVE
 // ─────────────────────────────────────────────────────────────
 exports.toggleActive = asyncHandler(async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return notFound(res);
+
   const listing = await MarketplaceListing.findOne({
     _id: req.params.id,
     ...ownerFilter(req),
@@ -343,6 +392,8 @@ exports.toggleActive = asyncHandler(async (req, res) => {
 // DELETE LISTING
 // ─────────────────────────────────────────────────────────────
 exports.deleteListing = asyncHandler(async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return notFound(res);
+
   const listing = await MarketplaceListing.findOne({
     _id: req.params.id,
     ...ownerFilter(req),
@@ -357,7 +408,7 @@ exports.deleteListing = asyncHandler(async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// STATS (unchanged)
+// STATS
 // ─────────────────────────────────────────────────────────────
 exports.getStats = asyncHandler(async (req, res) => {
   const [total, active, verified, phones, laptops, newCount, used, refurb] =
@@ -380,6 +431,3 @@ exports.getStats = asyncHandler(async (req, res) => {
     },
   });
 });
-
-
-

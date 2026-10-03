@@ -3,7 +3,7 @@
 // env: GEMINI_API_KEY, GEMINI_MODEL (optional)
 const { GoogleGenAI, Type } = require("@google/genai");
 const MarketplaceListing = require("../models/Marketplacelisting");
-const Brand = require("../models/Brand");
+const Brand = require("../models/brand");
 const { invalidateCache } = require("../utils/cache");
 
 const asyncHandler = (fn) => (req, res, next) =>

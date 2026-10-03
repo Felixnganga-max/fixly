@@ -11,6 +11,9 @@ const FIELDS = [
   "category", "brand", "series", "name", "releaseYear",
   "shortDescription", "specs", "features", "variants", "colors",
 ];
+// Extra fields accepted only by the bulk seed (ignored by the schema if it doesn't define them)
+const SEED_FIELDS = [...FIELDS, "sourceUrl", "sources"];
+
 const isAdmin = (req) => ["admin", "superadmin"].includes(req.staff.role);
 const bad = (res, message, status = 400, data) => res.status(status).json({ success: false, message, data });
 
@@ -53,6 +56,69 @@ exports.meta = asyncHandler(async (req, res) => {
   const f = ["phone", "laptop"].includes(req.query.category) ? { category: req.query.category } : {};
   const brands = (await LibraryDevice.distinct("brand", f)).sort((a, b) => a.localeCompare(b));
   res.json({ success: true, data: { brands } });
+});
+
+// POST /fixly/library/seed   (admin only)
+// Body: { devices: [{ category, brand, name, specs, features, ... }] }   max 50 per request
+// Inserts devices that are not in the library yet. Existing entries are never overwritten.
+// IMPORTANT: register this route ABOVE any "/:id" route.
+exports.seed = asyncHandler(async (req, res) => {
+  const { devices } = req.body || {};
+  if (!Array.isArray(devices) || !devices.length) return bad(res, "devices array is required");
+  if (devices.length > 50) return bad(res, "Send 50 devices or fewer per request");
+
+  const ops = [];
+  const invalid = [];
+  const seen = new Set();
+
+  for (const raw of devices) {
+    const d = pick(raw || {}, SEED_FIELDS);
+    const brand = String(d.brand || "").trim();
+    const name = String(d.name || "").trim();
+
+    if (!brand || !name || !["phone", "laptop"].includes(d.category)) {
+      invalid.push(`${brand} ${name}`.trim() || "(unnamed entry)");
+      continue;
+    }
+
+    const key = libraryKey(brand, name);
+    if (seen.has(key)) continue; // duplicate inside the same upload
+    seen.add(key);
+
+    ops.push({
+      updateOne: {
+        filter: { key },
+        update: {
+          $setOnInsert: {
+            ...d,
+            brand,
+            name,
+            key,
+            specs: d.specs && typeof d.specs === "object" ? d.specs : {},
+            features: Array.isArray(d.features) ? d.features.map(String) : [],
+            source: "admin",
+            verified: true,
+            createdBy: null,
+          },
+        },
+        upsert: true,
+      },
+    });
+  }
+
+  let added = 0;
+  if (ops.length) {
+    const r = await LibraryDevice.bulkWrite(ops, { ordered: false });
+    added = r.upsertedCount || 0;
+  }
+
+  res.json({
+    success: true,
+    added,
+    skipped: ops.length - added, // already in the library
+    invalid: invalid.length,
+    invalidNames: invalid.slice(0, 10),
+  });
 });
 
 // GET /fixly/library/:id
