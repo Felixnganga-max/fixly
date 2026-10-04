@@ -59,10 +59,12 @@ const stripBrand = (name, brand) => {
 
 // Priced RAM/storage versions: [{ ram, storage, price, oldPrice, inStock }]
 // A version without a positive price is dropped, duplicates are merged, max 20.
+// Returns null when the value cannot be read as a list, so a garbled request
+// can never be mistaken for "remove all versions".
 function cleanVariants(raw) {
-  let v = parseJson(raw, []);
-  if (typeof v === "string") v = parseJson(v, []); // tolerate double-encoded JSON
-  if (!Array.isArray(v)) return [];
+  let v = parseJson(raw, null);
+  if (typeof v === "string") v = parseJson(v, null); // tolerate double-encoded JSON
+  if (!Array.isArray(v)) return null;
 
   const seen = new Set();
   const out = [];
@@ -270,7 +272,7 @@ exports.createListing = asyncHandler(async (req, res) => {
   data.specs = specs;
   data.features = features;
 
-  const variants = cleanVariants(req.body.variants);
+  const variants = cleanVariants(req.body.variants) || [];
   data.variants = variants;
   if (variants.length) {
     const top = headlineVariant(variants);
@@ -350,13 +352,17 @@ exports.updateListing = asyncHandler(async (req, res) => {
     const features = parseJson(req.body.features, listing.features);
     updates.features = Array.isArray(features) ? features : listing.features;
   }
+  // Versions: saved ones are only replaced by a real, readable list. An empty or
+  // unreadable value never wipes them; clearing needs the explicit clearVariants flag.
   if (req.body.variants !== undefined) {
     const variants = cleanVariants(req.body.variants);
-    updates.variants = variants; // an empty list switches the listing back to a single price
-    if (variants.length) {
+    if (variants && variants.length) {
+      updates.variants = variants;
       const top = headlineVariant(variants);
       updates.price = top.price;
       updates.oldPrice = top.oldPrice;
+    } else if (variants && String(req.body.clearVariants) === "true") {
+      updates.variants = []; // seller removed every version on purpose
     }
   }
   if (updates.listedBy === "") updates.listedBy = null; // admin un-assigning
