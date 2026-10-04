@@ -1,5 +1,17 @@
 const mongoose = require("mongoose");
 
+// One sellable version of a device, e.g. 8GB RAM / 256GB storage, with its own price.
+const variantSchema = new mongoose.Schema(
+  {
+    ram: { type: String, trim: true, default: "" },
+    storage: { type: String, trim: true, default: "" },
+    price: { type: Number, required: true, min: 0 },
+    oldPrice: { type: Number, default: null },
+    inStock: { type: Boolean, default: true },
+  },
+  { _id: false },
+);
+
 const marketplaceListingSchema = new mongoose.Schema(
   {
     // ── Core fields ─────────────────────────────────────────────
@@ -10,8 +22,14 @@ const marketplaceListingSchema = new mongoose.Schema(
     brand: { type: String, required: true, trim: true },
 
     name: { type: String, required: true, trim: true },
+
+    // With variants, `price` is the cheapest in-stock version (set by the controller),
+    // so sorting, filtering, price alerts and "from KES X" keep working.
     price: { type: Number, required: true, min: 0 },
     oldPrice: { type: Number, default: null },
+
+    // Priced RAM/storage versions. Empty = a single-price listing.
+    variants: { type: [variantSchema], default: [] },
 
     condition: {
       type: String,
@@ -64,6 +82,11 @@ marketplaceListingSchema.virtual("discount").get(function () {
   return null;
 });
 
+// ── Virtual: does this listing have several priced versions? ────
+marketplaceListingSchema.virtual("hasVariants").get(function () {
+  return Array.isArray(this.variants) && this.variants.length > 0;
+});
+
 // ── Indexes ─────────────────────────────────────────────────────
 marketplaceListingSchema.index({ category: 1, active: 1 });
 marketplaceListingSchema.index({ brand: 1 });
@@ -73,6 +96,7 @@ marketplaceListingSchema.index({ price: 1 });
 marketplaceListingSchema.index({ createdAt: -1 });
 marketplaceListingSchema.index({ views: -1 });
 marketplaceListingSchema.index({ libraryDevice: 1 });
+marketplaceListingSchema.index({ listedBy: 1, createdAt: -1 });
 // Cursor pagination support (_id descending)
 marketplaceListingSchema.index({ _id: -1 });
 // Full-text search

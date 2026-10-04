@@ -17,9 +17,32 @@ const FILE = path.resolve(process.argv[2] || path.join(__dirname, "data", "phone
 
 function load(file) {
   if (!fs.existsSync(file)) throw new Error(`File not found: ${file}`);
-  const data = file.endsWith(".js") ? require(file) : JSON.parse(fs.readFileSync(file, "utf8"));
-  const list = Array.isArray(data) ? data : data.devices || data.phones || data.default;
-  if (!Array.isArray(list)) throw new Error("The file must be an array of devices (module.exports = [ ... ])");
+  let data;
+  if (file.endsWith(".js")) {
+    data = require(file);
+  } else {
+    const text = fs.readFileSync(file, "utf8").replace(/^\uFEFF/, "");
+    if (/module\.exports|^\s*export\s+default|^\s*(const|let|var)\s/m.test(text)) {
+      throw new Error(`${path.basename(file)} contains JavaScript, not JSON. Rename it to .js (ending with module.exports = [...]) or paste only the [ ... ] array.`);
+    }
+    // JSON has no comments: drop whole-line "// ..." comments before parsing
+    const json = text.replace(/^\s*\/\/.*$/gm, "");
+    try {
+      data = JSON.parse(json);
+    } catch (e) {
+      throw new Error(`${path.basename(file)} is not valid JSON: ${e.message}`);
+    }
+  }
+  let list = Array.isArray(data) ? data : data?.devices || data?.phones || data?.default;
+  // File exports an object like { infinix: [...] } -> use every array inside it
+  if (!Array.isArray(list) && data && typeof data === "object") {
+    list = Object.values(data).filter(Array.isArray).flat();
+  }
+  if (!Array.isArray(list) || !list.length) {
+    throw new Error(
+      `No device array found. The file exports: ${typeof data}${data && typeof data === "object" ? " with keys " + Object.keys(data).join(", ") : ""}`,
+    );
+  }
   return list;
 }
 
@@ -32,12 +55,19 @@ function load(file) {
   let updated = 0;
   let skipped = 0;
 
-  for (const d of items) {
+  const defaultCategory = /laptop/i.test(path.basename(FILE)) ? "laptop" : "phone";
+
+  for (const raw of items) {
+    const d = { ...raw, category: raw?.category || defaultCategory };
     if (!d.brand || !d.name || !["phone", "laptop"].includes(d.category)) {
-      console.warn("Skipped (needs brand, name and category phone|laptop):", d.brand, d.name);
+      console.warn("Skipped (needs brand and name):", d.brand, d.name);
       skipped++;
       continue;
     }
+    // "Infinix Note 60" with brand "Infinix" -> "Note 60" (brand is stored separately)
+    const brandRx = new RegExp(`^${String(d.brand).trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+`, "i");
+    d.name = String(d.name).trim().replace(brandRx, "") || String(d.name).trim();
+
     const key = libraryKey(d.brand, d.name);
     const doc = {
       key,

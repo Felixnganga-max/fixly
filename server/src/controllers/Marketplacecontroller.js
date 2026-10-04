@@ -361,9 +361,16 @@ exports.updateListing = asyncHandler(async (req, res) => {
   }
   if (updates.listedBy === "") updates.listedBy = null; // admin un-assigning
 
-  const oldImages = listing.images;
-  if (req.files?.length) {
-    updates.images = req.files.map((f) => f.path);
+  // Photos: `keepImages` (JSON list of URLs) says which existing photos stay.
+  // New uploads are added after them. Without it: uploads replace all, no uploads changes nothing.
+  const oldImages = listing.images || [];
+  const newUploads = req.files?.map((f) => f.path) ?? [];
+  if (req.body.keepImages !== undefined) {
+    const parsed = parseJson(req.body.keepImages, []);
+    const keep = Array.isArray(parsed) ? parsed.filter((u) => oldImages.includes(u)) : [];
+    updates.images = [...keep, ...newUploads].slice(0, 10);
+  } else if (newUploads.length) {
+    updates.images = newUploads;
   }
 
   let updated;
@@ -378,8 +385,11 @@ exports.updateListing = asyncHandler(async (req, res) => {
     throw err;
   }
 
-  // Only remove the old photos once the new ones are safely saved
-  if (req.files?.length) await destroyCloudinaryImages(oldImages);
+  // Only remove dropped photos once the update has safely saved
+  if (updates.images) {
+    const dropped = oldImages.filter((u) => !updates.images.includes(u));
+    if (dropped.length) await destroyCloudinaryImages(dropped);
+  }
 
   triggerPriceAlerts(updated, oldPrice).catch((err) =>
     console.error("[updateListing] triggerPriceAlerts error:", err.message),

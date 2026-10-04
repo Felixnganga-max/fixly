@@ -1,0 +1,659 @@
+[
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S26 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "Compact 6.3-inch flagship with a 50MP main camera, 12GB RAM and a 4300 mAh battery, sold with Exynos 2600 or Snapdragon 8 Elite Gen 5 depending on region.",
+    "specs": {
+      "screenSize": "6.3",
+      "resolution": "1080 x 2340",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Glass Victus 2",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite Gen 5 (US/China) / Exynos 2600 (rest of world)",
+      "ram": "12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 16 (One UI 8.5)",
+      "mainCamera": "50MP (f/1.8, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 12MP ultrawide (f/2.2)",
+      "frontCamera": "12MP",
+      "battery": "4300",
+      "charging": "25W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, NFC"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Armor aluminum 2 frame",
+      "Under-display ultrasonic fingerprint reader",
+      "Stereo speakers",
+      "7 major Android upgrades promised"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s26-review-2942.php",
+    "note": "Specs come from GSMArena's review spec summary because the cached GSMArena spec page was a pre-announcement version. Chipset: Exynos 2600 in most regions, Snapdragon in US/China; GSMArena's regional list varies slightly between its articles."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S26 Plus 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "6.7-inch QHD+ flagship with a 4900 mAh battery and 45W wired charging, sold with Exynos 2600 or Snapdragon 8 Elite Gen 5 depending on region.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1440 x 3120",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Glass Victus 2",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite Gen 5 for Galaxy (US/China) / Exynos 2600 (rest of world)",
+      "ram": "12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 16 (One UI 8.5)",
+      "mainCamera": "50MP (f/1.8, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 12MP ultrawide (f/2.2)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "Best Face, Horizon Lock, panorama, auto-HDR",
+      "battery": "4900",
+      "charging": "45W wired, 20W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 6.0, NFC, UWB",
+      "sim": "Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time) - international"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Armor aluminum 2 frame",
+      "Peak brightness 2600 nits",
+      "Under-display ultrasonic fingerprint reader",
+      "7 major Android upgrades promised"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Cobalt Violet", "Sky Blue", "Black", "White", "Silver Shadow", "Pink Gold"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s26+_5g-14457.php",
+    "note": "GSMArena's page header shows wireless as 25W but the detailed spec line says 20W (Qi2.2); I used 20W. The colour list is identical to the S26 Ultra page on GSMArena. The review text says Snapdragon is also sold in Japan, while the spec page says US/CN only."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S26 Ultra 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "6.9-inch flagship with a 200MP main camera, Snapdragon 8 Elite Gen 5 for Galaxy, 5000 mAh battery and 60W wired charging.",
+    "specs": {
+      "screenSize": "6.9",
+      "resolution": "1440 x 3120",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Armor 2, anti-reflective coating, Privacy Display",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite Gen 5 for Galaxy",
+      "ram": "12GB / 16GB",
+      "storage": "256GB / 512GB / 1TB",
+      "os": "Android 16 (One UI 8.5)",
+      "mainCamera": "200MP (f/1.4, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 50MP periscope telephoto (f/2.9, OIS, 5x optical) + 50MP ultrawide (f/1.9)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "Laser AF, Best Face, Horizon Lock, auto-HDR, panorama",
+      "battery": "5000",
+      "charging": "60W wired, 25W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 6.0, NFC, UWB",
+      "sim": "Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time) - international"
+    },
+    "features": [
+      "60W wired charging (75% in 30 min per GSMArena)",
+      "Peak brightness 2600 nits",
+      "IP68 dust and water resistance",
+      "Armor aluminum 2 frame",
+      "Under-display ultrasonic fingerprint reader"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" },
+      { "ram": "16GB", "storage": "1TB" }
+    ],
+    "colors": ["Cobalt Violet", "Sky Blue", "Black", "White", "Silver Shadow", "Pink Gold"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s26_ultra_5g-14320.php"
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S26 FE 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "6.7-inch Fan Edition phone with Exynos 2500, 8GB RAM, a 50MP main camera, 4900 mAh battery and 45W wired charging.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1080 x 2340",
+      "displayType": "Dynamic AMOLED 2X, Gorilla Glass Victus+",
+      "refreshRate": "120",
+      "processor": "Exynos 2500",
+      "ram": "8GB",
+      "storage": "128GB / 256GB / 512GB",
+      "os": "Android 17 (One UI 9)",
+      "mainCamera": "50MP (f/1.8, OIS) + 8MP telephoto (f/2.4, 3x optical) + 12MP ultrawide (f/2.2, 123 degrees)",
+      "frontCamera": "12MP",
+      "battery": "4900",
+      "charging": "45W wired, 15W wireless",
+      "connectivity": "5G, Bluetooth 5.4, NFC"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Peak brightness 1900 nits",
+      "Under-display optical fingerprint reader",
+      "Stereo speakers",
+      "7 major OS upgrades promised"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "512GB" }
+    ],
+    "colors": ["Pistachio", "Graphite", "Blueberry"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s26_fe-review-2999.php",
+    "note": "GSMArena's full spec and review pages returned rate-limit errors. Specs are from GSMArena's review spec summary as shown in search results, plus Samsung US for charging, storage and colours. Telephoto OIS is not confirmed by GSMArena for this model."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S25 FE 5G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "6.7-inch Fan Edition phone with the full Exynos 2400, 8GB RAM, a 50MP main camera, 4900 mAh battery and 45W wired charging.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1080 x 2340",
+      "displayType": "Dynamic AMOLED 2X, Gorilla Glass Victus+",
+      "refreshRate": "120",
+      "processor": "Exynos 2400",
+      "ram": "8GB",
+      "storage": "128GB / 256GB / 512GB",
+      "os": "Android 16 (One UI 8)",
+      "mainCamera": "50MP (f/1.8, OIS) + 8MP telephoto (f/2.4, OIS, 3x optical) + 12MP ultrawide (f/2.2, 123 degrees)",
+      "frontCamera": "12MP",
+      "battery": "4900",
+      "charging": "45W wired, wireless charging supported",
+      "connectivity": "5G, Bluetooth 5.4, NFC"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Enhanced armor aluminum frame",
+      "Peak brightness 1900 nits",
+      "Under-display optical fingerprint reader",
+      "7 major Android upgrades promised"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "512GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s25_fe-review-2880.php",
+    "note": "Wireless charging speed conflicts: GSMArena's review summary says 25W, but an earlier GSMArena news item citing a retailer listing said 15W. I left the wattage out."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "name": "Galaxy Z Fold 8 Ultra 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "Book-style foldable with an 8.0-inch inner display, 6.5-inch cover display, 200MP main camera, Snapdragon 8 Elite Gen 5 for Galaxy and a 5000 mAh battery.",
+    "specs": {
+      "screenSize": "8.0",
+      "resolution": "2256 x 2504",
+      "displayType": "Foldable Dynamic LTPO AMOLED 2X, Flex Titanium",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite Gen 5 for Galaxy",
+      "ram": "12GB / 16GB",
+      "storage": "256GB / 512GB / 1TB",
+      "os": "Android 17 (One UI 9)",
+      "mainCamera": "200MP (f/1.7) + 10MP telephoto (3x optical) + 50MP ultrawide (f/1.9)",
+      "frontCamera": "10MP (inner) + 10MP (cover)",
+      "battery": "5000",
+      "charging": "45W wired, 20W wireless",
+      "connectivity": "5G"
+    },
+    "features": [
+      "Cover display: 6.5 inch, 1080 x 2520, LTPO AMOLED 2X, 120Hz, Gorilla Glass Ceramic 3",
+      "Inner display peak brightness 3000 nits",
+      "4.1mm thick unfolded",
+      "5000 mAh battery, up from 4400 mAh on the Z Fold7",
+      "Anti-reflective coating on inner display"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" },
+      { "ram": "16GB", "storage": "1TB" }
+    ],
+    "colors": ["Graphite", "Cream", "Violet Shadow", "Green Shadow (Samsung.com exclusive)"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_z_fold8_ultra-review-2985.php",
+    "note": "GSMArena's review gives the inner resolution as 2256x2504; its hands-on article had the numbers swapped. Main camera f-number and telephoto details come from non-GSMArena sources. RAM/storage pairings come from a pre-launch GSMArena leak article; the spec header confirms only 12/16GB RAM."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "name": "Galaxy Z Fold 8 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "Wider, shorter foldable with a 7.6-inch inner display, 5.5-inch cover display, dual 50MP rear cameras and a 4800 mAh battery.",
+    "specs": {
+      "screenSize": "7.6",
+      "resolution": "1828 x 2448",
+      "displayType": "Foldable Dynamic LTPO AMOLED 2X, Flex Titanium",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite Gen 5 for Galaxy",
+      "ram": "12GB / 16GB",
+      "storage": "256GB / 512GB / 1TB",
+      "os": "Android 17 (One UI 9)",
+      "mainCamera": "50MP (f/1.8, OIS) + 50MP ultrawide (f/1.9, 120 degrees)",
+      "frontCamera": "10MP (inner) + 10MP (cover)",
+      "battery": "4800",
+      "charging": "45W wired, 20W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 6.0, NFC, UWB"
+    },
+    "features": [
+      "Cover display: 5.5 inch, 1248 x 1972, LTPO AMOLED 2X, 120Hz, Gorilla Glass Ceramic 3",
+      "No telephoto camera",
+      "201g, 4.5mm thick unfolded",
+      "IP48 dust and water resistance",
+      "Side-mounted fingerprint reader"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" },
+      { "ram": "16GB", "storage": "1TB" }
+    ],
+    "colors": ["Graphite", "Cream", "Lavender", "Pistachio (Samsung.com exclusive)"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_z_fold8-review-2984.php",
+    "note": "GSMArena lists this model as Galaxy Z Fold8 (also 'Z Fold Wide' in its database). Main camera f/1.8 and OIS come from Digital Trends. RAM/storage pairings come from a pre-launch GSMArena leak article."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "name": "Galaxy Z Flip 8 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "Clamshell foldable with a 6.9-inch inner display, 4.1-inch cover screen, dual rear cameras (50MP + 12MP) and a 4300 mAh battery.",
+    "specs": {
+      "screenSize": "6.9",
+      "resolution": "1080 x 2520",
+      "displayType": "Foldable Dynamic LTPO AMOLED 2X",
+      "refreshRate": "120",
+      "processor": "Exynos 2600 (most regions) / Snapdragon 8 Elite Gen 5 for Galaxy (China and North America)",
+      "ram": "12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 17 (One UI 9)",
+      "mainCamera": "50MP + 12MP ultrawide",
+      "frontCamera": "10MP",
+      "battery": "4300",
+      "charging": "25W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth, NFC"
+    },
+    "features": [
+      "Cover display: 4.1 inch Super AMOLED, 948 x 1048, 120Hz, Gorilla Glass Victus 2",
+      "Inner display peak brightness 3000 nits",
+      "180g, 6.1mm thick unfolded",
+      "IP48 dust and water resistance",
+      "Armor aluminum frame"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Graphite", "Cream", "Pink", "Mint (Samsung.com exclusive)"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_z_flip8-review-2989p3.php",
+    "note": "Regional chipset split comes from SammMobile. GSMArena's spec page header shows Snapdragon, while its review and hands-on cover the Exynos 2600. Camera f-numbers and sensor sizes were not confirmed for this model, so I left them out."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "name": "Galaxy A57 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "6.7-inch mid-range phone with Exynos 1680, a 50MP main camera, 5000 mAh battery, 45W charging and IP68 rating.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1080 x 2340",
+      "displayType": "Super AMOLED+, HDR10+, Gorilla Glass Victus+",
+      "refreshRate": "120",
+      "processor": "Exynos 1680",
+      "ram": "8GB / 12GB",
+      "storage": "128GB / 256GB / 512GB",
+      "os": "Android 16 (One UI 8.5)",
+      "mainCamera": "50MP (f/1.8, OIS) + 12MP ultrawide (f/2.2) + 5MP macro (f/2.4)",
+      "frontCamera": "12MP",
+      "battery": "5000",
+      "charging": "45W wired",
+      "connectivity": "5G, Wi-Fi 6e, Bluetooth 6.0, NFC"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Peak brightness 1900 nits",
+      "Under-display optical fingerprint reader",
+      "Stereo speakers",
+      "6 major Android upgrades promised"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_a57-review-2950.php",
+    "note": "Bluetooth is 6.0 per GSMArena; a third-party database lists 5.4. Specs are from GSMArena's review summary."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "name": "Galaxy A37 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "6.7-inch mid-range phone with Exynos 1480, a 50MP main camera, 5000 mAh battery, 45W charging and IP68 rating.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1080 x 2340",
+      "displayType": "Super AMOLED, Gorilla Glass Victus+",
+      "refreshRate": "120",
+      "processor": "Exynos 1480",
+      "ram": "6GB / 8GB / 12GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 16 (One UI 8.5)",
+      "mainCamera": "50MP (f/1.8, OIS) + 8MP ultrawide (f/2.2) + 5MP macro (f/2.4)",
+      "frontCamera": "12MP",
+      "battery": "5000",
+      "charging": "45W wired",
+      "connectivity": "5G, Wi-Fi 6, Bluetooth 5.4, NFC"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Peak brightness 1900 nits",
+      "No HDR video support on the display",
+      "Under-display optical fingerprint reader",
+      "6 major Android upgrades promised"
+    ],
+    "variants": [
+      { "ram": "6GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_a37-review-2952.php",
+    "note": "Specs are from GSMArena's review summary. It has a plastic frame, unlike the A57's aluminum one."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S25 5G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "Compact 6.2-inch flagship with Snapdragon 8 Elite for Galaxy, 12GB RAM, a 50MP main camera and a 4000 mAh battery.",
+    "specs": {
+      "screenSize": "6.2",
+      "resolution": "1080 x 2340",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Glass Victus 2",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite for Galaxy",
+      "ram": "12GB",
+      "storage": "128GB / 256GB / 512GB",
+      "os": "Android 15 (One UI 7 at launch)",
+      "mainCamera": "50MP (f/1.8, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 12MP ultrawide (f/2.2)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "Best Face, auto-HDR, panorama",
+      "battery": "4000",
+      "charging": "25W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, NFC",
+      "sim": "Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time) - international"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Armor aluminum 2 frame",
+      "Peak brightness 2600 nits",
+      "Under-display ultrasonic fingerprint reader",
+      "7 major Android upgrades promised"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "128GB" },
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Icy Blue", "Mint", "Navy", "Silver Shadow", "Pink Gold", "Coral Red", "Blue Black"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s25-13610.php",
+    "note": "GSMArena's spec page now lists One UI 8; it launched with One UI 7. The 128GB variant uses UFS 3.1, and 256GB and 512GB use UFS 4.0."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S25 Plus 5G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "6.7-inch QHD+ flagship with Snapdragon 8 Elite for Galaxy, 12GB RAM, a 4900 mAh battery and 45W wired charging.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1440 x 3120",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Glass Victus 2",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite for Galaxy",
+      "ram": "12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 15 (One UI 7 at launch)",
+      "mainCamera": "50MP (f/1.8, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 12MP ultrawide (f/2.2)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "Best Face, auto-HDR, panorama",
+      "battery": "4900",
+      "charging": "45W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, NFC, UWB",
+      "sim": "Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time) - international"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Armor aluminum 2 frame",
+      "Peak brightness 2600 nits",
+      "Under-display ultrasonic fingerprint reader",
+      "45W wired charging (65% in 30 min per GSMArena)"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Icy Blue", "Mint", "Navy", "Silver Shadow", "Pink Gold", "Coral Red", "Blue Black"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s25+-13609.php",
+    "note": "GSMArena's spec page now lists One UI 8; it launched with One UI 7."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S25 Ultra 5G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "6.9-inch flagship with a 200MP main camera, titanium frame, S Pen, Snapdragon 8 Elite for Galaxy and a 5000 mAh battery.",
+    "specs": {
+      "screenSize": "6.9",
+      "resolution": "1440 x 3120",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Armor 2, anti-reflective coating",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite for Galaxy",
+      "ram": "12GB / 16GB",
+      "storage": "256GB / 512GB / 1TB",
+      "os": "Android 15 (One UI 7 at launch)",
+      "mainCamera": "200MP (f/1.7, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 50MP periscope telephoto (f/3.4, OIS, 5x optical) + 50MP ultrawide (f/1.9)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "Laser AF, Best Face, auto-HDR, panorama",
+      "battery": "5000",
+      "charging": "45W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, NFC, UWB",
+      "sim": "Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time) - international"
+    },
+    "features": [
+      "Titanium frame (grade 5)",
+      "Built-in S Pen",
+      "IP68 dust and water resistance",
+      "Peak brightness 2600 nits",
+      "Under-display ultrasonic fingerprint reader"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" },
+      { "ram": "12GB", "storage": "1TB" },
+      { "ram": "16GB", "storage": "1TB" }
+    ],
+    "colors": ["Titanium Silver Blue", "Titanium Black", "Titanium White Silver", "Titanium Gray", "Titanium Jade Green", "Titanium Jet Black", "Titanium Pink Gold"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s25_ultra-13322.php",
+    "note": "GSMArena's spec page now lists One UI 8; it launched with One UI 7."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S25 Edge 5G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "Ultra-thin 5.8mm, 163g phone with a 6.7-inch QHD+ display, a 200MP main camera, Snapdragon 8 Elite and a 3900 mAh battery.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1440 x 3120",
+      "displayType": "LTPO AMOLED 2X, Gorilla Glass Ceramic 2",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Elite for Galaxy",
+      "ram": "12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 15 (One UI 7)",
+      "mainCamera": "200MP (f/1.7, OIS) + 12MP ultrawide (f/2.2)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "Best Face, HDR, panorama",
+      "battery": "3900",
+      "charging": "25W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, NFC, UWB",
+      "sim": "Nano-SIM + eSIM, or Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time)"
+    },
+    "features": [
+      "5.8mm thick, 163g",
+      "Titanium frame",
+      "No telephoto camera",
+      "IP68 dust and water resistance",
+      "Under-display ultrasonic fingerprint reader"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Titanium Icyblue", "Titanium Silver", "Titanium Jetblack"],
+    "sourceUrl": "https://m.gsmarena.com/samsung_galaxy_s25_edge-13506.php",
+    "note": "I used GSMArena's mobile spec page. 'For Galaxy' on the chipset is from GSMArena's review text."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S24 5G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "Compact 6.2-inch flagship with a 50MP main camera and a 4000 mAh battery, sold with Exynos 2400 or Snapdragon 8 Gen 3 depending on region.",
+    "specs": {
+      "screenSize": "6.2",
+      "resolution": "1080 x 2340",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Glass Victus 2",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Gen 3 (USA/Canada/China) / Exynos 2400 (international)",
+      "ram": "8GB / 12GB",
+      "storage": "128GB / 256GB / 512GB",
+      "os": "Android 14 (One UI 6.1 at launch)",
+      "mainCamera": "50MP (f/1.8, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 12MP ultrawide (f/2.2)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "auto-HDR, panorama",
+      "battery": "4000",
+      "charging": "25W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 6e, Bluetooth 5.3, NFC",
+      "sim": "Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time) - international"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Armor aluminum 2 frame",
+      "Peak brightness 2600 nits",
+      "Under-display ultrasonic fingerprint reader",
+      "7 major Android upgrades promised"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "512GB" }
+    ],
+    "colors": ["Onyx Black", "Marble Grey", "Cobalt Violet", "Amber Yellow", "Jade Green", "Sandstone Orange", "Sapphire Blue"],
+    "sourceUrl": "https://www.gsmarena.com/samsung_galaxy_s24-12773.php",
+    "note": "Chipset differs by region (Exynos 2400 in most markets, Snapdragon in the US, Canada and China). The Wi-Fi and Bluetooth versions are GSMArena's single entry; SamMobile says the Snapdragon version has Wi-Fi 7 and Bluetooth 5.4, which GSMArena does not list. GSMArena's page now shows One UI 8.0, but the phone launched with One UI 6.1."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S24 Plus 5G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "6.7-inch QHD+ flagship with a 4900 mAh battery and 45W wired charging, sold with Exynos 2400 or Snapdragon 8 Gen 3 depending on region.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1440 x 3120",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Glass Victus 2",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Gen 3 (USA/Canada/China) / Exynos 2400 (international)",
+      "ram": "12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 14 (One UI 6.1 at launch)",
+      "mainCamera": "50MP (f/1.8, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 12MP ultrawide (f/2.2)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "auto-HDR, panorama",
+      "battery": "4900",
+      "charging": "45W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 6e, Bluetooth 5.3, NFC, UWB",
+      "sim": "Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time) - international"
+    },
+    "features": [
+      "IP68 dust and water resistance",
+      "Armor aluminum 2 frame",
+      "Peak brightness 2600 nits",
+      "Under-display ultrasonic fingerprint reader",
+      "45W wired charging (65% in 30 min per GSMArena)"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Onyx Black", "Marble Grey", "Cobalt Violet", "Amber Yellow", "Jade Green", "Sandstone Orange", "Sapphire Blue"],
+    "sourceUrl": "https://m.gsmarena.com/samsung_galaxy_s24+-12772.php",
+    "note": "Chipset differs by region. The mobile page shows One UI 6.1.1; the phone launched with One UI 6.1."
+  },
+  {
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "name": "Galaxy S24 Ultra 5G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "6.8-inch flagship with a 200MP main camera, titanium frame, S Pen, Snapdragon 8 Gen 3 for Galaxy and a 5000 mAh battery.",
+    "specs": {
+      "screenSize": "6.8",
+      "resolution": "1440 x 3120",
+      "displayType": "Dynamic LTPO AMOLED 2X, Gorilla Armor, anti-reflective coating",
+      "refreshRate": "120",
+      "processor": "Snapdragon 8 Gen 3 for Galaxy",
+      "ram": "12GB",
+      "storage": "256GB / 512GB / 1TB",
+      "os": "Android 14 (One UI 6.1 at launch)",
+      "mainCamera": "200MP (f/1.7, OIS) + 10MP telephoto (f/2.4, OIS, 3x optical) + 50MP periscope telephoto (f/3.4, OIS, 5x optical) + 12MP ultrawide (f/2.2)",
+      "frontCamera": "12MP",
+      "cameraFeatures": "Laser AF, auto-HDR, panorama",
+      "battery": "5000",
+      "charging": "45W wired, 15W wireless",
+      "connectivity": "5G, Wi-Fi 7, Bluetooth 5.3, NFC, UWB",
+      "sim": "Nano-SIM + Nano-SIM + eSIM + eSIM (max 2 active at a time) - international"
+    },
+    "features": [
+      "Titanium frame (grade 2)",
+      "Built-in S Pen with Bluetooth",
+      "IP68 dust and water resistance",
+      "Peak brightness 2600 nits",
+      "Under-display ultrasonic fingerprint reader"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" },
+      { "ram": "12GB", "storage": "1TB" }
+    ],
+    "colors": ["Titanium Black", "Titanium Gray", "Titanium Violet", "Titanium Yellow", "Titanium Blue", "Titanium Green", "Titanium Orange"],
+    "sourceUrl": "https://m.gsmarena.com/_galaxy_s24_ultra-12771.php",
+    "note": "The same Snapdragon chip is used in all regions. 'For Galaxy' on the chipset is from GSMArena's news coverage. The mobile page shows One UI 6.1.1; the phone launched with One UI 6.1."
+  }
+]
