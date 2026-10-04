@@ -1,0 +1,1052 @@
+[
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark Slim 4G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "4G smartphone with a 6.78-inch 144Hz AMOLED display, Helio G200 chipset, 5160mAh battery and a 5.93mm-thick body.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1224 x 2720",
+      "displayType": "AMOLED, Gorilla Glass 7i",
+      "refreshRate": "144",
+      "processor": "MediaTek Helio G200",
+      "ram": "8GB",
+      "storage": "256GB",
+      "os": "Android 15 (HiOS 15)",
+      "mainCamera": "50MP (wide, PDAF)",
+      "frontCamera": "13MP",
+      "cameraFeatures": "Dual-LED flash",
+      "battery": "5160",
+      "charging": "45W wired",
+      "connectivity": "4G, Wi-Fi, Bluetooth, NFC, GPS, USB Type-C",
+      "sim": "Nano-SIM"
+    },
+    "features": [
+      "5.93mm thick body",
+      "144Hz AMOLED, 4500 nits peak brightness",
+      "IP64 and MIL-STD-810H compliant",
+      "45W wired charging plus 10W reverse wired charging",
+      "Dual speakers with Dolby Atmos"
+    ],
+    "variants": [{ "ram": "8GB", "storage": "256GB" }],
+    "colors": ["Slim White", "Cool Black"],
+    "sourceUrl": "https://m.gsmarena.com/_spark_slim-14112.php",
+    "note": "A GSMArena news article also mentions a Sky Blue color, but the spec page lists only two colors. Wi-Fi and Bluetooth versions are not given in the sources I could read."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark Slim 5G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "5G smartphone with a 6.78-inch 144Hz AMOLED display, Dimensity 6400 chipset, 5160mAh battery and a 5.95mm-thick body.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1224 x 2720",
+      "displayType": "AMOLED, Gorilla Glass 7i",
+      "refreshRate": "144",
+      "processor": "MediaTek Dimensity 6400",
+      "ram": "8GB",
+      "storage": "256GB",
+      "mainCamera": "50MP",
+      "battery": "5160",
+      "charging": "45W wired",
+      "connectivity": "5G"
+    },
+    "features": [
+      "5.95mm thick 3D-curved body",
+      "IP64 and military-grade shock resistance test",
+      "45W wired charging plus 10W reverse wired charging",
+      "FreeLink Bluetooth calls without network signal"
+    ],
+    "variants": [{ "ram": "8GB", "storage": "256GB" }],
+    "colors": ["Sky Blue", "White", "Black"],
+    "sourceUrl": "https://turkiye.tecno-mobile.com/phones/product-detail/product/spark-slim-5g/",
+    "note": "Specs are from Tecno's official Türkiye page, because I found no GSMArena page for the 5G variant. Its chipset is Dimensity 6400, while the 4G version uses Helio G200. The page states 1224 x 2720 as hardware resolution but says it is upscaled from 2400 x 1080 in third-party apps. OS, front camera and SIM type are not stated there, so they are omitted. Release year is based on Turkish retail listings from late 2025; no official page gives a date."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 50 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "5G smartphone with a 6.78-inch 120Hz HD+ LCD, Dimensity 6400 chipset, 6500mAh battery and 45W charging.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "720 x 1576",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Dimensity 6400",
+      "ram": "4GB / 6GB / 8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 16 (HiOS 16)",
+      "mainCamera": "50MP (f/1.9, PDAF)",
+      "frontCamera": "8MP (f/2.0)",
+      "cameraFeatures": "LED flash",
+      "battery": "6500",
+      "charging": "45W wired",
+      "connectivity": "5G, Wi-Fi 802.11 a/b/g/n/ac dual-band, Bluetooth 5.3, GPS, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "6500mAh battery with 45W wired charging",
+      "IP64, drop resistant up to 1.5m, MIL-STD-810H compliant",
+      "Dedicated microSDXC slot",
+      "3.5mm headphone jack",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "6GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Champagne Gold", "Fantasy Purple", "Ink Black", "Mint Green"],
+    "sourceUrl": "https://www.gsmarena.com/tecno_spark_50_5g-14566.php",
+    "note": "GSMArena lists this phone as 'Tecno Spark 50' (5G in the URL). One secondary source gives Bluetooth 5.4; GSMArena says 5.3, which is used here. GSMArena lists NFC as No. Colors are from the GSMArena launch news."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 50 4G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "4G smartphone with a 6.78-inch 120Hz HD+ LCD, Helio G81 chipset and a 7000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G81",
+      "ram": "4GB / 6GB / 8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 16 (HiOS 16)",
+      "mainCamera": "50MP",
+      "frontCamera": "8MP",
+      "battery": "7000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi 802.11 a/b/g/n/ac dual-band, Bluetooth 5.3, NFC, GPS, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "7000mAh battery with 18W wired charging",
+      "IP64 dust and water resistance",
+      "Dedicated microSDXC slot",
+      "Infrared blaster and side-mounted fingerprint sensor"
+    ],
+    "colors": ["Halo Blue", "Bloom Pink", "Aurora Purple", "Titanium Grey", "Ink Black"],
+    "sourceUrl": "https://www.gsmarena.com/tecno_spark_50_4g-14596.php",
+    "note": "Sources disagree on the front camera: Beebom says 5MP, while several others say 8MP, so 8MP is used here. Connectivity details, NFC and colors come from Noypigeeks, because I could not read the full GSMArena page. The exact RAM and storage pairings are not confirmed, so 'variants' is omitted."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 50 Pro 4G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "4G smartphone with a 6.78-inch 120Hz HD+ LCD, Helio G100 Ultimate chipset, 6000mAh battery and 60W charging.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G100 Ultimate",
+      "ram": "6GB / 8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 16 (HiOS 16)",
+      "mainCamera": "50MP (f/1.8, PDAF)",
+      "frontCamera": "8MP (f/2.0)",
+      "cameraFeatures": "LED flash",
+      "battery": "6000",
+      "charging": "60W wired",
+      "connectivity": "4G, Wi-Fi 802.11 a/b/g/n/ac dual-band, Bluetooth 5.4, NFC, Infrared, GPS, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP68/IP69 dust and water resistance",
+      "60W wired charging, 63% in 30 min",
+      "7.8mm thick body",
+      "Stereo speakers",
+      "Dedicated microSDXC slot"
+    ],
+    "variants": [{ "ram": "8GB", "storage": "256GB" }],
+    "colors": ["Ink Black", "Titanium Grey", "Midnight Blue", "Dynamic Orange", "Cloud White"],
+    "sourceUrl": "https://www.gsmarena.com/tecno_spark_50_pro-14728.php",
+    "note": "GSMArena lists the battery as '6000 mAh or 5600 mAh'; 6000 is the headline figure and one secondary source says 5600. Smartprix says 144Hz, but GSMArena says 120Hz, which is used here. GSMArena shows no weight. Only 8GB/256GB is confirmed as a RAM/storage pairing."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Camon",
+    "name": "Camon Slim 4G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "4G smartphone with a 6.78-inch 144Hz AMOLED display, Helio G200 Ultimate chipset, 5600mAh battery and a 6.4mm-thick body.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1224 x 2720",
+      "displayType": "AMOLED",
+      "refreshRate": "144",
+      "processor": "MediaTek Helio G200 Ultimate",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 16 (HiOS 16.2)",
+      "mainCamera": "50MP (Sony Lytia 600)",
+      "frontCamera": "32MP",
+      "cameraFeatures": "LED flash",
+      "battery": "5600",
+      "charging": "60W wired",
+      "connectivity": "4G",
+      "sim": "Nano-SIM"
+    },
+    "features": [
+      "6.4mm thick body",
+      "IP68/IP69 dust and water resistance",
+      "Rear LED panel with 354 LEDs and 55 lighting scenes",
+      "Three major Android updates promised"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/tecno_camon_slim-14745.php",
+    "note": "I could not load the full GSMArena page (rate limited), so some fields come from its search snippet and launch news. One Indian aggregator says 5600/6000mAh by region, but GSMArena says 5600. Colors are omitted because only Van Gogh Blue is confirmed. Wi-Fi and Bluetooth details were not verified."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Camon",
+    "name": "Camon Slim 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "5G smartphone with a 6.78-inch 144Hz AMOLED display, Dimensity 7300e chipset, 6000mAh battery and a 6.4mm-thick body.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1208 x 2644",
+      "displayType": "AMOLED",
+      "refreshRate": "144",
+      "processor": "MediaTek Dimensity 7300e",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 16 (HiOS 16)",
+      "mainCamera": "50MP (Sony Lytia 700C, OIS) + 8MP ultrawide",
+      "frontCamera": "32MP",
+      "battery": "6000",
+      "charging": "45W wired",
+      "connectivity": "5G, NFC, Infrared",
+      "sim": "Dual SIM (Nano-SIM + eSIM)"
+    },
+    "features": [
+      "6.4mm thick body",
+      "IP66/IP68/IP69/IP69K and MIL-STD-810H",
+      "Three major Android updates and five years of security updates",
+      "6000mAh battery with 45W wired charging"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Matisse Black", "Van Gogh Blue", "Burgundy Red"],
+    "sourceUrl": "https://www.gsmarena.com/tecno_camon_slim_5g-14918.php",
+    "note": "GSMArena's spec page lists three colors, but its launch news lists six (adding Neo Mondrian, Gossamer White and Rebel Pink); the spec page list is used. NFC, infrared and SIM type come from PhoneArena. Weight conflicts (171g on GSMArena and PhoneArena, 190g on one news site), but weight is not a field here."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Camon",
+    "name": "Camon 50 Ultra 5G",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "5G flagship camera phone with a 6.78-inch 144Hz AMOLED display, Dimensity 7400 Ultimate chipset, triple 50MP/50MP/8MP rear cameras and a 50MP selfie camera.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1208 x 2644",
+      "displayType": "AMOLED, Gorilla Glass Victus 2",
+      "refreshRate": "144",
+      "processor": "MediaTek Dimensity 7400 Ultimate",
+      "ram": "8GB / 12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 16 (HiOS 16)",
+      "mainCamera": "50MP (f/1.8, OIS) + 50MP 3x telephoto (f/2.4) + 8MP ultrawide",
+      "frontCamera": "50MP (f/2.4, wide, autofocus)",
+      "cameraFeatures": "4K video on all three rear cameras and the front camera",
+      "battery": "6500",
+      "charging": "45W wired",
+      "connectivity": "5G, Wi-Fi 6, Bluetooth, NFC, FM radio, Infrared",
+      "sim": "Dual Nano-SIM + optional eSIM (max 2 active)"
+    },
+    "features": [
+      "50MP main camera with OIS and 3x optical telephoto",
+      "50MP autofocus selfie camera",
+      "IP68/IP69K dust and water resistance",
+      "HDR10 AMOLED, 144Hz, 2160Hz PWM",
+      "Three major Android upgrades promised"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "512GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Moonshadow Black", "Cypress Green", "Nebula Titanium", "Luminous Orange", "Misty Purple"],
+    "sourceUrl": "https://www.gsmarena.com/tecno_camon_50_ultra-review-2938.php",
+    "note": "GSMArena's launch review says 6500mAh, but its later spec sheet says '6160 mAh or 6500 mAh' by region; 6500 is used here. Thickness is listed as 7.4mm in one version and 7.8mm in another. The 512GB and 8/12GB pairings come from a GSMArena mirror site and a secondary source, since the older GSMArena copy lists only 256GB. Wi-Fi 6, NFC, FM radio and infrared are from the GSMArena review. SIM type differs between GSMArena versions (Nano+Nano vs Nano+Nano+eSIM); the later one is used."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 40 4G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "4G smartphone with a 6.67-inch 120Hz HD+ LCD, Helio G81 chipset, 5200mAh battery and 45W charging.",
+    "specs": {
+      "screenSize": "6.67",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G81 (Helio G91 on the NFC model)",
+      "ram": "4GB / 6GB / 8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 15 (HiOS 15)",
+      "mainCamera": "50MP (wide, PDAF)",
+      "frontCamera": "8MP",
+      "cameraFeatures": "Dual-LED flash",
+      "battery": "5200",
+      "charging": "45W wired",
+      "connectivity": "4G, Wi-Fi, Bluetooth, GPS, NFC (market dependent), Infrared, FM radio, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP64 dust and water resistance, drop resistant up to 1.5m",
+      "Stereo speakers and 3.5mm headphone jack",
+      "Dedicated microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "6GB", "storage": "128GB" },
+      { "ram": "4GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Ink Black", "Titanium Grey", "Veil White", "Mirage Blue"],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_40-ampp-13984.php",
+    "note": "GSMArena lists this 4G phone as 'Tecno Spark 40'. The Dimensity 6400 'Spark 40' (6000mAh, 6.75-inch) is a different phone. GSMArena gives no 'wired' label for the 45W figure; it is taken as wired (no wireless charging is listed). Colors are from the GSMArena launch news."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 40 Pro 4G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "4G smartphone with a 6.78-inch 144Hz AMOLED display, Helio G100 Ultimate chipset, 5200mAh battery and a 6.7mm-thick body.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1224 x 2720",
+      "displayType": "AMOLED, Gorilla Glass 7i",
+      "refreshRate": "144",
+      "processor": "MediaTek Helio G100 Ultimate",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 15 (HiOS 15.1)",
+      "mainCamera": "50MP (f/1.6, PDAF)",
+      "frontCamera": "13MP (f/2.2)",
+      "cameraFeatures": "Dual-LED flash, HDR",
+      "battery": "5200",
+      "charging": "45W wired, 10W reverse wired",
+      "connectivity": "4G",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "6.7mm thick body",
+      "AMOLED, 144Hz, 4500 nits peak brightness",
+      "IP64 dust and water resistance, drop resistant up to 1.5m",
+      "Stereo speakers, 3.5mm jack and microSDXC slot",
+      "Under-display fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Ink Black", "Moon Titanium", "Lake Blue", "Bamboo Green"],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_40_pro-ampp-13985.php",
+    "note": "Wi-Fi, Bluetooth and NFC details were not in the GSMArena text I could read, so connectivity lists only 4G."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 40 Pro Plus 4G",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "4G smartphone with a 6.78-inch 144Hz AMOLED display, Helio G200 chipset, 5200mAh battery and 45W wired plus 30W wireless charging.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1224 x 2720",
+      "displayType": "AMOLED, Gorilla Glass 7i",
+      "refreshRate": "144",
+      "processor": "MediaTek Helio G200",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 15 (HiOS 15)",
+      "mainCamera": "50MP (f/1.6, PDAF)",
+      "frontCamera": "13MP (f/2.2)",
+      "cameraFeatures": "Dual-LED flash, HDR",
+      "battery": "5200",
+      "charging": "45W wired, 30W wireless, 5W reverse wireless",
+      "connectivity": "4G",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "6.5mm thick body, 160.4g",
+      "AMOLED, 144Hz, 4500 nits peak brightness",
+      "IP64 dust and water resistance, drop resistant up to 1.5m",
+      "Up to 3 major Android upgrades",
+      "Under-display fingerprint sensor, no microSD slot"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Nebula Black", "Aurora White", "Moon Titanium", "Tundra Green"],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_40_pro+-ampp-13986.php",
+    "note": "GSMArena's header shows '45W 30W' and the wired/wireless split plus the 5W reverse figure come from its launch news. Wi-Fi, Bluetooth and NFC details were not in the text I could read. GSMArena's rear camera line lists an unspecified auxiliary sensor, so only the main sensor is given."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 30 4G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "4G smartphone with a 6.78-inch 90Hz FHD+ LCD, Helio G91 chipset, 64MP main camera and 5000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1080 x 2460",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "MediaTek Helio G91",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 14 (HiOS 14)",
+      "mainCamera": "64MP (wide, PDAF)",
+      "frontCamera": "13MP",
+      "cameraFeatures": "Quad-LED flash, HDR",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi, Bluetooth, NFC, Infrared, GPS, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP64 dust and water resistance",
+      "Stereo speakers with Dolby Atmos",
+      "3.5mm jack and microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/compare.php3?idPhone1=13356",
+    "note": "GSMArena's text I could read did not show display, chipset or OS, so those come from Tecno's official page and Kalvo/Mobolist. Colors are omitted because sources conflict (Tecno lists Bumblebee Edition / Astral Ice / Stellar Shadow; Kalvo lists Black, White, Bumblebee, Magic Skin). GSMArena gives dimensions as 7.7 or 7.9mm depending on back material; one secondary source says 8.55mm."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 30 5G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "5G smartphone with a 6.67-inch 120Hz HD+ LCD, Dimensity 6300 chipset, 108MP main camera and 5000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.67",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Dimensity 6300",
+      "ram": "6GB / 8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 14 (HiOS 14.5)",
+      "mainCamera": "108MP",
+      "frontCamera": "8MP",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "5G, Wi-Fi, Bluetooth 5.3, NFC, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "7.8mm thick body",
+      "IP54 dust and water resistance",
+      "108MP main camera",
+      "Dedicated microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "6GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Black", "Blue", "White"],
+    "sourceUrl": "https://www.gsmarena.com/tecno_spark_30_5g-13384.php",
+    "note": "Front camera, Bluetooth 5.3, NFC and colors come from Smartprix, Kalvo and NanoReview, since GSMArena's text did not show them. Weight is disputed (176g vs 193g in secondary sources) but is not a field here."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 30 Pro 4G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "4G smartphone with a 6.78-inch 120Hz AMOLED display, Helio G100 chipset, 108MP main camera and 5000mAh battery with 33W charging.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1080 x 2436",
+      "displayType": "AMOLED",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G100",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 14 (HiOS 14)",
+      "mainCamera": "108MP (f/1.9, wide, PDAF)",
+      "frontCamera": "13MP",
+      "cameraFeatures": "Quad-LED flash, HDR",
+      "battery": "5000",
+      "charging": "33W wired",
+      "connectivity": "4G, Wi-Fi 802.11 a/b/g/n/ac dual-band, Bluetooth 5.3, GPS, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "7.4mm thick body",
+      "AMOLED, 2160Hz PWM, 1700 nits peak brightness",
+      "IP54 dust and water resistance",
+      "Stereo speakers and 3.5mm jack",
+      "Under-display fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/tecno_spark_30_pro-13357.php",
+    "note": "NFC is reported by one secondary site but not in GSMArena's text, so it is omitted. Colors are omitted because sources conflict. GSMArena lists a dedicated microSDXC slot."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 30C 4G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "4G smartphone with a 6.67-inch 120Hz HD+ LCD, Helio G81 chipset, 50MP main camera and 5000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.67",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G81",
+      "ram": "4GB / 6GB / 8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 14",
+      "mainCamera": "50MP (wide, PDAF)",
+      "frontCamera": "8MP",
+      "cameraFeatures": "LED flash, HDR",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi, Bluetooth, GPS",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP54 dust and water resistance",
+      "Stereo speakers and 3.5mm jack",
+      "Dedicated microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "6GB", "storage": "128GB" },
+      { "ram": "4GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://m.gsmarena.com/_spark_30c-13310.php",
+    "note": "GSMArena lists this phone as 'Tecno Spark 30C'. NFC and colors were not in the text I could read, so they are omitted."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 30C 5G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "5G smartphone with a 6.67-inch 120Hz HD+ LCD, Dimensity 6300 chipset, 48MP main camera and 5000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.67",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Dimensity 6300",
+      "ram": "4GB / 8GB",
+      "storage": "64GB / 128GB / 256GB",
+      "os": "Android 14",
+      "mainCamera": "48MP (wide, AF)",
+      "frontCamera": "8MP",
+      "cameraFeatures": "Triple-LED flash",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "5G, Wi-Fi, Bluetooth, GPS, NFC, Infrared, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP54 dust and water resistance",
+      "Stereo speakers and 3.5mm jack with Hi-Res audio",
+      "Dedicated microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "4GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_30c_5g-ampp-13385.php",
+    "note": "GSMArena lists the main camera as 48MP. Colors are not stated in the text I could read, so they are omitted."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 20",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "4G smartphone with a 6.6-inch 90Hz HD+ LCD, Helio G85 chipset, 50MP main camera, 32MP selfie camera and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "MediaTek Helio G85 (MT6769Z)",
+      "ram": "4GB / 8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 13 (HiOS 13)",
+      "mainCamera": "50MP (f/1.6, wide, PDAF)",
+      "frontCamera": "32MP (f/2.2)",
+      "cameraFeatures": "Dual-LED flash, HDR",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi 802.11 a/b/g/n/ac dual-band, Bluetooth 5.2, GPS, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP53 dust and splash resistance",
+      "8.5mm thick body",
+      "Stereo speakers",
+      "Dedicated microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/tecno_spark_20-12722.php",
+    "note": "The 18W charging, Wi-Fi and Bluetooth 5.2 figures come from Noypigeeks, since GSMArena's text did not show them. Colors are omitted."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 20 Pro",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "4G smartphone with a 6.78-inch 120Hz FHD+ LCD, Helio G99 chipset, 108MP main camera and 5000mAh battery with 33W charging.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1080 x 2460",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G99",
+      "ram": "4GB / 8GB / 12GB",
+      "storage": "256GB",
+      "os": "Android 13",
+      "mainCamera": "108MP (f/1.8, wide, PDAF) + 2MP macro",
+      "frontCamera": "32MP",
+      "cameraFeatures": "Quad-LED flash, HDR",
+      "battery": "5000",
+      "charging": "33W wired",
+      "connectivity": "4G, Wi-Fi 802.11 a/b/g/n/ac dual-band, Bluetooth 5.2, NFC, GPS, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "108MP main camera",
+      "IP53 dust and splash resistance",
+      "8.4mm thick body",
+      "Dedicated microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_20_pro-ampp-12747.php",
+    "note": "Front camera, Bluetooth 5.2 and NFC come from PhonesData, DeviceSpecifications and GSMChina, since GSMArena's text did not show them. Colors are omitted."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 20 Pro Plus",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "4G smartphone with a 6.78-inch 120Hz AMOLED display, Helio G99 Ultimate chipset, 108MP main camera, 32MP selfie camera and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1080 x 2436",
+      "displayType": "AMOLED, Gorilla Glass 5",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G99 Ultimate",
+      "ram": "8GB",
+      "storage": "256GB",
+      "os": "Android 14",
+      "mainCamera": "108MP (f/1.8, wide, PDAF) + 2MP macro",
+      "frontCamera": "32MP (f/2.2)",
+      "cameraFeatures": "Quad-LED flash, HDR",
+      "battery": "5000",
+      "charging": "33W wired",
+      "connectivity": "4G, Wi-Fi 802.11 a/b/g/n/ac dual-band, Bluetooth 5.2",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "7.6mm thick body, 179g",
+      "AMOLED, 120Hz, 1000 nits peak brightness",
+      "IP53 dust and splash resistance",
+      "Stereo speakers with Hi-Res audio, no 3.5mm jack",
+      "No microSD slot"
+    ],
+    "variants": [{ "ram": "8GB", "storage": "256GB" }],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_20_pro+-12770.php",
+    "note": "GSMArena lists it as 'Tecno Spark 20 Pro+' (also known as Spark 20 Pro Plus). It was announced 29 Dec 2023 and released 9 Feb 2024; 2024 is used as the release year. User reviews on GSMArena say some units shipped with Android 13 instead of 14. NFC was not in the text I could read."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 20C",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "4G entry-level smartphone with a 6.6-inch 90Hz HD+ LCD, Helio G36 chipset, 50MP main camera and 5000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "MediaTek Helio G36",
+      "ram": "4GB / 8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 13",
+      "mainCamera": "50MP (wide, PDAF)",
+      "frontCamera": "8MP",
+      "cameraFeatures": "Dual-LED flash, HDR",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi, Bluetooth, GPS, FM radio, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "8.6mm thick body",
+      "Stereo speakers and 3.5mm jack",
+      "Dedicated microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "4GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_20c-ampp-12710.php",
+    "note": "Colors are omitted because sources list different sets. NFC is listed as No."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark Go 2024",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "Entry-level 4G smartphone with a 6.6-inch 90Hz HD+ LCD, Unisoc T606 chipset, Android 13 Go edition and a 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "Unisoc T606",
+      "ram": "2GB / 3GB / 4GB",
+      "storage": "64GB / 128GB",
+      "os": "Android 13 Go edition (HiOS 13)",
+      "mainCamera": "13MP (f/1.9, wide, AF)",
+      "frontCamera": "8MP",
+      "cameraFeatures": "Dual-LED flash, HDR",
+      "battery": "5000",
+      "connectivity": "4G, Wi-Fi, Bluetooth, GPS, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "8.6mm thick body",
+      "Dual speakers and 3.5mm jack",
+      "eMMC 5.1 storage with microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "2GB", "storage": "64GB" },
+      { "ram": "3GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "128GB" }
+    ],
+    "colors": ["Gravity Black", "Mystery White", "Alpenglow Gold", "Magic Skin"],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_go_2024-ampp-12702.php",
+    "note": "Charging speed is omitted: GSMArena shows none and one secondary site says 10W. Colors are from GSMChoice, a secondary source. USB Type-C comes from an Indian GSMArena-style listing."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 10 Pro",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "4G smartphone with a 6.8-inch 90Hz FHD+ LCD, Helio G88 chipset, 50MP main camera, 32MP selfie camera and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.8",
+      "resolution": "1080 x 2460",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "MediaTek Helio G88",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 13 (HiOS 12.6)",
+      "mainCamera": "50MP (f/1.6, wide, PDAF) + 2MP depth",
+      "frontCamera": "32MP",
+      "cameraFeatures": "Dual-LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi 802.11 b/g/n, Bluetooth 5.3, NFC, GPS, FM radio, USB Type-C",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "Dual-glass build, 8.4mm thick, 208g",
+      "Dedicated microSDXC slot",
+      "3.5mm headphone jack",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Starry Black", "Pearl White"],
+    "sourceUrl": "https://www.gsmarena.com/tecno_spark_10_pro-review-2560.php",
+    "note": "RAM, camera and software come from GSMArena's review (8GB variants only). Some secondary spec sheets also list 4GB. Wi-Fi, Bluetooth, NFC and colors come from a GSMArena-based spec listing on gsmarena.ng."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 10 5G",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "5G smartphone with a 6.6-inch 90Hz HD+ LCD, Dimensity 6020 chipset, 50MP main camera and 5000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "MediaTek Dimensity 6020",
+      "ram": "4GB / 8GB",
+      "storage": "64GB / 128GB / 256GB",
+      "os": "Android 13 (HiOS 12.6)",
+      "mainCamera": "50MP (f/1.6, wide, PDAF)",
+      "frontCamera": "8MP (f/2.0)",
+      "cameraFeatures": "Dual-LED flash",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "5G, Wi-Fi, Bluetooth, GPS, FM radio, USB Type-C 2.0",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "8.4mm thick body",
+      "3.5mm headphone jack",
+      "Dedicated microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Black", "Blue", "White"],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_10_5g-ampp-12179.php",
+    "note": "NFC is listed as No. GSMArena reader comments claim the chip is really a Dimensity 700 rebrand, but the official and GSMArena spec is Dimensity 6020."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 10C",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "Entry-level 4G smartphone with a 6.6-inch 90Hz HD+ LCD, Unisoc T606 chipset, 16MP main camera and 5000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "Unisoc T606",
+      "ram": "4GB / 8GB",
+      "storage": "64GB / 128GB",
+      "os": "Android 12 (HiOS 8.6)",
+      "mainCamera": "16MP (wide, PDAF)",
+      "frontCamera": "8MP",
+      "cameraFeatures": "Dual-LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi 802.11 a/b/g/n/ac dual-band, Bluetooth, GPS, FM radio, USB Type-C 2.0",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "8.5mm thick body",
+      "3.5mm headphone jack",
+      "Dedicated microSDXC slot",
+      "Side-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "128GB" }
+    ],
+    "colors": ["Black", "Blue", "Green"],
+    "sourceUrl": "https://m.gsmarena.com/_spark_10c-12199.php",
+    "note": "Colors come from NanoReview and GadgetByte Nepal, not GSMArena. NFC is listed as No on GSMArena; one retailer says Yes, so it is not claimed."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 9",
+    "category": "phone",
+    "releaseYear": 2022,
+    "shortDescription": "Entry-level 4G smartphone with a 6.6-inch 90Hz HD+ LCD, Helio G37 chipset, 13MP main camera and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "MediaTek Helio G37 (MT6765V/CB)",
+      "ram": "3GB / 4GB / 6GB",
+      "storage": "64GB / 128GB",
+      "os": "Android 12 (HiOS 8.6)",
+      "mainCamera": "13MP (f/1.9, wide, AF)",
+      "frontCamera": "8MP",
+      "cameraFeatures": "Dual-LED flash, panorama, HDR",
+      "battery": "5000",
+      "connectivity": "4G, Wi-Fi, Bluetooth, GPS, FM radio, microUSB 2.0",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "9mm thick body",
+      "Rear-mounted fingerprint sensor",
+      "3.5mm headphone jack",
+      "Dedicated microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "3GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "6GB", "storage": "128GB" }
+    ],
+    "colors": ["Infinity Black", "Sky Mirror"],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_9-11694.php",
+    "note": "GSMArena shows no charging speed, so it is omitted."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 9T",
+    "category": "phone",
+    "releaseYear": 2022,
+    "shortDescription": "Entry-level 4G smartphone with a 6.6-inch 90Hz HD+ LCD, Helio G37 chipset, 13MP triple rear camera, 32MP selfie camera and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "MediaTek Helio G37 (MT6765V/CB)",
+      "ram": "4GB",
+      "storage": "64GB / 128GB",
+      "os": "Android 12 (HiOS 8.6)",
+      "mainCamera": "13MP (f/1.9, wide, AF) + 2MP depth + QVGA",
+      "frontCamera": "32MP",
+      "cameraFeatures": "Quad-LED flash, HDR",
+      "battery": "5000",
+      "charging": "10W wired",
+      "connectivity": "4G, Wi-Fi, Bluetooth, GPS, FM radio, USB Type-C 2.0",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "8.7mm thick body",
+      "Side-mounted fingerprint sensor",
+      "3.5mm headphone jack",
+      "Dedicated microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "128GB" }
+    ],
+    "colors": ["Quantum Black", "Burano Blue", "Particle Silver", "Vitality Green"],
+    "sourceUrl": "https://m.gsmarena.com/tecno_spark_9t-ampp-11631.php",
+    "note": "This is the global/Nigeria Spark 9T (model KH6). GSMArena lists a different 'Spark 9T (India)' with Helio G35, a 1080p display, a 50MP main camera and 8MP selfie, so those are not mixed in."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 9 Pro",
+    "category": "phone",
+    "releaseYear": 2022,
+    "shortDescription": "4G smartphone with a 6.6-inch FHD+ LCD, Helio G85 chipset, 50MP triple rear camera, 32MP selfie camera and 5000mAh battery with 18W charging.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "1080 x 2408",
+      "displayType": "IPS LCD",
+      "processor": "MediaTek Helio G85 (MT6769Z)",
+      "ram": "4GB / 6GB",
+      "storage": "128GB",
+      "os": "Android 12 (HiOS 8.6)",
+      "mainCamera": "50MP (f/1.6, wide, PDAF) + auxiliary lenses",
+      "frontCamera": "32MP",
+      "cameraFeatures": "Dual-LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi, Bluetooth, GPS, NFC (KH7n model only), FM radio",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "8.4mm thick body",
+      "50MP triple rear camera",
+      "Dedicated microSDXC slot",
+      "NFC on one model only"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "6GB", "storage": "128GB" }
+    ],
+    "sourceUrl": "https://www.gsmarena.com/tecno_spark_9_pro-11603.php",
+    "note": "Refresh rate is omitted because the GSMArena text shows none. The 32MP front camera comes from Tecno's launch press for the Spark 9 Pro, not from the GSMArena text I could read."
+  },
+  {
+    "brand": "Tecno",
+    "series": "Spark",
+    "name": "Spark 9 Pro Sport Edition",
+    "category": "phone",
+    "releaseYear": 2022,
+    "shortDescription": "BMW Designworks special edition of the Spark 9 Pro with a 6.6-inch FHD+ LCD, Helio G85 chipset, 50MP triple camera and 32MP selfie camera.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "1080 x 2408",
+      "displayType": "IPS LCD",
+      "processor": "MediaTek Helio G85 (MT6769Z)",
+      "ram": "4GB",
+      "storage": "128GB",
+      "os": "Android 12 (HiOS 8.6)",
+      "mainCamera": "50MP (f/1.6, wide, PDAF) + auxiliary lenses",
+      "frontCamera": "32MP",
+      "cameraFeatures": "Dual-LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "18W wired",
+      "connectivity": "4G, Wi-Fi, Bluetooth, GPS, FM radio",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "Colour, material and finish designed by BMW Designworks",
+      "Triangular-texture back design",
+      "50MP triple rear camera and 32MP front camera",
+      "Helio G85 chipset, 6.6-inch FHD+ display"
+    ],
+    "variants": [{ "ram": "4GB", "storage": "128GB" }],
+    "colors": ["Blue"],
+    "sourceUrl": "https://innovation-village.com/tecno-introduces-the-bmw-designed-spark-9-pro-sport-edition/",
+    "note": "No GSMArena page exists for this edition. Tecno's launch press says it keeps the Spark 9 Pro features and differs mainly in BMW Designworks colour, material and finish, so base-phone specs are copied from the GSMArena Spark 9 Pro (resolution 1080 x 2408; some sellers list 1080 x 2460). Only 4GB/128GB is stated in the press; some retailers also list 6GB, which is unconfirmed. The blue colour comes from the press, and NFC is left out."
+  }
+]

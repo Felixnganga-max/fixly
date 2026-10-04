@@ -57,6 +57,44 @@ const stripBrand = (name, brand) => {
   return n.replace(new RegExp(`^${escapeRegex(b)}\\s+`, "i"), "").trim() || n;
 };
 
+// Priced RAM/storage versions: [{ ram, storage, price, oldPrice, inStock }]
+// A version without a positive price is dropped, duplicates are merged, max 20.
+function cleanVariants(raw) {
+  let v = parseJson(raw, []);
+  if (typeof v === "string") v = parseJson(v, []); // tolerate double-encoded JSON
+  if (!Array.isArray(v)) return [];
+
+  const seen = new Set();
+  const out = [];
+  for (const x of v) {
+    const ram = String(x?.ram ?? "").trim().slice(0, 30);
+    const storage = String(x?.storage ?? "").trim().slice(0, 30);
+    const price = Number(x?.price);
+    if ((!ram && !storage) || !(price > 0)) continue;
+
+    const k = `${ram.toLowerCase()}|${storage.toLowerCase()}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+
+    const oldPrice = Number(x?.oldPrice);
+    out.push({
+      ram,
+      storage,
+      price,
+      oldPrice: oldPrice > price ? oldPrice : null,
+      inStock: x?.inStock !== false,
+    });
+  }
+  return out.slice(0, 20);
+}
+
+// The headline price of a multi-version listing: cheapest version that is in stock
+function headlineVariant(variants) {
+  const stocked = variants.filter((v) => v.inStock);
+  const pool = stocked.length ? stocked : variants;
+  return pool.reduce((a, b) => (b.price < a.price ? b : a));
+}
+
 // ── Cloudinary helpers ────────────────────────────────────────
 function extractPublicId(url) {
   try {
@@ -231,6 +269,15 @@ exports.createListing = asyncHandler(async (req, res) => {
 
   data.specs = specs;
   data.features = features;
+
+  const variants = cleanVariants(req.body.variants);
+  data.variants = variants;
+  if (variants.length) {
+    const top = headlineVariant(variants);
+    data.price = top.price; // listing shows "from <cheapest>"
+    data.oldPrice = top.oldPrice;
+  }
+
   data.images = req.files?.map((f) => f.path) ?? [];
   // Shop listings are always tagged to the shop. Admin may assign one or leave Fixly-owned.
   data.listedBy = isShop(req) ? req.user.id : data.listedBy || null;
@@ -302,6 +349,15 @@ exports.updateListing = asyncHandler(async (req, res) => {
   if (req.body.features !== undefined) {
     const features = parseJson(req.body.features, listing.features);
     updates.features = Array.isArray(features) ? features : listing.features;
+  }
+  if (req.body.variants !== undefined) {
+    const variants = cleanVariants(req.body.variants);
+    updates.variants = variants; // an empty list switches the listing back to a single price
+    if (variants.length) {
+      const top = headlineVariant(variants);
+      updates.price = top.price;
+      updates.oldPrice = top.oldPrice;
+    }
   }
   if (updates.listedBy === "") updates.listedBy = null; // admin un-assigning
 

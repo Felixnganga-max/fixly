@@ -1,0 +1,660 @@
+[
+  {
+    "brand": "Infinix",
+    "series": "GT",
+    "name": "GT 30 Pro",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "Gaming-focused 5G Android 15 phone with a Dimensity 8350 Ultimate, 6.78-inch 144Hz AMOLED display and 108MP main camera.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1224 x 2720",
+      "displayType": "AMOLED",
+      "refreshRate": "144",
+      "processor": "MediaTek Dimensity 8350 Ultimate",
+      "ram": "8GB / 12GB",
+      "storage": "256GB",
+      "os": "Android 15 (XOS 15)",
+      "mainCamera": "108MP (f/1.9) + 8MP ultrawide (f/2.2)",
+      "frontCamera": "13MP (f/2.2)",
+      "battery": "5500",
+      "charging": "45W wired, 30W wireless",
+      "connectivity": "5G, Wi-Fi 6, Bluetooth 5.4, NFC",
+      "sim": "Dual SIM"
+    },
+    "features": [
+      "144Hz AMOLED display",
+      "108MP main camera",
+      "Wireless charging",
+      "Infrared sensor",
+      "Up to 2 major Android upgrades"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "256GB" }
+    ],
+    "sourceUrl": "https://www.91mobiles.com/infinix-gt-30-pro-price-in-india?ty=specs",
+    "note": "The GSMArena spec table did not load, so these specs come from 91mobiles, Notebookcheck and a GSMArena review. The battery is 5500mAh per GSMArena's review and 91mobiles, but Notebookcheck lists 5200mAh. Notebookcheck also lists 256GB / 512GB storage and 91mobiles lists only 256GB, so I used 256GB. The 30W wireless figure is from mob4g, and GSMArena's review confirms wireless charging without a wattage."
+  },
+  {
+    "brand": "Infinix",
+    "series": "GT",
+    "name": "GT 50 Pro",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "Gaming-focused 5G Android 16 phone with liquid cooling, pressure-sensitive shoulder triggers and a 6.78-inch 144Hz AMOLED display.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1208 x 2644",
+      "displayType": "AMOLED, Gorilla Glass 7i",
+      "refreshRate": "144",
+      "processor": "MediaTek Dimensity 8400 Ultimate",
+      "ram": "12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 16 (XOS 16)",
+      "mainCamera": "50MP (f/1.8, PDAF, OIS) + 8MP ultrawide (f/2.2)",
+      "frontCamera": "13MP (f/2.2)",
+      "battery": "6500",
+      "charging": "45W wired, 30W wireless",
+      "connectivity": "5G, Wi-Fi 6, Bluetooth 5.4, NFC",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "HydroFlow liquid cooling with a six-layer vapor chamber",
+      "Pressure-sensitive GT shoulder triggers",
+      "IP64 dust and splash resistance",
+      "Up to 144 FPS supported games",
+      "Customizable RGB LEDs on the back"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Black Abyss", "Red Blaze", "Silver Glacier"],
+    "sourceUrl": "https://www.gsmarena.com/infinix_gt_50_pro_5g-14497.php",
+    "note": "Launched globally on 24 April 2026. The cached GSMArena page I could load still said 'not announced' with unofficial preliminary specs, so the launch details come from Infinix's press release, Beebom and My Mobile. The resolution is from 91mobiles and a GSMArena mirror, while GSMArena's preliminary page says 1224 x 2720. 91mobiles' Indonesia launch article says the chipset is a Dimensity 8500 Ultimate, while GSMArena, Beebom and a GSMArena mirror say Dimensity 8400 Ultimate, which I used. Wi-Fi 6, Bluetooth 5.4 and NFC are from Beebom."
+  },
+  {
+    "brand": "Infinix",
+    "series": "GT",
+    "name": "GT 20 Pro",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "Gaming-focused 5G Android 14 phone with a Dimensity 8200 Ultimate, 6.78-inch 144Hz AMOLED display and 108MP OIS camera.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1080 x 2436",
+      "displayType": "AMOLED",
+      "refreshRate": "144",
+      "processor": "MediaTek Dimensity 8200 Ultimate",
+      "ram": "8GB / 12GB",
+      "storage": "256GB",
+      "os": "Android 14 (XOS 14)",
+      "mainCamera": "108MP (f/1.8, AF, OIS) + 2MP macro + 2MP depth",
+      "frontCamera": "32MP (f/2.2)",
+      "cameraFeatures": "Quad-LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "45W wired",
+      "connectivity": "5G, NFC",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "Pixelworks X5 Turbo display chip",
+      "Customizable RGB LEDs on the back",
+      "IP54 dust and splash resistance",
+      "JBL-tuned dual speakers",
+      "UFS 3.1 storage"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "256GB" }
+    ],
+    "colors": ["Mecha Orange", "Mecha Silver", "Mecha Blue"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_gt_20_pro-12962.php",
+    "note": "GSMArena lists the card slot as unspecified. Colors, NFC, JBL speakers and the display chip are from GSMArena's launch and leak stories."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Zero",
+    "name": "Zero 40 5G",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "5G Android 14 phone with a Dimensity 8200 Ultimate, 6.78-inch curved 144Hz AMOLED display, 108MP OIS camera and 50MP selfie camera.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1080 x 2436",
+      "displayType": "AMOLED, Gorilla Glass 5",
+      "refreshRate": "144",
+      "processor": "MediaTek Dimensity 8200 Ultimate",
+      "ram": "12GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 14 (XOS 14.5)",
+      "mainCamera": "108MP (f/1.8, PDAF, OIS) + 50MP ultrawide (120°, AF) + 2MP depth",
+      "frontCamera": "50MP",
+      "battery": "5000",
+      "charging": "45W wired, 20W wireless",
+      "connectivity": "5G, Wi-Fi 6E, Bluetooth, NFC",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "50MP selfie camera with 4K 60fps video",
+      "IP54 dust and splash resistance",
+      "JBL-tuned dual speakers",
+      "Infrared port and FM radio",
+      "10W reverse wireless charging"
+    ],
+    "variants": [
+      { "ram": "12GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "512GB" }
+    ],
+    "colors": ["Violet Garden", "Moving Titanium", "Rock Black"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_zero_40-13290.php",
+    "note": "GSMArena's launch news calls the display 6.74-inch, while its spec page and the India launch story say 6.78-inch, which I used. The ultrawide, depth and front camera details are from GSMArena's launch news and review, and the India launch story from Ubergizmo. There is a separate Zero 40 4G."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Zero",
+    "name": "Zero X Pro",
+    "category": "phone",
+    "releaseYear": 2021,
+    "shortDescription": "4G Android 11 phone with a Helio G95, 6.67-inch 120Hz AMOLED display, 108MP main camera and 5x periscope telephoto.",
+    "specs": {
+      "screenSize": "6.67",
+      "resolution": "1080 x 2400",
+      "displayType": "AMOLED",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G95",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 11 (XOS 10)",
+      "mainCamera": "108MP (f/1.8, PDAF, OIS) + 8MP periscope telephoto (f/3.4, 5x optical, OIS) + 8MP ultrawide (f/2.3, 120°)",
+      "frontCamera": "16MP",
+      "cameraFeatures": "Quad-LED flash, HDR, panorama",
+      "battery": "4500",
+      "charging": "45W wired",
+      "connectivity": "4G",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "5x optical zoom periscope camera",
+      "Glass back",
+      "700 nits peak brightness",
+      "UFS 2.2 storage",
+      "microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Nebula Black", "Starry Silver", "Tuscany Brown"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_zero_x_pro-10989.php",
+    "note": "The battery and charging figures come from IT Home and a GSMArena listing for the sister Zero X, because the spec table's battery section did not load. Colors are from a 91mobiles article."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Zero",
+    "name": "Zero 5G",
+    "category": "phone",
+    "releaseYear": 2022,
+    "shortDescription": "Infinix's first 5G phone, with a Dimensity 900, 6.78-inch 120Hz LCD, triple rear camera and 5000mAh battery with 33W charging.",
+    "specs": {
+      "screenSize": "6.78",
+      "displayType": "LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Dimensity 900",
+      "ram": "8GB",
+      "storage": "128GB",
+      "os": "Android 11 (XOS 10)",
+      "mainCamera": "48MP + 13MP 2x telephoto + 2MP depth",
+      "frontCamera": "16MP",
+      "battery": "5000",
+      "charging": "33W wired",
+      "connectivity": "5G",
+      "sim": "Dual SIM"
+    },
+    "features": [
+      "LPDDR5 RAM and UFS 3.1 storage",
+      "microSD slot",
+      "240Hz touch sampling",
+      "500 nits peak brightness",
+      "Heat pipe cooling"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" }
+    ],
+    "colors": ["Cosmic Black", "Horizon Blue", "Skylight Orange"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_zero_5g-11355.php",
+    "note": "The GSMArena spec table did not load. Specs come from GSMArena's launch news and review, with the RAM/storage pairing confirmed by 91mobiles. Resolution is omitted because no source gave it. This is the 2022 Dimensity 900 model. GSMArena also lists a separate 'Zero 5G 2023' with a Dimensity 1080, which I did not use."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Zero",
+    "name": "Zero Ultra",
+    "category": "phone",
+    "releaseYear": 2022,
+    "shortDescription": "5G Android 12 phone with a Dimensity 920, 6.8-inch curved 120Hz AMOLED display, 200MP main camera and 180W wired charging.",
+    "specs": {
+      "screenSize": "6.8",
+      "resolution": "1080 x 2400",
+      "displayType": "Curved AMOLED, Gorilla Glass 3",
+      "refreshRate": "120",
+      "processor": "MediaTek Dimensity 920",
+      "ram": "8GB",
+      "storage": "256GB",
+      "os": "Android 12 (XOS 12)",
+      "mainCamera": "200MP (f/2.0, dual pixel PDAF, OIS) + 13MP ultrawide (f/2.4, AF) + 2MP",
+      "frontCamera": "32MP",
+      "cameraFeatures": "Dual-LED flash, HDR, panorama",
+      "battery": "4500",
+      "charging": "180W wired",
+      "connectivity": "5G, Wi-Fi 6, Bluetooth",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "180W Thunder Charge (100% in 12 minutes, advertised)",
+      "200MP Samsung HP1 main sensor with OIS",
+      "900 nits peak brightness",
+      "In-display fingerprint reader",
+      "Curved AMOLED display"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Coslight Silver", "Genesis Noir"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_zero_ultra-ampp-11922.php",
+    "note": "GSMArena lists no card slot, while Digital Camera World says storage is expandable by microSD. Wi-Fi 6 is from PinoyTechnoGuide. The front camera and 32MP figure are from GSMArena's launch news."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Zero",
+    "name": "Zero 30 5G",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "5G Android 13 phone with a Dimensity 8020, 6.78-inch 144Hz AMOLED display, 108MP OIS camera and 50MP selfie camera.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "1080 x 2400",
+      "displayType": "AMOLED, Gorilla Glass 5",
+      "refreshRate": "144",
+      "processor": "MediaTek Dimensity 8020",
+      "ram": "8GB / 12GB",
+      "storage": "256GB",
+      "os": "Android 13 (XOS 13)",
+      "mainCamera": "108MP (f/1.7, PDAF, OIS) + 13MP ultrawide (f/2.2, 120°) + 2MP (f/2.4)",
+      "frontCamera": "50MP",
+      "cameraFeatures": "LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "68W wired",
+      "connectivity": "5G, Wi-Fi, Bluetooth, NFC",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "50MP selfie camera with 4K 60fps video",
+      "IP53 dust and splash resistance",
+      "Glass or eco-leather back",
+      "FM radio",
+      "UFS 3.1 storage"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "12GB", "storage": "256GB" }
+    ],
+    "colors": ["Rome Green", "Golden Hour"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_zero_30-ampp-12518.php",
+    "note": "This is the 5G model, and GSMArena also lists a separate Zero 30 4G with a Helio G99. The 50MP front camera is from GSMArena's review. Wi-Fi and Bluetooth versions are not stated. Colors are from a pre-launch article on mobility.com.ng. GSMArena lists no card slot."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Zero",
+    "name": "Zero Flip",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "Clamshell foldable with a 6.9-inch 120Hz LTPO AMOLED main screen, 3.64-inch cover display, Dimensity 8020 and 70W charging.",
+    "specs": {
+      "screenSize": "6.9",
+      "resolution": "1080 x 2640",
+      "displayType": "Foldable LTPO AMOLED; cover display AMOLED with Gorilla Glass Victus 2",
+      "refreshRate": "120",
+      "processor": "MediaTek Dimensity 8020",
+      "ram": "8GB",
+      "storage": "256GB / 512GB",
+      "os": "Android 14 (XOS 14.5)",
+      "mainCamera": "50MP (f/1.9, PDAF, OIS) + 50MP ultrawide (f/2.2, 115°)",
+      "frontCamera": "50MP",
+      "cameraFeatures": "Dual-LED flash, HDR, panorama",
+      "battery": "4720",
+      "charging": "70W wired",
+      "connectivity": "5G",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "3.64-inch 120Hz cover display",
+      "Zero-gap hinge",
+      "GoPro integration using the main screen as a viewfinder",
+      "No IP rating",
+      "Up to 2 major Android upgrades"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "512GB" }
+    ],
+    "colors": ["Rock Black", "Blossom Glow"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_zero_flip-13347.php",
+    "note": "The front camera is from GSMArena's launch news. A pre-launch leak listed 12MP, so the spec table's front camera line is unconfirmed."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Zero",
+    "name": "Zero 20",
+    "category": "phone",
+    "releaseYear": 2022,
+    "shortDescription": "4G Android 12 phone with a Helio G99, 6.7-inch 90Hz AMOLED display, 108MP main camera and 60MP OIS selfie camera.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "1080 x 2400",
+      "displayType": "AMOLED",
+      "refreshRate": "90",
+      "processor": "MediaTek Helio G99",
+      "ram": "8GB",
+      "storage": "128GB / 256GB",
+      "os": "Android 12 (XOS 12)",
+      "mainCamera": "108MP (PDAF) + 13MP ultrawide (AF) + 2MP depth",
+      "frontCamera": "60MP (AF, OIS)",
+      "cameraFeatures": "Quad-LED flash, HDR, panorama",
+      "battery": "4500",
+      "charging": "45W wired",
+      "connectivity": "4G, Wi-Fi 5, Bluetooth, NFC",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "60MP selfie camera with autofocus and OIS",
+      "Dual speakers",
+      "3.5mm headphone jack",
+      "FM radio",
+      "microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "8GB", "storage": "128GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Gold", "Gray"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_zero_20-ampp-11913.php",
+    "note": "GSMArena's launch news lists only an 8GB / 256GB configuration, while its spec table also lists 8GB / 128GB. Colors are from GSMArena's launch news."
+  },{
+    "brand": "Infinix",
+    "series": "Smart",
+    "name": "Smart 20",
+    "category": "phone",
+    "releaseYear": 2026,
+    "shortDescription": "4G Android 16 entry phone with a Helio G81 Ultimate, 6.78-inch 120Hz HD+ LCD, 7.7mm body and 5200mAh battery.",
+    "specs": {
+      "screenSize": "6.78",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G81 Ultimate",
+      "ram": "4GB",
+      "storage": "64GB / 128GB / 256GB",
+      "os": "Android 16 (XOS 16)",
+      "mainCamera": "8MP (f/2.0, AF)",
+      "battery": "5200",
+      "charging": "15W wired",
+      "connectivity": "4G",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP64 dust and splash resistance",
+      "Drop resistant up to 1.5m",
+      "7.7mm thin body",
+      "700 nits peak brightness",
+      "microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "4GB", "storage": "256GB" }
+    ],
+    "colors": ["Shadow Black", "Cloudline Blue", "Polaris Titanium", "Sunlike Orange"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_smart_20-14502.php",
+    "note": "The GSMArena spec table loaded only in part, and one cached copy still marked the phone as 'unofficial preliminary specifications'. A later copy lists it as announced 4 March 2026. The 15W charging figure and the 720 x 1600 resolution come from the preliminary page, while the Play Console leak lists 720 x 1576. Battery is 5200mAh per GSMArena's preliminary page and a Lazada listing, and 5100mAh per a TÜV certificate. Colors are from the Lazada listing. The front camera is omitted because no source stated it."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Smart",
+    "name": "Smart 10",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "4G Android 15 (Go edition) entry phone with a Unisoc T7250, 6.67-inch 120Hz HD+ LCD and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.67",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "Unisoc T7250",
+      "ram": "3GB / 4GB / 6GB / 8GB",
+      "storage": "64GB / 128GB / 256GB",
+      "os": "Android 15 Go edition (XOS 15.1)",
+      "mainCamera": "8MP (f/2.0, AF)",
+      "frontCamera": "8MP (f/2.0)",
+      "cameraFeatures": "Dual-LED flash, panorama",
+      "battery": "5000",
+      "charging": "15W wired",
+      "connectivity": "4G, Wi-Fi 5",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP64 dust and splash resistance",
+      "Drop resistant up to 1.5m",
+      "Stereo speakers and 3.5mm headphone jack",
+      "microSD slot",
+      "Reverse wired charging"
+    ],
+    "variants": [
+      { "ram": "3GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "6GB", "storage": "128GB" },
+      { "ram": "4GB", "storage": "256GB" },
+      { "ram": "8GB", "storage": "256GB" }
+    ],
+    "colors": ["Iris Blue", "Twilight Gold", "Titanium Silver", "Sleek Black"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_smart_10-13933.php",
+    "note": "Colors and reverse wired charging are from GSMArena's India launch story, and the India model has a single 4GB / 64GB variant. A pre-launch leak listed a Unisoc T615 and 10W charging, which differ from GSMArena's spec page. I used the spec page."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Smart",
+    "name": "Smart 10 HD",
+    "category": "phone",
+    "releaseYear": 2025,
+    "shortDescription": "4G Android 14 (Go edition) entry phone with 2GB RAM, a 6.6-inch 90Hz HD+ LCD, 13MP camera and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "Unisoc T606",
+      "ram": "2GB",
+      "storage": "64GB",
+      "os": "Android 14 (Go edition)",
+      "mainCamera": "13MP (f/1.9, AF)",
+      "frontCamera": "8MP (f/2.0)",
+      "cameraFeatures": "Quad-LED flash",
+      "battery": "5000",
+      "charging": "10W wired",
+      "connectivity": "4G, Wi-Fi 5, Bluetooth",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "microSDXC slot",
+      "3.5mm headphone jack",
+      "FM radio",
+      "Infrared port",
+      "eMMC 5.1 storage"
+    ],
+    "variants": [
+      { "ram": "2GB", "storage": "64GB" }
+    ],
+    "sourceUrl": "https://m.gsmarena.com/infinix_smart_10_hd-ampp-13954.php",
+    "note": "GSMArena's chipset line shows only '(12 nm)'. The Unisoc T606 name comes from Wikipedia, Mob4G and GSMArena reader comments."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Smart",
+    "name": "Smart 9",
+    "category": "phone",
+    "releaseYear": 2024,
+    "shortDescription": "4G Android 14 (Go edition) entry phone with a Helio G81, 6.7-inch 120Hz HD+ LCD, stereo speakers and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.7",
+      "resolution": "720 x 1600",
+      "displayType": "IPS LCD",
+      "refreshRate": "120",
+      "processor": "MediaTek Helio G81",
+      "ram": "3GB / 4GB / 6GB",
+      "storage": "64GB / 128GB",
+      "os": "Android 14 Go edition (XOS 14)",
+      "mainCamera": "13MP (f/1.9, AF)",
+      "frontCamera": "8MP (f/2.0)",
+      "cameraFeatures": "LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "10W wired",
+      "connectivity": "4G, Wi-Fi 5, Bluetooth 5.0",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "IP54 dust and splash resistance",
+      "Stereo speakers and 3.5mm headphone jack",
+      "Always-on display",
+      "Infrared port and FM radio",
+      "microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "3GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "3GB", "storage": "128GB" },
+      { "ram": "4GB", "storage": "128GB" },
+      { "ram": "6GB", "storage": "128GB" }
+    ],
+    "colors": ["Metallic Black", "Neo Titanium", "Mint Green", "Sandstone Gold"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_smart_9-ampp-13374.php",
+    "note": "An older GSMArena copy lists only 3GB and 4GB RAM options, and the newer one adds 6GB / 128GB. Bluetooth 5.0 is from devicespecifications.com. Colors are from MySmartPrice. A separate Smart 9 HD exists and I did not use it."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Smart",
+    "name": "Smart 8",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "4G Android 13 entry phone with a Unisoc T606, 6.6-inch 90Hz HD+ LCD, 13MP camera and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "refreshRate": "90",
+      "processor": "Unisoc T606",
+      "ram": "2GB / 3GB / 4GB",
+      "storage": "64GB / 128GB",
+      "os": "Android 13 (XOS 13)",
+      "mainCamera": "13MP (f/1.9, AF)",
+      "frontCamera": "8MP (f/2.0)",
+      "cameraFeatures": "Ring-LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "10W wired",
+      "connectivity": "4G",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "Dynamic Island-style Magic Ring for notifications and charging status",
+      "500 nits peak brightness",
+      "microSDXC slot",
+      "3.5mm headphone jack",
+      "5000mAh battery"
+    ],
+    "variants": [
+      { "ram": "2GB", "storage": "64GB" },
+      { "ram": "3GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "128GB" }
+    ],
+    "colors": ["Timber Black", "Galaxy White", "Crystal Green", "Shiny Gold"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_smart_8-12642.php",
+    "note": "This is the international Smart 8. GSMArena lists a separate 'Smart 8 (India)' with a Helio G36, 50MP camera and 4GB / 64GB. Wi-Fi and Bluetooth details did not load for this model. Colors are from GSMArena's launch story, which gives the main camera aperture as f/1.8 against the spec page's f/1.9. I used the spec page."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Smart",
+    "name": "Smart 7 HD",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "4G Android 12 (Go edition) entry phone with 2GB RAM, a 6.6-inch HD+ LCD, 8MP camera and 5000mAh battery.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "processor": "Unisoc SC9863A1",
+      "ram": "2GB",
+      "storage": "64GB",
+      "os": "Android 12 (Go edition)",
+      "mainCamera": "8MP (f/2.0)",
+      "frontCamera": "5MP (f/2.0)",
+      "cameraFeatures": "Dual-LED flash, HDR, panorama",
+      "battery": "5000",
+      "charging": "10W wired",
+      "connectivity": "4G, Wi-Fi 4, Bluetooth 5.0",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "UFS 2.1 storage",
+      "microSDXC slot",
+      "3.5mm headphone jack",
+      "FM radio",
+      "Rear-mounted fingerprint sensor"
+    ],
+    "variants": [
+      { "ram": "2GB", "storage": "64GB" }
+    ],
+    "colors": ["Ink Black", "Silk Blue", "Jade White", "Green Apple"],
+    "sourceUrl": "https://m.gsmarena.com/infinix_smart_7_hd-12243.php",
+    "note": "GSMArena's table has no chipset line. The Unisoc SC9863A1 name comes from Infinix India's retail listing and Mob4G. The USB port is micro-USB per GSMArena."
+  },
+  {
+    "brand": "Infinix",
+    "series": "Smart",
+    "name": "Smart 7 Plus",
+    "category": "phone",
+    "releaseYear": 2023,
+    "shortDescription": "4G Android 12 entry phone with a Unisoc SC9863A1, 6.6-inch HD+ LCD, 13MP camera and 6000mAh battery.",
+    "specs": {
+      "screenSize": "6.6",
+      "resolution": "720 x 1612",
+      "displayType": "IPS LCD",
+      "processor": "Unisoc SC9863A1",
+      "ram": "3GB / 4GB",
+      "storage": "64GB / 128GB",
+      "os": "Android 12 (XOS 12)",
+      "mainCamera": "13MP (AF)",
+      "frontCamera": "5MP",
+      "cameraFeatures": "Dual-LED flash, HDR, panorama",
+      "battery": "6000",
+      "charging": "10W wired",
+      "connectivity": "4G, Wi-Fi 4, Bluetooth 4.2",
+      "sim": "Dual Nano-SIM"
+    },
+    "features": [
+      "6000mAh battery",
+      "USB-C port",
+      "3.5mm headphone jack",
+      "Rear-mounted fingerprint sensor",
+      "microSDXC slot"
+    ],
+    "variants": [
+      { "ram": "3GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "64GB" },
+      { "ram": "4GB", "storage": "128GB" }
+    ],
+    "sourceUrl": "https://m.gsmarena.com/infinix_smart_7_(india)-12131.php",
+    "note": "GSMArena lists this as 'Smart 7 (India)', also known as Smart 7 Plus. No page titled just 'Smart 7 Plus' loaded, so the specs and variants may not cover every market. The main camera's second lens is listed only as an auxiliary lens."
+  }
+
+]
