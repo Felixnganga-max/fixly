@@ -1,7 +1,6 @@
 import {
   useState,
   useMemo,
-  useRef,
   useEffect,
   useCallback,
   useTransition,
@@ -17,11 +16,6 @@ import {
   Heart,
   GitCompare,
   Eye,
-  Zap,
-  Clock,
-  ArrowUp,
-  ArrowDown,
-  Tag,
   Truck,
   RotateCcw,
   Gift,
@@ -29,47 +23,38 @@ import {
   Smartphone,
   Laptop,
   ShoppingCart,
-  User,
   ArrowRight,
-  TrendingUp,
   Package,
   SlidersHorizontal,
   Grid3X3,
-  List,
   ArrowUpDown,
+  Wallet,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { getAllListings, getBrandNames } from "../Hooks/marketplaceApi";
+import { getAllListings } from "../Hooks/marketplaceApi";
 import { useWishlist } from "../Hooks/useWishlist";
 import { useCompare } from "../Hooks/useCompare";
-import { useRecentlyViewed } from "../Hooks/useRecentlyViewed";
 
 /*
  * PALETTE (from Navbar.jsx) — defined once in the <style> block at the bottom
- * on .mp-root and used everywhere as var(--mp-*):
- *   --mp-bg          #f7e6d9  page background (navbar bg)
- *   --mp-tint        #f0c09b  active tabs, borders (navbar tint)
- *   --mp-accent      #e89454  buttons, badges, progress (navbar accent)
- *   --mp-accent-dark #d4793a  accent hover
- *   --mp-accent-ink  #a8531a  accent used as TEXT/ICON colour (readable on cream)
- *   --mp-ink         #050505  headings, dark blocks (navbar ink)
- *   --mp-ink-soft    #2b1d14  body text
- *   --mp-muted       #7a5a46  secondary text
- *   --mp-card        #fffaf6  card / modal surface
- *   --mp-line        #f3d2ba  hairline borders
- *   --mp-wash        #fbeee3  soft hover / image placeholder
- *   --mp-wash2       #f7dcc5  skeletons, thumbnails
+ * on .mp-root and used everywhere as var(--mp-*).
+ *
+ * URL params this page understands (the home page links here):
+ *   tab=phones|laptops   minPrice=<KES>   maxPrice=<KES>
+ *   brand  condition  sort  q
  */
 
 // ─── CONSTANTS ────────────────────────────────────────────────
 const CONDITIONS = ["All", "New", "Used", "Refurbished"];
-const PRICE_RANGES = [
-  { label: "All prices", min: null, max: null },
-  { label: "Under 50K", min: null, max: 50000 },
-  { label: "50K – 100K", min: 50000, max: 100000 },
-  { label: "100K – 200K", min: 100000, max: 200000 },
-  { label: "200K+", min: 200000, max: null },
+
+// Budget chips. min/max null = open ended. Same set as the home page.
+const BUDGETS = [
+  { label: "10K – 20K", min: 10000, max: 20000 },
+  { label: "20K – 30K", min: 20000, max: 30000 },
+  { label: "30K – 40K", min: 30000, max: 40000 },
+  { label: "40K+", min: 40000, max: null },
 ];
+
 const SORT_OPTIONS = [
   { label: "Newest", sortBy: "createdAt", order: "desc" },
   { label: "Oldest", sortBy: "createdAt", order: "asc" },
@@ -80,16 +65,14 @@ const SORT_OPTIONS = [
   { label: "Discount", sortBy: "oldPrice", order: "desc" },
 ];
 const FALLBACK_IMG =
-  "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80";
+  "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80";
 
-// Categories derived strictly from API data
 const SIDEBAR_CATEGORIES = [
   { key: "all", label: "All Departments", icon: Grid3X3 },
   { key: "phone", label: "Phones", icon: Smartphone },
   { key: "laptop", label: "Laptops", icon: Laptop },
 ];
 
-// Condition colours stay semantic (green / amber / blue) so they read as status
 const CONDITION_CONFIG = {
   New: { cls: "bg-emerald-500 text-white", dot: "#10b981" },
   Used: {
@@ -103,7 +86,6 @@ const CONDITION_CONFIG = {
 };
 
 // ─── HERO SLIDES (banners only — no fake products) ────────────
-// All slides use the navbar peach family; text is ink for contrast.
 const HERO_SLIDES = [
   {
     eyebrow: "Phones · New arrivals",
@@ -134,13 +116,18 @@ const HERO_SLIDES = [
   },
 ];
 
-// ─── TRUST ITEMS ──────────────────────────────────────────────
 const TRUST_ITEMS = [
   { icon: Truck, title: "Free delivery", sub: "On orders over KES 5,000" },
   { icon: Shield, title: "Order protection", sub: "Secured information" },
   { icon: Gift, title: "Promotion gift", sub: "Special offers weekly" },
   { icon: RotateCcw, title: "Money back", sub: "Return within 30 days" },
 ];
+
+const num = (v) => {
+  if (v === null || v === undefined || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+};
 
 // ─── COUNTDOWN HOOK ───────────────────────────────────────────
 function useCountdown(hours = 12, mins = 0, secs = 0) {
@@ -174,12 +161,120 @@ function useCountdown(hours = 12, mins = 0, secs = 0) {
 function SkeletonCard() {
   return (
     <div className="bg-[var(--mp-card)] rounded-xl overflow-hidden animate-pulse border border-[var(--mp-line)]">
-      <div className="w-full h-48 bg-[var(--mp-wash2)]" />
+      <div className="w-full aspect-square bg-[var(--mp-wash2)]" />
       <div className="p-3 space-y-2">
         <div className="h-2 bg-[var(--mp-wash2)] rounded w-1/4" />
         <div className="h-3 bg-[var(--mp-wash2)] rounded w-3/4" />
         <div className="h-5 bg-[var(--mp-wash2)] rounded w-2/5 mt-2" />
         <div className="h-8 bg-[var(--mp-wash2)] rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+// ─── BUDGET BAR ───────────────────────────────────────────────
+function BudgetBar({ min, max, onChange }) {
+  const [lo, setLo] = useState(min ?? "");
+  const [hi, setHi] = useState(max ?? "");
+
+  // keep inputs in sync when a chip / the URL changes the budget
+  useEffect(() => {
+    setLo(min ?? "");
+    setHi(max ?? "");
+  }, [min, max]);
+
+  const isAll = min === null && max === null;
+  const apply = () => onChange(num(lo), num(hi));
+
+  return (
+    <div className="bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-2xl p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg bg-[var(--mp-accent)] text-[var(--mp-ink)] flex items-center justify-center">
+            <Wallet size={16} />
+          </span>
+          <div>
+            <h2 className="font-black text-[var(--mp-ink)] text-base leading-tight">
+              Shop by budget
+            </h2>
+            <p className="text-[11px] text-[var(--mp-muted)]">
+              Pick a range or type your own.
+            </p>
+          </div>
+        </div>
+        {!isAll && (
+          <button
+            onClick={() => onChange(null, null)}
+            className="flex items-center gap-1 text-xs font-bold text-[var(--mp-muted)] hover:text-[var(--mp-ink)]"
+          >
+            <X size={12} /> Clear
+          </button>
+        )}
+      </div>
+
+      {/* Chips — swipe sideways on small screens */}
+      <div className="mp-noscroll flex gap-2.5 overflow-x-auto pb-1 mb-3">
+        <button
+          onClick={() => onChange(null, null)}
+          className={`flex-1 min-w-[110px] px-4 py-3 rounded-xl border font-mono font-black text-sm transition-all ${
+            isAll
+              ? "bg-[var(--mp-ink)] text-white border-[var(--mp-ink)]"
+              : "bg-[var(--mp-wash)] text-[var(--mp-ink)] border-[var(--mp-line)] hover:border-[var(--mp-accent)]"
+          }`}
+        >
+          Any price
+        </button>
+        {BUDGETS.map((b) => {
+          const on = min === b.min && max === b.max;
+          return (
+            <button
+              key={b.label}
+              onClick={() => onChange(b.min, b.max)}
+              className={`flex-1 min-w-[110px] px-4 py-3 rounded-xl border font-mono font-black text-sm transition-all ${
+                on
+                  ? "bg-[var(--mp-accent)] text-[var(--mp-ink)] border-[var(--mp-accent)]"
+                  : "bg-[var(--mp-wash)] text-[var(--mp-ink)] border-[var(--mp-line)] hover:border-[var(--mp-accent)]"
+              }`}
+            >
+              {b.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Custom range */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {[
+          ["Min", lo, setLo],
+          ["Max", hi, setHi],
+        ].map(([ph, val, set], i) => (
+          <div key={ph} className="flex items-center gap-2 flex-1 min-w-[130px]">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[var(--mp-muted)] font-mono pointer-events-none">
+                KES
+              </span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min="0"
+                placeholder={ph}
+                value={val}
+                onChange={(e) => set(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && apply()}
+                className="w-full bg-white border border-[var(--mp-tint)] rounded-lg pl-11 pr-3 py-2.5 text-sm font-mono outline-none focus:border-[var(--mp-accent)] text-[var(--mp-ink)]"
+              />
+            </div>
+            {i === 0 && (
+              <span className="text-[var(--mp-muted)] text-xs">to</span>
+            )}
+          </div>
+        ))}
+        <button
+          onClick={apply}
+          className="flex items-center justify-center gap-1.5 bg-[var(--mp-ink)] hover:bg-[var(--mp-ink-soft)] text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all w-full sm:w-auto"
+        >
+          Apply <ArrowRight size={14} />
+        </button>
       </div>
     </div>
   );
@@ -199,14 +294,15 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
     : product.discount;
 
   return (
-    <div className="group bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl overflow-hidden hover:border-[var(--mp-tint)] hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
-      {/* Image */}
-      <div className="relative w-full h-48 bg-[var(--mp-wash)] overflow-hidden flex-shrink-0">
+    <div className="group bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl overflow-hidden hover:border-[var(--mp-tint)] hover:shadow-lg transition-all duration-300 flex flex-col h-full relative min-w-0">
+      {/* Image — square, contain: the whole device is visible */}
+      <div className="relative w-full aspect-square bg-white overflow-hidden flex-shrink-0">
         <img
           src={product.images?.[0] || product.image || FALLBACK_IMG}
           alt={product.name}
           draggable={false}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-700"
           onError={(e) => {
             e.target.src = FALLBACK_IMG;
           }}
@@ -283,7 +379,7 @@ function ProductCard({ product, onQuickView, wishlist, compare }) {
           <span>{product.views || 0} views</span>
         </div>
 
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2 flex-wrap">
           <p className="font-mono font-black text-base text-[var(--mp-ink)]">
             KES {product.price.toLocaleString()}
           </p>
@@ -332,15 +428,16 @@ function DailyDealCard({ product, onQuickView }) {
   const sold = Math.min(Math.floor((product.views || 5) * 0.6), available - 1);
 
   return (
-    <div className="bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
+    <div className="bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col h-full">
       <div
-        className="relative h-52 bg-[var(--mp-wash)] overflow-hidden group cursor-pointer"
+        className="relative w-full aspect-square bg-white overflow-hidden group cursor-pointer"
         onClick={() => onQuickView(product)}
       >
         <img
           src={product.images?.[0] || FALLBACK_IMG}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
             e.target.src = FALLBACK_IMG;
           }}
@@ -367,7 +464,6 @@ function DailyDealCard({ product, onQuickView }) {
           </p>
         )}
 
-        {/* Stock progress */}
         <div className="flex items-center justify-between text-[10px] text-[var(--mp-muted)] mt-1">
           <span>
             Available:{" "}
@@ -397,7 +493,6 @@ function DailyDealCard({ product, onQuickView }) {
           )}
         </div>
 
-        {/* Countdown */}
         <div className="flex flex-col gap-1">
           <p className="text-[10px] font-bold text-[var(--mp-muted)] uppercase tracking-wider">
             Hurry Up! Offers end in:
@@ -448,11 +543,11 @@ function SidebarProduct({ product }) {
       onClick={() => navigate(`/product/${pid}`)}
       className="flex items-center gap-2.5 group w-full text-left"
     >
-      <div className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--mp-wash2)] flex-shrink-0">
+      <div className="w-14 h-14 rounded-lg overflow-hidden bg-white border border-[var(--mp-line)] flex-shrink-0">
         <img
           src={product.images?.[0] || FALLBACK_IMG}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-contain p-0.5 group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
             e.target.src = FALLBACK_IMG;
           }}
@@ -509,7 +604,6 @@ function HeroSlider({ onTabChange }) {
     <div
       className={`relative rounded-xl overflow-hidden bg-gradient-to-r ${s.bg} min-h-[260px] flex items-center transition-all duration-500`}
     >
-      {/* BG image */}
       <div className="absolute inset-0 overflow-hidden">
         <img
           src={s.img}
@@ -518,7 +612,6 @@ function HeroSlider({ onTabChange }) {
         />
       </div>
 
-      {/* Content */}
       <div
         className={`relative z-10 px-8 py-8 flex-1 transition-all duration-300 ${animating ? "opacity-0 translate-x-4" : "opacity-100 translate-x-0"}`}
       >
@@ -539,7 +632,6 @@ function HeroSlider({ onTabChange }) {
         </button>
       </div>
 
-      {/* Arrows */}
       <button
         onClick={() => slide(-1)}
         className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 text-[var(--mp-ink)] flex items-center justify-center transition-all"
@@ -553,7 +645,6 @@ function HeroSlider({ onTabChange }) {
         <ChevronRight size={16} />
       </button>
 
-      {/* Dots */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
         {HERO_SLIDES.map((_, i) => (
           <button
@@ -566,8 +657,6 @@ function HeroSlider({ onTabChange }) {
     </div>
   );
 }
-
-
 
 // ─── QUICK VIEW MODAL ─────────────────────────────────────────
 function QuickViewModal({ product, onClose, wishlist }) {
@@ -604,7 +693,7 @@ function QuickViewModal({ product, onClose, wishlist }) {
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative bg-[var(--mp-card)] w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative bg-[var(--mp-card)] w-full sm:max-w-3xl sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl z-10 max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--mp-line)]">
@@ -625,12 +714,12 @@ function QuickViewModal({ product, onClose, wishlist }) {
         </div>
         <div className="overflow-y-auto flex-1">
           <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-64 flex-shrink-0 bg-[var(--mp-wash)]">
-              <div className="relative w-full h-64 overflow-hidden">
+            <div className="sm:w-80 flex-shrink-0 bg-white">
+              <div className="relative w-full aspect-square overflow-hidden">
                 <img
                   src={images[imgIdx]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-contain p-3"
                   onError={(e) => {
                     e.target.src = FALLBACK_IMG;
                   }}
@@ -666,17 +755,17 @@ function QuickViewModal({ product, onClose, wishlist }) {
                 )}
               </div>
               {images.length > 1 && (
-                <div className="flex gap-1.5 p-2 overflow-x-auto">
+                <div className="mp-noscroll flex gap-1.5 p-2 overflow-x-auto">
                   {images.map((img, i) => (
                     <button
                       key={i}
                       onClick={() => setImgIdx(i)}
-                      className={`flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${i === imgIdx ? "border-[var(--mp-accent)]" : "border-transparent"}`}
+                      className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 bg-white transition-all ${i === imgIdx ? "border-[var(--mp-accent)]" : "border-[var(--mp-line)]"}`}
                     >
                       <img
                         src={img}
                         alt=""
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         onError={(e) => {
                           e.target.src = FALLBACK_IMG;
                         }}
@@ -808,12 +897,10 @@ function CompareModal({ items, onClose, onRemove }) {
       render: (p) => (p.rating > 0 ? `${p.rating.toFixed(1)} / 5` : "—"),
     },
     { label: "Views", render: (p) => p.views?.toLocaleString() || "—" },
-    ...allSpecKeys
-      .slice(0, 8)
-      .map((k) => ({
-        label: k,
-        render: (p) => (p.specs?.[k] ? String(p.specs[k]) : "—"),
-      })),
+    ...allSpecKeys.slice(0, 8).map((k) => ({
+      label: k,
+      render: (p) => (p.specs?.[k] ? String(p.specs[k]) : "—"),
+    })),
   ];
 
   return (
@@ -856,7 +943,7 @@ function CompareModal({ items, onClose, onRemove }) {
                         <img
                           src={p.images?.[0] || FALLBACK_IMG}
                           alt={p.name}
-                          className="w-24 h-24 object-cover rounded-xl mx-auto"
+                          className="w-28 h-28 object-contain bg-white rounded-xl mx-auto border border-[var(--mp-line)]"
                           onError={(e) => {
                             e.target.src = FALLBACK_IMG;
                           }}
@@ -920,7 +1007,7 @@ function CompareBar({ items, onOpen, onRemove, onClear }) {
               <img
                 src={p.images?.[0] || FALLBACK_IMG}
                 alt={p.name}
-                className="w-9 h-9 rounded-lg object-cover border-2 border-white/20"
+                className="w-9 h-9 rounded-lg object-contain bg-white border-2 border-white/20"
                 onError={(e) => {
                   e.target.src = FALLBACK_IMG;
                 }}
@@ -967,12 +1054,13 @@ function CompareBar({ items, onOpen, onRemove, onClear }) {
 // ─── MAIN MARKETPLACE ─────────────────────────────────────────
 export default function Marketplace() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const tab = searchParams.get("tab") || "all";
   const brand = searchParams.get("brand") || "All";
   const condition = searchParams.get("condition") || "All";
-  const priceRange = parseInt(searchParams.get("price") || "0");
+  const minPrice = num(searchParams.get("minPrice"));
+  const maxPrice = num(searchParams.get("maxPrice"));
   const sortIdx = parseInt(searchParams.get("sort") || "0");
   const search = searchParams.get("q") || "";
 
@@ -992,11 +1080,24 @@ export default function Marketplace() {
   const setTab = (v) => startTransition(() => setParam("tab", v, "all"));
   const setBrand = (v) => setParam("brand", v, "All");
   const setCondition = (v) => setParam("condition", v, "All");
-  const setPriceRange = (v) => setParam("price", v, 0);
   const setSortIdx = (v) => setParam("sort", v, 0);
   const setSearch = (v) => setParam("q", v, "");
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // one URL update for both ends of the budget
+  const setBudget = (min, max) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("minPrice");
+        next.delete("maxPrice");
+        if (min !== null && min !== undefined) next.set("minPrice", String(min));
+        if (max !== null && max !== undefined) next.set("maxPrice", String(max));
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [showCompare, setShowCompare] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -1011,10 +1112,8 @@ export default function Marketplace() {
 
   const wishlist = useWishlist();
   const compare = useCompare();
-  const { ids: recentIds } = useRecentlyViewed();
   const deferredSearch = useDeferredValue(search);
 
-  // Derive brands from fetched data
   useEffect(() => {
     if (allListings.length > 0) {
       const uniqueBrands = [
@@ -1032,9 +1131,7 @@ export default function Marketplace() {
       setError("");
 
       const sort = SORT_OPTIONS[sortIdx] || SORT_OPTIONS[0];
-      const range = PRICE_RANGES[priceRange];
 
-      // Map tab → API category param
       const categoryParam =
         tab === "phones" ? "phone" : tab === "laptops" ? "laptop" : undefined;
 
@@ -1045,8 +1142,8 @@ export default function Marketplace() {
         ...(categoryParam && { category: categoryParam }),
         ...(brand !== "All" && { brand }),
         ...(condition !== "All" && { condition }),
-        ...(range.min !== null && { minPrice: range.min }),
-        ...(range.max !== null && { maxPrice: range.max }),
+        ...(minPrice !== null && { minPrice }),
+        ...(maxPrice !== null && { maxPrice }),
         ...(deferredSearch.trim() && { search: deferredSearch.trim() }),
         ...(cursor && { cursor }),
       };
@@ -1067,28 +1164,34 @@ export default function Marketplace() {
         setLoadingMore(false);
       }
     },
-    [tab, brand, condition, priceRange, sortIdx, deferredSearch],
+    [tab, brand, condition, minPrice, maxPrice, sortIdx, deferredSearch],
   );
 
   useEffect(() => {
     fetchListings(null);
   }, [fetchListings]);
 
-  const sentinelRef = useRef(null);
+  // Infinite load. Works for both the vertical grid (desktop) and the
+  // sideways-swipe grid (mobile): every [data-sentinel] that is visible loads more.
   useEffect(() => {
-    if (!sentinelRef.current || !hasNext) return;
+    if (!hasNext) return;
+    const els = document.querySelectorAll("[data-sentinel]");
+    if (!els.length) return;
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !loadingMore && nextCursor)
+      (entries) => {
+        if (
+          entries.some((e) => e.isIntersecting) &&
+          !loadingMore &&
+          nextCursor
+        )
           fetchListings(nextCursor);
       },
       { rootMargin: "200px" },
     );
-    observer.observe(sentinelRef.current);
+    els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [hasNext, loadingMore, nextCursor, fetchListings]);
+  }, [hasNext, loadingMore, nextCursor, fetchListings, allListings.length]);
 
-  // Derived sections from real data
   const phones = useMemo(
     () => allListings.filter((p) => p.category === "phone"),
     [allListings],
@@ -1113,17 +1216,28 @@ export default function Marketplace() {
     [allListings],
   );
 
+  const hasBudget = minPrice !== null || maxPrice !== null;
   const activeFilters =
     (brand !== "All" ? 1 : 0) +
     (condition !== "All" ? 1 : 0) +
-    (priceRange !== 0 ? 1 : 0) +
+    (hasBudget ? 1 : 0) +
     (sortIdx !== 0 ? 1 : 0);
   const clearFilters = () => {
-    setBrand("All");
-    setCondition("All");
-    setPriceRange(0);
-    setSortIdx(0);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        ["brand", "condition", "minPrice", "maxPrice", "sort"].forEach((k) =>
+          next.delete(k),
+        );
+        return next;
+      },
+      { replace: true },
+    );
   };
+
+  // Showcase sections (hero / deals / trending) only when nothing is filtered —
+  // someone who picked a budget goes straight to results.
+  const showcase = !search.trim() && activeFilters === 0;
 
   const pill =
     "px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer whitespace-nowrap";
@@ -1132,7 +1246,6 @@ export default function Marketplace() {
   const pillOff =
     "bg-[var(--mp-card)] text-[var(--mp-muted)] border-[var(--mp-tint)] hover:border-[var(--mp-accent)] hover:text-[var(--mp-accent-ink)]";
 
-  // Active listing display
   const displayedListings = useMemo(() => {
     if (tab === "phones") return phones;
     if (tab === "laptops") return laptops;
@@ -1146,19 +1259,20 @@ export default function Marketplace() {
         : "text-[var(--mp-muted)] hover:text-[var(--mp-accent-ink)]"
     }`;
 
+  const budgetLabel = hasBudget
+    ? `KES ${minPrice !== null ? minPrice.toLocaleString() : "0"}${
+        maxPrice !== null ? ` – ${maxPrice.toLocaleString()}` : "+"
+      }`
+    : null;
+
   return (
     <div
       className="mp-root min-h-screen bg-[var(--mp-bg)]"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-    
-
       {/* ── NAV ────────────────────────────────────────────── */}
       <nav className="bg-[var(--mp-bg)] border-b border-[var(--mp-tint)] sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-
-
-          {/* Search */}
           <div className="flex-1 max-w-xl relative">
             <Search
               size={14}
@@ -1181,7 +1295,6 @@ export default function Marketplace() {
             )}
           </div>
 
-          {/* Nav links */}
           <div className="hidden md:flex items-center gap-1 text-sm font-semibold text-[var(--mp-ink-soft)]">
             {[
               ["all", "All"],
@@ -1198,7 +1311,6 @@ export default function Marketplace() {
             ))}
           </div>
 
-          {/* Icons */}
           <div className="flex items-center gap-2 ml-auto flex-shrink-0">
             {wishlist.count > 0 && (
               <div className="relative">
@@ -1218,6 +1330,23 @@ export default function Marketplace() {
             )}
           </div>
         </div>
+
+        {/* Mobile tabs (nav links are hidden below md) */}
+        <div className="md:hidden mp-noscroll flex gap-2 overflow-x-auto px-4 pb-3">
+          {[
+            ["all", "All"],
+            ["phones", "Phones"],
+            ["laptops", "Laptops"],
+          ].map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => setTab(val)}
+              className={`${pill} ${tab === val ? pillOn : pillOff}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -1230,7 +1359,6 @@ export default function Marketplace() {
         <div className="flex gap-5">
           {/* ── SIDEBAR ────────────────────────────────────── */}
           <aside className="hidden lg:flex flex-col gap-0 w-52 flex-shrink-0">
-            {/* Categories */}
             <div className="bg-[var(--mp-card)] rounded-xl overflow-hidden border border-[var(--mp-line)] mb-4">
               <div className="bg-[var(--mp-ink)] text-white px-4 py-3 flex items-center gap-2">
                 <div className="flex flex-col gap-0.5">
@@ -1248,6 +1376,10 @@ export default function Marketplace() {
                     : cat.key === "phone"
                       ? phones.length
                       : laptops.length;
+                const on =
+                  (cat.key === "phone" && tab === "phones") ||
+                  (cat.key === "laptop" && tab === "laptops") ||
+                  (cat.key === "all" && tab === "all");
                 return (
                   <button
                     key={cat.key}
@@ -1261,10 +1393,7 @@ export default function Marketplace() {
                       )
                     }
                     className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors border-b border-[var(--mp-line)] last:border-0 group ${
-                      tab === cat.key ||
-                      (cat.key === "phone" && tab === "phones") ||
-                      (cat.key === "laptop" && tab === "laptops") ||
-                      (cat.key === "all" && tab === "all")
+                      on
                         ? "bg-[var(--mp-tint)] text-[var(--mp-ink)] font-bold"
                         : "text-[var(--mp-ink-soft)] hover:bg-[var(--mp-wash)] hover:text-[var(--mp-accent-ink)] font-medium"
                     }`}
@@ -1282,7 +1411,6 @@ export default function Marketplace() {
               })}
             </div>
 
-            {/* Latest Products */}
             {latestProducts.length > 0 && (
               <div className="bg-[var(--mp-card)] rounded-xl border border-[var(--mp-line)] overflow-hidden mb-4">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--mp-line)]">
@@ -1302,7 +1430,6 @@ export default function Marketplace() {
               </div>
             )}
 
-            {/* Trust badges */}
             <div className="bg-[var(--mp-card)] rounded-xl border border-[var(--mp-line)] overflow-hidden">
               {TRUST_ITEMS.map(({ icon: Icon, title, sub }) => (
                 <div
@@ -1328,52 +1455,39 @@ export default function Marketplace() {
 
           {/* ── MAIN CONTENT ─────────────────────────────── */}
           <div className="flex-1 min-w-0 flex flex-col gap-5">
-            {/* Hero slider */}
-            {!search.trim() && (
-              <HeroSlider
-                onTabChange={(t) =>
-                  setTab(t === "phones" ? "phones" : "laptops")
-                }
-              />
-            )}
+            {/* Budget — always on top */}
+            <BudgetBar min={minPrice} max={maxPrice} onChange={setBudget} />
 
-           
+            {showcase && <HeroSlider onTabChange={(t) => setTab(t)} />}
 
-            {/* Daily deals (only show listings with discounts) */}
-            {!search.trim() && deals.length > 0 && !loading && (
+            {/* Daily deals — swipe row on mobile, 2-up on desktop */}
+            {showcase && deals.length > 0 && !loading && (
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-[var(--mp-ink)] text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider">
-                      Daily Deals
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button className="w-7 h-7 rounded-full border border-[var(--mp-tint)] flex items-center justify-center text-[var(--mp-muted)] hover:border-[var(--mp-accent)] hover:text-[var(--mp-accent-ink)] transition-all">
-                      <ChevronLeft size={14} />
-                    </button>
-                    <button className="w-7 h-7 rounded-full border border-[var(--mp-tint)] flex items-center justify-center text-[var(--mp-muted)] hover:border-[var(--mp-accent)] hover:text-[var(--mp-accent-ink)] transition-all">
-                      <ChevronRight size={14} />
-                    </button>
-                  </div>
+                <div className="flex items-center mb-3">
+                  <span className="bg-[var(--mp-ink)] text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider">
+                    Daily Deals
+                  </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="mp-noscroll flex gap-4 overflow-x-auto snap-x snap-mandatory pb-1 md:grid md:grid-cols-2 md:overflow-visible">
                   {deals.slice(0, 2).map((p) => (
-                    <DailyDealCard
+                    <div
                       key={p._id || p.id}
-                      product={p}
-                      onQuickView={setQuickViewProduct}
-                    />
+                      className="snap-start flex-shrink-0 w-[82%] sm:w-[60%] md:w-auto"
+                    >
+                      <DailyDealCard product={p} onQuickView={setQuickViewProduct} />
+                    </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Trending items */}
-            {!search.trim() && trending.length > 0 && !loading && (
+            {/* Trending — 2 rows, swipe sideways on mobile */}
+            {showcase && trending.length > 0 && !loading && (
               <div>
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                 
+                  <span className="bg-[var(--mp-ink)] text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider">
+                    Trending
+                  </span>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setTab("all")}
@@ -1395,7 +1509,7 @@ export default function Marketplace() {
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <div className="mp-swipe mp-noscroll grid gap-3 md:grid-cols-4">
                   {trending.slice(0, 8).map((p) => (
                     <ProductCard
                       key={p._id || p.id}
@@ -1409,11 +1523,10 @@ export default function Marketplace() {
               </div>
             )}
 
-            {/* ── ALL LISTINGS SECTION ────────────────────── */}
+            {/* ── ALL LISTINGS ───────────────────────────── */}
             <div>
-              {/* Toolbar */}
               <div className="flex items-center justify-between gap-3 mb-4 flex-wrap bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl px-4 py-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Package size={14} className="text-[var(--mp-muted)]" />
                   <span className="text-sm font-bold text-[var(--mp-ink)]">
                     {search.trim()
@@ -1424,6 +1537,11 @@ export default function Marketplace() {
                           ? "All Laptops"
                           : "All Listings"}
                   </span>
+                  {budgetLabel && (
+                    <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-[var(--mp-accent)] text-[var(--mp-ink)]">
+                      {budgetLabel}
+                    </span>
+                  )}
                   {!loading && (
                     <span className="text-xs text-[var(--mp-muted)]">
                       ({displayedListings.length})
@@ -1463,7 +1581,7 @@ export default function Marketplace() {
                 </div>
               </div>
 
-              {/* Filter panel */}
+              {/* Filter panel (price now lives in the Budget bar above) */}
               {showFilters && (
                 <div className="bg-[var(--mp-card)] border border-[var(--mp-line)] rounded-xl p-4 mb-4 flex flex-col gap-4">
                   {[
@@ -1484,7 +1602,7 @@ export default function Marketplace() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-[var(--mp-muted)] mb-2">
                         {title}
                       </p>
-                      <div className="flex gap-1.5 flex-wrap">
+                      <div className="mp-noscroll flex gap-1.5 overflow-x-auto md:flex-wrap md:overflow-visible">
                         {items.map((item) => (
                           <button
                             key={item}
@@ -1497,22 +1615,6 @@ export default function Marketplace() {
                       </div>
                     </div>
                   ))}
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[var(--mp-muted)] mb-2">
-                      Price range
-                    </p>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {PRICE_RANGES.map((r, i) => (
-                        <button
-                          key={r.label}
-                          onClick={() => setPriceRange(i)}
-                          className={`${pill} ${priceRange === i ? pillOn : pillOff}`}
-                        >
-                          {r.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                   {activeFilters > 0 && (
                     <button
                       onClick={clearFilters}
@@ -1526,7 +1628,7 @@ export default function Marketplace() {
 
               {/* Grid */}
               {loading ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                <div className="mp-swipe mp-noscroll grid gap-3 md:grid-cols-3 xl:grid-cols-4">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <SkeletonCard key={i} />
                   ))}
@@ -1541,7 +1643,7 @@ export default function Marketplace() {
                     No listings found
                   </p>
                   <p className="text-[var(--mp-muted)] text-sm">
-                    Try adjusting your filters or search term.
+                    Try a wider budget or fewer filters.
                   </p>
                   {activeFilters > 0 && (
                     <button
@@ -1554,7 +1656,7 @@ export default function Marketplace() {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="mp-swipe mp-noscroll grid gap-3 md:grid-cols-3 xl:grid-cols-4">
                     {displayedListings.map((p) => (
                       <ProductCard
                         key={p._id || p.id}
@@ -1564,15 +1666,19 @@ export default function Marketplace() {
                         compare={compare}
                       />
                     ))}
-                  </div>
-                  <div ref={sentinelRef} className="h-4" />
-                  {loadingMore && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mt-3">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <SkeletonCard key={i} />
+                    {loadingMore &&
+                      Array.from({ length: 4 }).map((_, i) => (
+                        <SkeletonCard key={`sk-${i}`} />
                       ))}
-                    </div>
-                  )}
+                    {/* mobile sentinel: sits at the end of the swipe row */}
+                    <div
+                      data-sentinel
+                      className="md:hidden w-1"
+                      style={{ gridRow: "span 2" }}
+                    />
+                  </div>
+                  {/* desktop sentinel */}
+                  <div data-sentinel className="hidden md:block h-4" />
                   {!hasNext && displayedListings.length > 0 && (
                     <p className="text-center text-xs text-[var(--mp-muted)] py-6 font-medium">
                       All {displayedListings.length} listings loaded
@@ -1607,7 +1713,6 @@ export default function Marketplace() {
         onClear={compare.clear}
       />
 
-      {/* Palette tokens (from Navbar) + marquee animation */}
       <style>{`
         .mp-root {
           --mp-bg: #f7e6d9;
@@ -1623,9 +1728,22 @@ export default function Marketplace() {
           --mp-wash: #fbeee3;
           --mp-wash2: #f7dcc5;
         }
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .animate-marquee { display: inline-block; animation: marquee 20s linear infinite; }
-        .animate-marquee:hover { animation-play-state: paused; }
+        .mp-noscroll { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .mp-noscroll::-webkit-scrollbar { display: none; }
+
+        /* Small screens: devices go in 2 rows and swipe left/right —
+           2 devices visible per row, never one long vertical list. */
+        @media (max-width: 767px) {
+          .mp-swipe {
+            grid-template-rows: repeat(2, auto);
+            grid-auto-flow: column;
+            grid-auto-columns: calc(50% - 6px);
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 6px;
+          }
+          .mp-swipe > * { scroll-snap-align: start; }
+        }
       `}</style>
     </div>
   );
