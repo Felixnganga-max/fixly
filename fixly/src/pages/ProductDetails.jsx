@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ShieldCheck,
   Star,
@@ -13,6 +13,7 @@ import {
   Heart,
   GitCompare,
   Eye,
+  EyeOff,
   Truck,
   MapPin,
   CreditCard,
@@ -24,13 +25,14 @@ import {
   ExternalLink,
   Copy,
   Check,
+  ImageOff,
 } from "lucide-react";
 import { getListingById, getAllListings } from "../Hooks/marketplaceApi";
-import BuyNowModal from "../components/BuyNow";
 import { useWishlist } from "../Hooks/useWishlist";
 import { useCompare } from "../Hooks/useCompare";
 import ContactSellerButton from "../components/ContactSellerButton";
 import { track } from "../Hooks/analytics";
+
 // ── Constants ──────────────────────────────────────────────────
 const PHONE_SPEC_GROUPS = [
   {
@@ -114,8 +116,26 @@ const CONDITION_STYLE = {
   Refurbished: "bg-sky-50 text-sky-700 border-sky-200",
 };
 
-const FALLBACK =
-  "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=700&auto=format&fit=crop&q=80";
+// Neutral placeholder for broken or missing photos (no stock photo of someone else's phone)
+const PLACEHOLDER =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="#f5f5f4"/><g fill="none" stroke="#a8a29e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"><rect x="205" y="130" width="190" height="340" rx="34"/><path d="M270 430h60"/></g></svg>',
+  );
+
+const onImgError = (e) => {
+  e.currentTarget.onerror = null; // never loop if the placeholder itself fails
+  e.currentTarget.src = PLACEHOLDER;
+};
+
+// "8GB / 256GB"
+const variantLabel = (v) => [v?.ram, v?.storage].filter(Boolean).join(" / ");
+// "8gb-256gb" — used in shareable links (?v=8gb-256gb)
+const variantSlug = (v) =>
+  variantLabel(v)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
 // ── Gallery Modal ──────────────────────────────────────────────
 function GalleryModal({ images, startIndex = 0, onClose }) {
@@ -163,6 +183,7 @@ function GalleryModal({ images, startIndex = 0, onClose }) {
         <button
           onClick={prev}
           disabled={current === 0}
+          aria-label="Previous photo"
           className="absolute left-3 sm:left-5 w-9 h-9 rounded-full bg-stone-800 hover:bg-stone-700 border border-stone-700 flex items-center justify-center transition-colors disabled:opacity-20"
         >
           <ChevronLeft size={18} className="text-white" strokeWidth={2} />
@@ -171,13 +192,12 @@ function GalleryModal({ images, startIndex = 0, onClose }) {
           src={images[current]}
           alt={`Photo ${current + 1}`}
           className="max-h-full max-w-full object-contain rounded-xl"
-          onError={(e) => {
-            e.target.src = FALLBACK;
-          }}
+          onError={onImgError}
         />
         <button
           onClick={next}
           disabled={current === images.length - 1}
+          aria-label="Next photo"
           className="absolute right-3 sm:right-5 w-9 h-9 rounded-full bg-stone-800 hover:bg-stone-700 border border-stone-700 flex items-center justify-center transition-colors disabled:opacity-20"
         >
           <ChevronRight size={18} className="text-white" strokeWidth={2} />
@@ -200,9 +220,7 @@ function GalleryModal({ images, startIndex = 0, onClose }) {
                 src={img}
                 alt=""
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.src = FALLBACK;
-                }}
+                onError={onImgError}
               />
             </button>
           ))}
@@ -212,15 +230,73 @@ function GalleryModal({ images, startIndex = 0, onClose }) {
   );
 }
 
+// ── Badges laid over the main photo ────────────────────────────
+function HeroBadges({ discount, condition, verified, compact }) {
+  const size = compact ? "text-[10px] px-2.5 py-1" : "text-[11px] px-3 py-1";
+  return (
+    <>
+      <div
+        className={`absolute z-10 flex ${
+          compact ? "top-3 left-3 gap-2" : "top-4 left-4 flex-col gap-2"
+        }`}
+      >
+        {discount && (
+          <span
+            className={`${size} font-bold rounded-full bg-red-500 text-white shadow-sm`}
+          >
+            {discount}% OFF
+          </span>
+        )}
+        {condition && (
+          <span
+            className={`${size} font-semibold rounded-full border ${CONDITION_STYLE[condition] || ""}`}
+          >
+            {condition}
+          </span>
+        )}
+      </div>
+      {verified && (
+        <div
+          className={`absolute z-10 flex items-center gap-1 font-semibold rounded-full bg-stone-900 text-emerald-400 ${
+            compact
+              ? "top-3 right-3 text-[10px] px-2.5 py-1.5"
+              : "top-4 right-4 text-[11px] px-3 py-1.5"
+          }`}
+        >
+          <ShieldCheck size={compact ? 10 : 11} strokeWidth={2.5} /> Verified
+        </div>
+      )}
+    </>
+  );
+}
+
 // ── Image Hero ─────────────────────────────────────────────────
 function ImageHero({ images, productName, condition, verified, discount }) {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryStart, setGalleryStart] = useState(0);
 
+  const count = images.length;
   const open = (index = 0) => {
+    if (!count) return;
     setGalleryStart(index);
     setGalleryOpen(true);
   };
+
+  // No photos yet: a plain placeholder, never somebody else's picture
+  if (!count) {
+    return (
+      <div className="relative rounded-2xl overflow-hidden bg-stone-100 h-64 md:h-[420px] flex flex-col items-center justify-center gap-3 text-stone-400">
+        <HeroBadges
+          discount={discount}
+          condition={condition}
+          verified={verified}
+          compact
+        />
+        <ImageOff size={36} strokeWidth={1.5} />
+        <p className="text-sm font-medium">No photos yet</p>
+      </div>
+    );
+  }
 
   const slots = [...images];
   while (slots.length < 5) slots.push(null);
@@ -238,113 +314,105 @@ function ImageHero({ images, productName, condition, verified, discount }) {
 
       {/* Desktop */}
       <div className="hidden md:block relative rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-2 gap-1" style={{ height: 500 }}>
+        {count === 1 ? (
+          // One photo: use the full width instead of an empty grid
           <div
             className="relative cursor-pointer overflow-hidden bg-stone-100 group"
+            style={{ height: 500 }}
             onClick={() => open(0)}
           >
             <img
-              src={main || FALLBACK}
+              src={main}
               alt={productName}
-              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-              onError={(e) => {
-                e.target.src = FALLBACK;
-              }}
+              className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
+              onError={onImgError}
             />
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
-              {discount && (
-                <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-red-500 text-white shadow-sm">
-                  {discount}% OFF
-                </span>
-              )}
-              <span
-                className={`text-[11px] font-semibold px-3 py-1 rounded-full border ${CONDITION_STYLE[condition]}`}
-              >
-                {condition}
-              </span>
+            <HeroBadges
+              discount={discount}
+              condition={condition}
+              verified={verified}
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-1" style={{ height: 500 }}>
+            <div
+              className="relative cursor-pointer overflow-hidden bg-stone-100 group"
+              onClick={() => open(0)}
+            >
+              <img
+                src={main}
+                alt={productName}
+                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                onError={onImgError}
+              />
+              <HeroBadges
+                discount={discount}
+                condition={condition}
+                verified={verified}
+              />
             </div>
-            {verified && (
-              <div className="absolute top-4 right-4 flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-stone-900 text-emerald-400">
-                <ShieldCheck size={11} strokeWidth={2.5} /> Verified
-              </div>
-            )}
-          </div>
 
-          <div className="grid grid-cols-2 gap-1">
-            {thumbs.map((img, i) => (
-              <div
-                key={i}
-                className={`relative overflow-hidden group ${img ? "cursor-pointer bg-stone-100" : "bg-stone-50"}`}
-                onClick={() => img && open(i + 1)}
-              >
-                {img ? (
-                  <img
-                    src={img}
-                    alt={`${productName} ${i + 2}`}
-                    className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
-                    onError={(e) => {
-                      e.target.src = FALLBACK;
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-stone-100" />
-                )}
-                {i === 3 && images.length > 1 && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      open(0);
-                    }}
-                    className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-white border border-stone-200 hover:border-stone-400 text-stone-800 text-[11px] font-semibold px-3 py-2 rounded-xl shadow-sm transition-all"
-                  >
-                    <Grid2X2 size={12} strokeWidth={2} />
-                    Show all {images.length} photos
-                  </button>
-                )}
-              </div>
-            ))}
+            <div className="grid grid-cols-2 gap-1">
+              {thumbs.map((img, i) => (
+                <div
+                  key={i}
+                  className={`relative overflow-hidden group ${img ? "cursor-pointer bg-stone-100" : "bg-stone-50"}`}
+                  onClick={() => img && open(i + 1)}
+                >
+                  {img ? (
+                    <img
+                      src={img}
+                      alt={`${productName} ${i + 2}`}
+                      className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
+                      onError={onImgError}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-stone-100" />
+                  )}
+                  {i === 3 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        open(0);
+                      }}
+                      className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-white border border-stone-200 hover:border-stone-400 text-stone-800 text-[11px] font-semibold px-3 py-2 rounded-xl shadow-sm transition-all"
+                    >
+                      <Grid2X2 size={12} strokeWidth={2} />
+                      Show all {count} photos
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Mobile */}
       <div className="md:hidden">
         <div
-          className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer"
+          className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer bg-stone-100"
           onClick={() => open(0)}
         >
           <img
-            src={main || FALLBACK}
+            src={main}
             alt={productName}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.target.src = FALLBACK;
-            }}
+            className={`w-full h-full ${count === 1 ? "object-contain" : "object-cover"}`}
+            onError={onImgError}
           />
-          <div className="absolute top-3 left-3 flex gap-2">
-            {discount && (
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-500 text-white">
-                {discount}% OFF
-              </span>
-            )}
-            <span
-              className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${CONDITION_STYLE[condition]}`}
-            >
-              {condition}
-            </span>
-          </div>
-          {verified && (
-            <div className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded-full bg-stone-900 text-emerald-400">
-              <ShieldCheck size={10} strokeWidth={2.5} /> Verified
-            </div>
-          )}
-          {images.length > 1 && (
+          <HeroBadges
+            discount={discount}
+            condition={condition}
+            verified={verified}
+            compact
+          />
+          {count > 1 && (
             <div className="absolute bottom-3 right-3 bg-stone-900/70 text-white text-[10px] font-mono px-2.5 py-1 rounded-full">
-              1 / {images.length}
+              1 / {count}
             </div>
           )}
         </div>
-        {images.length > 1 && (
+        {count > 1 && (
           <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
             {images.slice(1).map((img, i) => (
               <button
@@ -356,9 +424,7 @@ function ImageHero({ images, productName, condition, verified, discount }) {
                   src={img}
                   alt=""
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = FALLBACK;
-                  }}
+                  onError={onImgError}
                 />
               </button>
             ))}
@@ -402,7 +468,7 @@ function TrustBadges({ verified }) {
   );
 }
 
-// ── Seller Card (links to the shop's public page /s/:slug) ─────
+// ── Seller Card (links to the shop's public page) ──────────────
 function SellerCard({ listedBy }) {
   const navigate = useNavigate();
   if (!listedBy?.shopName) return null;
@@ -415,7 +481,9 @@ function SellerCard({ listedBy }) {
   const open = () => {
     if (!canOpen) return;
     navigate(
-      listedBy.slug && listedBy._id ? `/${listedBy.slug}/${listedBy._id}` : `/s/${shopKey}`,
+      listedBy.slug && listedBy._id
+        ? `/${listedBy.slug}/${listedBy._id}`
+        : `/s/${shopKey}`,
     );
   };
 
@@ -461,13 +529,70 @@ function SellerCard({ listedBy }) {
   );
 }
 
-// ── Sticky Buy Card ────────────────────────────────────────────
+// ── Version picker (RAM / storage) ─────────────────────────────
+function VariantPicker({ variants, selectedIdx, onSelect }) {
+  if (!variants.length) return null;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2.5">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-stone-400">
+          Choose version
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {variants.map((v, i) => {
+          const active = i === selectedIdx;
+          const out = v.inStock === false;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onSelect(i)}
+              aria-pressed={active}
+              className={`text-left rounded-xl border px-3.5 py-2.5 transition-all duration-150 ${
+                active
+                  ? "border-stone-900 bg-stone-900 text-white shadow-sm"
+                  : "border-stone-200 bg-white text-stone-800 hover:border-stone-500"
+              } ${out ? "opacity-60" : ""}`}
+            >
+              <span
+                className={`block text-sm font-semibold leading-tight ${
+                  out ? "line-through" : ""
+                }`}
+              >
+                {variantLabel(v) || "Standard"}
+              </span>
+              {out && (
+                <span
+                  className={`block text-[9px] font-semibold uppercase tracking-wide mt-0.5 ${
+                    active ? "text-white/70" : "text-red-500"
+                  }`}
+                >
+                  Out of stock
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Sticky Buy Card (desktop) ──────────────────────────────────
 function BuyCard({
   product,
+  price,
+  oldPrice,
   discount,
   isPhone,
   specs,
-  onBuy,
+  variants,
+  selected,
+  selectedIdx,
+  onSelectVariant,
+  soldOut,
   wishlist,
   compare,
 }) {
@@ -475,72 +600,54 @@ function BuyCard({
   const { isWishlisted, toggle: toggleWishlist } = wishlist;
   const { isComparing, toggle: toggleCompare, count: compareCount } = compare;
 
-  const stockPct = product.stockCount
-    ? Math.min(
-        100,
-        Math.round(
-          ((product.stockCount - (product.sold ?? 0)) / product.stockCount) *
-            100,
-        ),
-      )
-    : 73;
-
   return (
     <div className="sticky top-6 bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
+      {/* Version picker (desktop; small screens get it near the top of the page) */}
+      {variants.length > 0 && (
+        <div className="hidden lg:block px-6 pt-6">
+          <VariantPicker
+            variants={variants}
+            selectedIdx={selectedIdx}
+            onSelect={onSelectVariant}
+          />
+        </div>
+      )}
+
       {/* Price Section */}
       <div className="p-6 border-b border-stone-100">
-        <div className="flex items-baseline gap-3">
+        {selected && (
+          <p className="text-xs font-semibold text-stone-500 mb-1.5">
+            {variantLabel(selected)}
+          </p>
+        )}
+        <div className="flex items-baseline gap-3 flex-wrap">
           <span className="font-mono font-extrabold text-3xl text-stone-900">
-            KES {product.price.toLocaleString()}
+            KES {price.toLocaleString()}
           </span>
-          {product.oldPrice && (
+          {oldPrice && (
             <span className="font-mono text-base text-stone-400 line-through">
-              KES {product.oldPrice.toLocaleString()}
+              KES {oldPrice.toLocaleString()}
             </span>
           )}
         </div>
-        {discount && product.oldPrice && (
+        {discount && oldPrice && (
           <p className="text-emerald-600 text-xs font-semibold mt-1">
-            You save KES {(product.oldPrice - product.price).toLocaleString()} (
-            {discount}% off)
+            You save KES {(oldPrice - price).toLocaleString()} ({discount}%
+            off)
           </p>
         )}
-
-        {/* Scarcity + social proof */}
-        <div className="mt-4">
-          {product.stockCount && (
-            <>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold text-amber-600">
-                  ⚡ Only{" "}
-                  {Math.max(1, product.stockCount - (product.sold ?? 0))} units
-                  left
-                </span>
-                <span className="text-[10px] text-stone-400">
-                  {stockPct}% sold
-                </span>
-              </div>
-              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-emerald-500 rounded-full transition-all"
-                  style={{ width: `${stockPct}%` }}
-                />
-              </div>
-            </>
-          )}
-          {product.views > 0 && (
-            <p className="flex items-center gap-1.5 text-[11px] text-stone-400 mt-2">
-              <Users size={11} strokeWidth={2} />
-              {product.views.toLocaleString()} people have viewed this
-            </p>
-          )}
-        </div>
+        {product.views > 0 && (
+          <p className="flex items-center gap-1.5 text-[11px] text-stone-400 mt-3">
+            <Users size={11} strokeWidth={2} />
+            {product.views.toLocaleString()} people have viewed this
+          </p>
+        )}
       </div>
 
       {/* Condition + Badges */}
       <div className="px-6 pt-4 pb-0 flex flex-wrap gap-2">
         <span
-          className={`text-[11px] font-semibold px-3 py-1 rounded-full border ${CONDITION_STYLE[product.condition]}`}
+          className={`text-[11px] font-semibold px-3 py-1 rounded-full border ${CONDITION_STYLE[product.condition] || ""}`}
         >
           {product.condition}
         </span>
@@ -551,14 +658,21 @@ function BuyCard({
         )}
       </div>
 
-      {/* CTA Buttons */}
-      <div className="p-6 flex flex-col gap-3">
-        <button
-          onClick={onBuy}
-          className="w-full bg-stone-900 hover:bg-emerald-500 text-white hover:text-stone-900 font-semibold text-base py-3.5 rounded-xl border border-transparent hover:border-emerald-600 transition-all duration-200"
-        >
-          Buy Now
-        </button>
+      {/* CTA: the seller is contacted directly */}
+      <div id="contact-seller" className="p-6 flex flex-col gap-3">
+        {soldOut && (
+          <p className="text-xs text-red-500 font-semibold text-center">
+            {variants.some((v) => v.inStock !== false)
+              ? "This version is sold out. Pick another version above."
+              : "Sold out"}
+          </p>
+        )}
+        {product.listedBy && (
+          <ContactSellerButton
+            shop={product.listedBy}
+            listingId={product._id}
+          />
+        )}
         <div className="flex gap-2">
           <button
             onClick={() => toggleWishlist(pid)}
@@ -657,22 +771,16 @@ function BuyCard({
         ].map(({ label, value }) => (
           <div
             key={label}
-            className="flex justify-between items-center px-6 py-2.5"
+            className="flex justify-between items-center px-6 py-2.5 gap-4"
           >
             <span className="text-xs text-stone-400">{label}</span>
-            <span className="text-xs font-semibold text-stone-900">
+            <span className="text-xs font-semibold text-stone-900 text-right">
               {value}
             </span>
           </div>
         ))}
       </div>
 
-      {/* Contact seller */}
-      {product.listedBy && (
-        <div className="p-6 pt-4">
-          <ContactSellerButton shop={product.listedBy} listingId={product._id} />
-        </div>
-      )}
     </div>
   );
 }
@@ -681,6 +789,7 @@ function BuyCard({
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const wishlist = useWishlist();
   const compare = useCompare();
 
@@ -688,52 +797,108 @@ export default function ProductDetail() {
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
   const [activeTab, setActiveTab] = useState("specs");
   const [copied, setCopied] = useState(false);
-  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [selectedIdx, setSelectedIdx] = useState(null); // chosen RAM/storage version
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id]);
 
+  // Load the product. "More from this brand" loads separately so a failure there
+  // can never turn a good product page into a "not found" screen.
   useEffect(() => {
     let cancelled = false;
+
     const load = async () => {
       setLoading(true);
       setError("");
+      setProduct(null);
+      setRelated([]);
       try {
         const data = await getListingById(id);
         if (cancelled) return;
         setProduct(data);
 
-        const res = await getAllListings({
-          category: data.category,
-          brand: data.brand,
-          limit: 5,
-        });
-        if (cancelled) return;
-        setRelated(res.data.filter((p) => p._id !== id).slice(0, 4));
+        getAllListings({ category: data.category, brand: data.brand, limit: 5 })
+          .then((res) => {
+            if (cancelled) return;
+            setRelated(
+              (res.data || []).filter((p) => p._id !== id).slice(0, 4),
+            );
+          })
+          .catch(() => {});
       } catch (err) {
         if (!cancelled) setError(err.message || "Product not found");
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
+
     load();
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, reloadKey]);
+
+  // Pick the starting version: the one in the link (?v=8gb-256gb), else the cheapest in stock
+  useEffect(() => {
+    const vs = product?.variants || [];
+    if (!vs.length) {
+      setSelectedIdx(null);
+      return;
+    }
+    const want = searchParams.get("v");
+    let idx = want ? vs.findIndex((v) => variantSlug(v) === want) : -1;
+    if (idx === -1) {
+      vs.forEach((v, i) => {
+        if (v.inStock !== false && (idx === -1 || v.price < vs[idx].price))
+          idx = i;
+      });
+    }
+    setSelectedIdx(idx === -1 ? 0 : idx);
+    // only when a different product loads, not on every ?v= change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?._id]);
 
   // Product view for the shop analytics (server ignores repeats within 30 min)
   useEffect(() => {
     if (product?._id) track({ type: "product_view", listingId: product._id });
   }, [product?._id]);
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  // Browser tab title
+  useEffect(() => {
+    if (!product?.name) return;
+    const previous = document.title;
+    document.title = `${product.name} | Fixly`;
+    return () => {
+      document.title = previous;
+    };
+  }, [product?.name]);
+
+  const selectVariant = (i) => {
+    setSelectedIdx(i);
+    const v = (product?.variants || [])[i];
+    const next = new URLSearchParams(searchParams);
+    if (v) next.set("v", variantSlug(v));
+    setSearchParams(next, { replace: true }); // shared links open on this version
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share && /Android|iPhone|iPad|Mobi/i.test(navigator.userAgent)) {
+        await navigator.share({ title: product?.name, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      if (err?.name === "AbortError") return; // person closed the share sheet
+      window.prompt("Copy this link", url); // clipboard blocked (for example on http)
+    }
   };
 
   if (loading) {
@@ -749,39 +914,64 @@ export default function ProductDetail() {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center flex-col gap-4">
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center flex-col gap-4 px-6 text-center">
         <p className="text-stone-500 text-lg">
           {error || "Product not found."}
         </p>
-        <button
-          onClick={() => navigate("/marketplace")}
-          className="text-emerald-600 text-sm hover:underline"
-        >
-          ← Back to Marketplace
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setReloadKey((k) => k + 1)}
+            className="text-sm font-semibold text-stone-900 border border-stone-300 hover:border-stone-900 px-4 py-2 rounded-xl transition-colors"
+          >
+            Try again
+          </button>
+          <button
+            onClick={() => navigate("/marketplace")}
+            className="text-emerald-600 text-sm hover:underline"
+          >
+            ← Back to Marketplace
+          </button>
+        </div>
       </div>
     );
   }
 
   const isPhone = product.category === "phone";
   const specGroups = isPhone ? PHONE_SPEC_GROUPS : LAPTOP_SPEC_GROUPS;
-  const images = product.images?.length ? product.images : [FALLBACK];
+  const images = product.images?.length ? product.images : [];
+
+  // ── Versions: the buyer's pick drives price, specs and what gets bought ──
+  const variants = Array.isArray(product.variants) ? product.variants : [];
+  const selected =
+    selectedIdx != null && variants[selectedIdx] ? variants[selectedIdx] : null;
+
+  const price = selected ? selected.price : product.price;
+  const oldPrice = selected ? selected.oldPrice || null : product.oldPrice;
   const discount =
-    product.discount ??
-    (product.oldPrice
-      ? Math.round(
-          ((product.oldPrice - product.price) / product.oldPrice) * 100,
-        )
-      : null);
-  const specs = product.specs || {};
+    oldPrice && oldPrice > price
+      ? Math.round(((oldPrice - price) / oldPrice) * 100)
+      : selected
+        ? null
+        : (product.discount ?? null);
+
+  // A hidden (inactive) listing can still be opened by link, but nobody can buy it
+  const unavailable = product.active === false;
+  const versionSoldOut = selected ? selected.inStock === false : false;
+
+  // The chosen version replaces the generic RAM / storage lists everywhere
+  const baseSpecs = product.specs || {};
+  const specs = selected
+    ? {
+        ...baseSpecs,
+        ...(selected.ram ? { ram: selected.ram } : {}),
+        ...(selected.storage ? { storage: selected.storage } : {}),
+      }
+    : baseSpecs;
+
   const tabs = ["specs", "features", "overview"];
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {showBuyModal && (
-        <BuyNowModal product={product} onClose={() => setShowBuyModal(false)} />
-      )}
-
       {/* Breadcrumb */}
       <div className="bg-white border-b border-stone-100 px-4 sm:px-6 py-3">
         <div className="max-w-7xl mx-auto flex items-center gap-2 text-xs text-stone-400 overflow-x-auto whitespace-nowrap">
@@ -802,16 +992,32 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      {/* pb-28 leaves room for the fixed buy bar on small screens */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-28 lg:pb-8">
+        {/* Hidden listing notice */}
+        {unavailable && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-5 py-4 mb-6 text-sm">
+            <EyeOff size={16} className="flex-shrink-0 mt-0.5" strokeWidth={2} />
+            <p>
+              This listing is hidden and is not available right now.
+            </p>
+          </div>
+        )}
+
         {/* Title row */}
         <div className="flex items-start justify-between gap-4 mb-5">
-          <div>
+          <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 mb-1">
               {product.brand} · {isPhone ? "Smartphones" : "Laptops"}
             </p>
             <h1 className="font-bold text-2xl sm:text-3xl text-stone-900 leading-tight">
               {product.name}
             </h1>
+            {selected && (
+              <p className="text-sm font-semibold text-stone-500 mt-1">
+                {variantLabel(selected)}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 mt-1">
             <button
@@ -841,6 +1047,17 @@ export default function ProductDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14 mt-10">
           {/* LEFT */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Version picker on small screens (the buy card sits far below there) */}
+            {variants.length > 0 && (
+              <div className="lg:hidden bg-white border border-stone-200 rounded-2xl p-5">
+                <VariantPicker
+                  variants={variants}
+                  selectedIdx={selectedIdx}
+                  onSelect={selectVariant}
+                />
+              </div>
+            )}
+
             {/* Rating + Social Proof */}
             <div>
               {product.rating > 0 && (
@@ -922,23 +1139,26 @@ export default function ProductDetail() {
             <div className="border-t border-stone-100" />
 
             {/* Seller */}
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 mb-3">
-                Listed by
-              </p>
-              <SellerCard listedBy={product.listedBy} />
-            </div>
-
-            <div className="border-t border-stone-100" />
+            {product.listedBy?.shopName && (
+              <>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 mb-3">
+                    Listed by
+                  </p>
+                  <SellerCard listedBy={product.listedBy} />
+                </div>
+                <div className="border-t border-stone-100" />
+              </>
+            )}
 
             {/* Tabs */}
             <div>
-              <div className="flex gap-1 bg-white border border-stone-200 rounded-2xl p-1 w-fit mb-6">
+              <div className="flex gap-1 bg-white border border-stone-200 rounded-2xl p-1 w-fit max-w-full overflow-x-auto mb-6">
                 {tabs.map((t) => (
                   <button
                     key={t}
                     onClick={() => setActiveTab(t)}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-semibold capitalize transition-all duration-200 ${
+                    className={`px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold capitalize transition-all duration-200 whitespace-nowrap ${
                       activeTab === t
                         ? "bg-stone-900 text-white shadow-sm"
                         : "text-stone-500 hover:text-stone-800"
@@ -974,10 +1194,10 @@ export default function ProductDetail() {
                             if (!specs[key]) return null;
                             return (
                               <div key={key} className="flex gap-4 px-5 py-3">
-                                <span className="text-stone-400 text-sm w-32 flex-shrink-0">
+                                <span className="text-stone-400 text-sm w-28 sm:w-32 flex-shrink-0">
                                   {label}
                                 </span>
-                                <span className="text-sm font-medium text-stone-900 leading-relaxed">
+                                <span className="text-sm font-medium text-stone-900 leading-relaxed min-w-0 break-words">
                                   {specs[key]}
                                   {unit && !String(specs[key]).includes(unit)
                                     ? ` ${unit}`
@@ -1050,8 +1270,8 @@ export default function ProductDetail() {
                             : "Not rated",
                       },
                       {
-                        label: "Price",
-                        value: `KES ${product.price.toLocaleString()}`,
+                        label: selected ? "Price (this version)" : "Price",
+                        value: `KES ${price.toLocaleString()}`,
                       },
                       {
                         label: "Type",
@@ -1075,19 +1295,60 @@ export default function ProductDetail() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Every version with its price */}
+                  {variants.length > 1 && (
+                    <div>
+                      <p className="text-stone-400 text-[10px] mb-2 uppercase tracking-wide font-semibold">
+                        All versions
+                      </p>
+                      <div className="divide-y divide-stone-100 border border-stone-100 rounded-xl overflow-hidden">
+                        {variants.map((v, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => selectVariant(i)}
+                            className={`w-full flex items-center justify-between px-4 py-3 text-left text-sm transition-colors ${
+                              i === selectedIdx
+                                ? "bg-stone-900 text-white"
+                                : "bg-white hover:bg-stone-50 text-stone-800"
+                            }`}
+                          >
+                            <span className="font-medium">
+                              {variantLabel(v) || "Standard"}
+                              {v.inStock === false && (
+                                <span className="ml-2 text-[10px] font-semibold uppercase text-red-400">
+                                  Out of stock
+                                </span>
+                              )}
+                            </span>
+                            <span className="font-mono font-semibold">
+                              KES {v.price.toLocaleString()}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           </div>
 
-          {/* RIGHT — Sticky Buy Card */}
+          {/* RIGHT — Sticky Buy Card (desktop) */}
           <div className="lg:col-span-1">
             <BuyCard
               product={product}
+              price={price}
+              oldPrice={oldPrice}
               discount={discount}
               isPhone={isPhone}
               specs={specs}
-              onBuy={() => setShowBuyModal(true)}
+              variants={variants}
+              selected={selected}
+              selectedIdx={selectedIdx}
+              onSelectVariant={selectVariant}
+              soldOut={versionSoldOut}
               wishlist={wishlist}
               compare={compare}
             />
@@ -1116,12 +1377,10 @@ export default function ProductDetail() {
                 >
                   <div className="w-full h-40 bg-stone-50 overflow-hidden">
                     <img
-                      src={p.images?.[0] || ""}
+                      src={p.images?.[0] || PLACEHOLDER}
                       alt={p.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => {
-                        e.target.src = FALLBACK;
-                      }}
+                      onError={onImgError}
                     />
                   </div>
                   <div className="p-4">
@@ -1151,6 +1410,11 @@ export default function ProductDetail() {
                     )}
                     <div className="flex items-baseline gap-2 mt-2">
                       <p className="font-mono font-extrabold text-sm text-stone-900">
+                        {p.variants?.length > 1 && (
+                          <span className="text-[9px] font-semibold text-stone-400 mr-1 uppercase">
+                            from
+                          </span>
+                        )}
                         KES {p.price.toLocaleString()}
                       </p>
                       {p.oldPrice && (
@@ -1164,6 +1428,42 @@ export default function ProductDetail() {
               ))}
             </div>
           </div>
+        )}
+      </div>
+
+      {/* Fixed buy bar on small screens: the price and Buy are always in reach */}
+      <div
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-stone-200 px-4 pt-3 flex items-center gap-3"
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      >
+        <div className="min-w-0 flex-1">
+          {selected && (
+            <p className="text-[10px] text-stone-400 truncate leading-tight">
+              {variantLabel(selected)}
+            </p>
+          )}
+          <div className="flex items-baseline gap-2">
+            <span className="font-mono font-extrabold text-lg text-stone-900 leading-tight">
+              KES {price.toLocaleString()}
+            </span>
+            {oldPrice && (
+              <span className="font-mono text-xs text-stone-400 line-through">
+                KES {oldPrice.toLocaleString()}
+              </span>
+            )}
+          </div>
+        </div>
+        {product.listedBy && (
+          <button
+            onClick={() =>
+              document
+                .getElementById("contact-seller")
+                ?.scrollIntoView({ behavior: "smooth", block: "center" })
+            }
+            className="bg-stone-900 text-white font-semibold text-sm px-6 py-3 rounded-xl flex-shrink-0"
+          >
+            Contact seller
+          </button>
         )}
       </div>
     </div>

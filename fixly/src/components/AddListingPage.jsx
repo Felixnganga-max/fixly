@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   Loader2,
@@ -10,16 +10,20 @@ import {
   ListChecks,
   Settings2,
   Save,
+  BookMarked,
 } from "lucide-react";
 import {
   createListing,
   updateListing,
   getListingById,
 } from "../Hooks/marketplaceApi";
+import { getLibraryDevice } from "../Hooks/libraryApi";
+import { getRole } from "../Hooks/loginApi";
 import ImageUploadZone from "./ImageUploadZone";
 import CoreInfoForm from "./CoreInfoForm";
 import SpecsForm from "./SpecsForm";
 import FeaturesInput from "./FeaturesInput";
+import VariantPricing from "./VariantPricing";
 
 // ── Step config ───────────────────────────────────────────────
 const STEPS = [
@@ -58,6 +62,7 @@ const EMPTY_FORM = {
   shortDescription: "",
   features: [""],
   specs: {},
+  variants: [], // [{ ram, storage, price, oldPrice, inStock }]
 };
 
 // ── Step sidebar indicator ────────────────────────────────────
@@ -151,7 +156,19 @@ function Section({ title, subtitle, children }) {
 export default function AddListingPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const isEdit = Boolean(id);
+
+  // Set when the user arrives from the library via ?fromLibrary=<id>
+  // The library page passes the whole device in router state, so no second request is needed.
+  // If the page is opened or refreshed directly, the id in ?from= is fetched instead.
+  const location = useLocation();
+  const stateDevice = !isEdit ? location.state?.device : null;
+  const libraryId = !isEdit
+    ? stateDevice?._id || searchParams.get("fromLibrary") || searchParams.get("from")
+    : null;
+  const isShop = getRole() === "shop_owner";
+  const libraryPath = isShop ? "/shop/library" : "/admin/library";
 
   const [step, setStep] = useState("info");
   const [form, setForm] = useState({ ...EMPTY_FORM });
@@ -162,7 +179,12 @@ export default function AddListingPage() {
   const [saved, setSaved] = useState(false);
   const [apiErr, setApiErr] = useState("");
   const [completedSteps, setCompletedSteps] = useState([]);
-  const [loadingListing, setLoadingListing] = useState(isEdit);
+  const [loadingListing, setLoadingListing] = useState(
+    isEdit || (Boolean(libraryId) && !stateDevice),
+  );
+  const [fromLibrary, setFromLibrary] = useState(false);
+  const [libraryVariants, setLibraryVariants] = useState([]); // versions offered by the library entry
+  const [variantsDirty, setVariantsDirty] = useState(false); // true once the seller edits the versions
 
   // ── Pre-fill form in edit mode ───────────────────────────────
   useEffect(() => {
@@ -185,16 +207,78 @@ export default function AddListingPage() {
           shortDescription: data.shortDescription ?? "",
           features: data.features?.length ? data.features : [""],
           specs: data.specs ?? {},
+          variants: (data.variants ?? []).map((v) => ({
+            ram: v.ram ?? "",
+            storage: v.storage ?? "",
+            price: v.price != null ? String(v.price) : "",
+            oldPrice: v.oldPrice ? String(v.oldPrice) : "",
+            inStock: v.inStock !== false,
+          })),
         });
         setExistingImages(data.images ?? []);
         // Mark all steps complete so progress bar fills
         setCompletedSteps(STEPS.map((s) => s.id));
+
+        // Listings made from the library: offer the library's versions as one-tap choices
+        const libId = data.libraryDevice?._id || data.libraryDevice;
+        if (libId) {
+          getLibraryDevice(libId)
+            .then((res) => {
+              const d = res?.data?.data ?? res?.data ?? res;
+              if (Array.isArray(d?.variants)) setLibraryVariants(d.variants);
+            })
+            .catch(() => {});
+        }
       })
       .catch((err) => {
         setApiErr(err.message || "Failed to load listing.");
       })
       .finally(() => setLoadingListing(false));
   }, [id]);
+
+  // ── Pre-fill from the shared device library ──────────────────
+  // Only specs-type info comes across. Price, condition and images stay the shop's own.
+  useEffect(() => {
+    if (!libraryId) return;
+
+    const apply = (d) => {
+      setForm((f) => ({
+        ...f,
+        category: d.category ?? f.category,
+        brand: d.brand ?? "",
+        name: d.name ?? "",
+        shortDescription: d.shortDescription ?? "",
+        features: d.features?.length ? d.features : [""],
+        specs: d.specs ?? {},
+      }));
+      setFromLibrary(true);
+      setLibraryVariants(Array.isArray(d.variants) ? d.variants : []);
+      setCompletedSteps(["features", "specs"]);
+    };
+
+    // Fast path: the library page already handed us the full device
+    if (stateDevice) {
+      apply(stateDevice);
+      return;
+    }
+
+    setLoadingListing(true);
+    getLibraryDevice(libraryId)
+      .then((res) => {
+        // works whether the helper returns the device, the body, or the raw axios response
+        const d = res?.data?.data ?? res?.data ?? res;
+        if (!d || !d.name) throw new Error("Library device not found");
+        apply(d);
+      })
+      .catch((err) => {
+        setApiErr(
+          err?.response?.data?.message ||
+            err.message ||
+            "Couldn't load that library device. You can still fill the form in manually.",
+        );
+      })
+      .finally(() => setLoadingListing(false));
+  }, [libraryId]);
 
   const setField = useCallback((key, val) => {
     setForm((f) => {
@@ -220,7 +304,14 @@ export default function AddListingPage() {
     const e = {};
     if (!form.brand) e.brand = "Select a brand";
     if (!form.name.trim()) e.name = "Device name is required";
-    if (!form.price || Number(form.price) <= 0) e.price = "Enter a valid price";
+    const hasVariantPrice = (form.variants || []).some((v) => Number(v.price) > 0);
+    if (!hasVariantPrice && (!form.price || Number(form.price) <= 0)) {
+      e.price = "Enter a valid price";
+    }
+    const unpriced = (form.variants || []).find(
+      (v) => (v.ram || v.storage) && !(Number(v.price) > 0),
+    );
+    if (unpriced) e.variants = "Every version needs a price, or remove it";
     if (!form.shortDescription.trim())
       e.shortDescription = "Description is required";
     return e;
@@ -239,26 +330,69 @@ export default function AddListingPage() {
     setSaving(true);
     setApiErr("");
     try {
+      const variants = (form.variants || [])
+        .filter((v) => (v.ram || v.storage) && Number(v.price) > 0)
+        .map((v) => ({
+          ram: String(v.ram || "").trim(),
+          storage: String(v.storage || "").trim(),
+          price: Number(v.price),
+          oldPrice: v.oldPrice ? Number(v.oldPrice) : null,
+          inStock: v.inStock !== false,
+        }));
+      // With versions, the headline price is the lowest one that is in stock
+      const stocked = variants.filter((v) => v.inStock);
+      const headline = variants.length
+        ? Math.min(...(stocked.length ? stocked : variants).map((v) => v.price))
+        : Number(form.price);
+
       const payload = {
         ...form,
-        price: Number(form.price),
-        oldPrice: form.oldPrice ? Number(form.oldPrice) : null,
+        price: headline,
+        oldPrice: variants.length ? null : form.oldPrice ? Number(form.oldPrice) : null,
         rating: Number(form.rating) || 0,
         reviews: Number(form.reviews) || 0,
         features: form.features.filter(Boolean),
+        variants,
       };
 
+      // Editing without touching the versions section must not overwrite what is saved
+      const sendVariants = !isEdit || variantsDirty;
+      if (!sendVariants) delete payload.variants;
+      // Removing every version is deliberate, so tell the server explicitly
+      else if (isEdit && variants.length === 0) payload.clearVariants = true;
+
+      let result;
       if (isEdit) {
         // Pass existing image URLs + any new File objects to the API
-        await updateListing(id, payload, imageFiles, existingImages);
+        result = await updateListing(id, payload, imageFiles, existingImages);
       } else {
-        await createListing(payload, imageFiles);
+        // libraryDevice links the listing to the shared library entry (server reads it)
+        if (libraryId) payload.libraryDevice = libraryId;
+        result = await createListing(payload, imageFiles);
+      }
+
+      // The server answers with the saved listing: confirm the versions really arrived
+      if (sendVariants && variants.length) {
+        const stored = Array.isArray(result?.variants) ? result.variants.length : 0;
+        if (stored !== variants.length) {
+          const m = result?._meta?.variants;
+          const detail = m
+            ? ` Server report: received ${m.received ? "yes" : "no"}, read ${m.parsed === -1 ? "unreadable" : (m.parsed ?? "?")}, stored ${m.saved ?? "?"}.`
+            : " The server sent no report, so it is still running the old controller.";
+          throw new Error(
+            `The listing was saved, but the server stored ${stored} of ${variants.length} versions.${detail}`,
+          );
+        }
       }
 
       setSaved(true);
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      setApiErr(err.message || "Failed to save listing. Please try again.");
+      setApiErr(
+        err?.response?.data?.message ||
+          err.message ||
+          "Failed to save listing. Please try again.",
+      );
     } finally {
       setSaving(false);
     }
@@ -267,10 +401,25 @@ export default function AddListingPage() {
   // ── Progress ─────────────────────────────────────────────────
   const progress = Math.round((completedSteps.length / STEPS.length) * 100);
 
-  // Preview image — prefer new uploads, fall back to first existing URL
-  const previewSrc = imageFiles[0]
-    ? URL.createObjectURL(imageFiles[0])
-    : (existingImages[0] ?? null);
+  // Preview price: the lowest priced version, else the single price
+  const pricedVariants = (form.variants || []).filter((v) => Number(v.price) > 0);
+  const displayPrice = pricedVariants.length
+    ? Math.min(...pricedVariants.map((v) => Number(v.price)))
+    : Number(form.price) || 0;
+
+  // Preview image — prefer new uploads, fall back to first existing URL.
+  // Memoised so we don't create a new object URL on every render.
+  const previewFile = imageFiles[0] ?? null;
+  const objectUrl = useMemo(
+    () => (previewFile ? URL.createObjectURL(previewFile) : null),
+    [previewFile],
+  );
+  useEffect(() => {
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [objectUrl]);
+  const previewSrc = objectUrl ?? existingImages[0] ?? null;
 
   if (loadingListing) {
     return (
@@ -296,7 +445,7 @@ export default function AddListingPage() {
             <div className="h-5 w-px bg-beige-dark" />
             <div>
               <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold">
-                Marketplace Admin
+                {isShop ? "My Listings" : "Marketplace Admin"}
               </p>
               <h1
                 className="font-display font-extrabold text-lg text-black leading-tight"
@@ -309,6 +458,17 @@ export default function AddListingPage() {
 
           {/* Progress + Save */}
           <div className="flex items-center gap-5">
+            {!isEdit && !libraryId && (
+              <button
+                type="button"
+                onClick={() => navigate(libraryPath)}
+                className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl border border-beige-dark text-sm font-semibold text-gray-600 hover:bg-beige hover:text-black transition-colors"
+              >
+                <BookMarked size={15} strokeWidth={1.75} />
+                List from library
+              </button>
+            )}
+
             <div className="hidden sm:flex items-center gap-3">
               <div className="w-32 h-1.5 bg-beige-dark rounded-full overflow-hidden">
                 <div
@@ -392,12 +552,15 @@ export default function AddListingPage() {
                     {form.name}
                   </p>
                 )}
-                {form.price && (
+                {displayPrice > 0 && (
                   <p
                     className="font-mono font-extrabold text-base mt-1.5"
                     style={{ color: "#0D1117" }}
                   >
-                    KES {Number(form.price).toLocaleString()}
+                    {pricedVariants.length > 1 && (
+                      <span className="text-[10px] font-semibold text-gray-400 mr-1">from</span>
+                    )}
+                    KES {displayPrice.toLocaleString()}
                   </p>
                 )}
                 <div className="flex items-center gap-1.5 mt-2">
@@ -422,6 +585,22 @@ export default function AddListingPage() {
 
         {/* ── Main content ── */}
         <main className="flex-1 min-w-0">
+          {/* Library banner */}
+          {fromLibrary && (
+            <div className="flex items-start gap-3 bg-green/10 border border-green/30 rounded-xl px-5 py-4 mb-6">
+              <BookMarked
+                size={16}
+                className="text-green flex-shrink-0 mt-0.5"
+                strokeWidth={2}
+              />
+              <p className="text-sm" style={{ color: "#0D1117" }}>
+                Name, specs and features are filled in from the library. Add
+                your price, condition and photos, then save. You can still edit
+                anything.
+              </p>
+            </div>
+          )}
+
           {/* API error banner */}
           {apiErr && (
             <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-5 py-4 mb-6">
@@ -442,6 +621,17 @@ export default function AddListingPage() {
                 subtitle="The basics — these fields are required before the listing can go live."
               >
                 <CoreInfoForm form={form} errors={errors} onChange={setField} />
+                <VariantPricing
+                  variants={form.variants}
+                  suggestions={libraryVariants}
+                  onChange={(v) => {
+                    setVariantsDirty(true);
+                    setField("variants", v);
+                  }}
+                />
+                {errors.variants && (
+                  <p className="text-red-500 text-sm -mt-3">{errors.variants}</p>
+                )}
                 <div className="flex justify-end pt-2">
                   <button
                     type="button"
