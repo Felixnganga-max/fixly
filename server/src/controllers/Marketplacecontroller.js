@@ -304,7 +304,19 @@ exports.createListing = asyncHandler(async (req, res) => {
 
   await invalidateCache(LISTING_CACHE_PATTERNS);
 
-  res.status(201).json({ success: true, message: "Listing created", data: listing });
+  res.status(201).json({
+    success: true,
+    message: "Listing created",
+    data: listing,
+    // lets the app show exactly what happened to the versions
+    meta: {
+      variants: {
+        received: req.body.variants !== undefined,
+        parsed: variants.length,
+        saved: listing.variants?.length ?? 0,
+      },
+    },
+  });
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -354,8 +366,10 @@ exports.updateListing = asyncHandler(async (req, res) => {
   }
   // Versions: saved ones are only replaced by a real, readable list. An empty or
   // unreadable value never wipes them; clearing needs the explicit clearVariants flag.
+  const variantMeta = { received: req.body.variants !== undefined, parsed: null, saved: null };
   if (req.body.variants !== undefined) {
     const variants = cleanVariants(req.body.variants);
+    variantMeta.parsed = variants ? variants.length : -1; // -1 = could not be read
     if (variants && variants.length) {
       updates.variants = variants;
       const top = headlineVariant(variants);
@@ -402,7 +416,13 @@ exports.updateListing = asyncHandler(async (req, res) => {
   );
 
   await invalidateCache(LISTING_CACHE_PATTERNS);
-  res.status(200).json({ success: true, message: "Listing updated", data: updated });
+  variantMeta.saved = updated?.variants?.length ?? 0;
+  res.status(200).json({
+    success: true,
+    message: "Listing updated",
+    data: updated,
+    meta: { variants: variantMeta },
+  });
 });
 
 // ─────────────────────────────────────────────────────────────
