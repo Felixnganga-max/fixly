@@ -27,8 +27,7 @@ const SHOPS = [
 const REPAIRS = [
   { to: "/request/phone", label: "Fix My Phone", sub: "Screens, battery & more" },
   { to: "/request/laptop", label: "Fix My Laptop", sub: "Hardware & software" },
-  { to: "/repair-shops/phones", label: "Phone Repairs", sub: "Find phone repair shops" },
-  { to: "/repair-shops/laptops", label: "Laptop Repairs", sub: "Find laptop repair shops" },
+ 
 ];
 
 const ADMIN_ROLES = ["admin", "superadmin"];
